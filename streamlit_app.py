@@ -95,27 +95,51 @@ if 'bot' not in st.session_state:
 
 @st.cache_resource
 def load_chatbot_data():
-    """Load data once and cache it - from Google Sheets"""
+    """Load data once and cache it - from GitHub CSV"""
     try:
-        print("\n🚀 Loading data from Google Sheets...")
+        print("\n🚀 Loading data...")
 
-        # Try using Google Sheets API loader (more reliable than CSV export)
+        # Try loading methods in order of preference
+        data = None
+        method_used = None
+
+        # Method 1: GitHub CSV (most reliable)
         try:
-            from google_sheets_api_loader import load_all_sheets
-            print("  Using Google Sheets API method...")
-        except ImportError:
-            # Fallback to simple CSV export
-            from simple_sheets_loader import load_all_sheets
-            print("  Using CSV export method...")
+            from github_csv_loader import load_all_sheets
+            print("  📌 Trying GitHub CSV method...")
+            data = load_all_sheets()
+            if any(df is not None for df in data.values()):
+                method_used = "GitHub CSV"
+                print(f"  ✅ Using {method_used}")
+        except Exception as e:
+            print(f"  ⚠️ GitHub CSV failed: {str(e)[:50]}")
 
-        # Load data
-        data = load_all_sheets()
+        # Method 2: Google Sheets gviz (fallback)
+        if not data or not any(df is not None for df in data.values()):
+            try:
+                from google_sheets_api_loader import load_all_sheets
+                print("  📌 Trying Google Sheets (gviz)...")
+                data = load_all_sheets()
+                if any(df is not None for df in data.values()):
+                    method_used = "Google Sheets (gviz)"
+                    print(f"  ✅ Using {method_used}")
+            except Exception as e:
+                print(f"  ⚠️ Google Sheets failed: {str(e)[:50]}")
 
-        # Check if data loaded
-        has_data = any(df is not None for df in data.values())
+        # Check if any data loaded
+        has_data = data and any(df is not None for df in data.values())
 
         if not has_data:
-            return None, False, "Failed to load any data from Google Sheets. Check sheet names and sharing settings."
+            error_msg = """
+Failed to load data from any source:
+1. GitHub CSV: CSV files not uploaded to GitHub yet
+2. Google Sheets: gviz method blocked
+
+Next steps:
+- Upload CSV files to GitHub, OR
+- Check Google Sheet sharing settings
+            """
+            return None, False, error_msg
 
         # Create bot and set data
         bot = AnalyticsBot()
@@ -124,7 +148,7 @@ def load_chatbot_data():
         bot.db.portal_data = data.get('portal')
         bot.db.socmed_data = data.get('socmed')
 
-        print("\n✅ Data loaded from Google Sheets successfully!")
+        print(f"\n✅ Data loaded via {method_used}!")
         return bot, True, None
 
     except Exception as e:
