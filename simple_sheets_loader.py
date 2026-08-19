@@ -12,15 +12,15 @@ GOOGLE_SHEET_ID = "1xxEO7GqKd1QmpKXKceG9tcaCIblGNUNplcskq2yw2RA"
 
 def get_sheet_csv_url(sheet_id: str, sheet_name: str) -> str:
     """Generate CSV export URL untuk specific sheet tab"""
-    # Mapping sheet names ke GIDs (kamu bisa cek dari URL)
+    # Mapping sheet names ke GIDs yang benar
     sheet_gids = {
-        'Raw Content Youtube Studio': '0',  # Default tab usually 0
-        'Scraping Youtube Juli 2026': '1',
-        'Databse Portal': '2',
-        'Database Facebook, Instagram, Tiktok, X': '3',
+        'Raw Content Youtube Studio': '210766469',
+        'Scraping Youtube Juli 2026': '2049365274',
+        'Databse Portal': '1423094657',
+        'Database Facebook, Instagram, Tiktok, X': '876748487',
     }
 
-    gid = sheet_gids.get(sheet_name, '0')
+    gid = sheet_gids.get(sheet_name, '876748487')
     url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv&gid={gid}"
     return url
 
