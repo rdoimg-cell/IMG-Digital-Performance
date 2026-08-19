@@ -16,6 +16,7 @@ Date: August 2026
 import streamlit as st
 import sys
 import os
+import pandas as pd
 from datetime import datetime
 
 # Add system path
@@ -94,47 +95,50 @@ if 'bot' not in st.session_state:
 
 @st.cache_resource
 def load_chatbot_data():
-    """Load data once and cache it using DataLoader"""
+    """Load data once and cache it - using simple pandas read_excel"""
     try:
-        from data_loader import DataLoader
-        import sys
+        print("\n🚀 Loading data from GitHub...")
 
-        # Debug: Print file mapping
-        print(f"\n🔍 DEBUG: file_mapping keys = {list(file_mapping.keys())}")
-        for key, path in file_mapping.items():
-            print(f"  {key}: {path[:80]}..." if len(str(path)) > 80 else f"  {key}: {path}")
+        # Sheet names mapping
+        sheet_names = {
+            'youtube_studio': 'Content Youtube Studio',
+            'youtube_scraping': 'Scraping Juli 2026',
+            'portal': 'Monthly Portal IMG',
+            'socmed': 'Facebook, Instagram, Tiktok, X'
+        }
 
-        # Load data using DataLoader (handles GitHub URLs properly)
-        print("\n📥 Starting data load...")
-        data = DataLoader.load_from_file_mapping(file_mapping)
+        data = {}
 
-        # Debug: Check what loaded
-        print("\n📊 Load results:")
-        for key, df in data.items():
-            if df is not None:
-                print(f"  ✅ {key}: {len(df)} rows")
-            else:
-                print(f"  ❌ {key}: None")
+        # Load each file using pandas directly
+        for key, url in file_mapping.items():
+            try:
+                print(f"  📥 {key}...", end=" ", flush=True)
+                df = pd.read_excel(url, sheet_name=sheet_names[key])
+                data[key] = df
+                print(f"✅ ({len(df):,} rows)")
+            except Exception as e:
+                print(f"❌ {str(e)[:50]}")
+                data[key] = None
 
-        # Check if data loaded successfully
+        # Check if data loaded
         has_data = any(df is not None for df in data.values())
 
         if not has_data:
-            return None, False, "No data loaded. Check logs above for details."
+            return None, False, "Failed to load any data from GitHub. Check URLs."
 
-        # Create bot and manually set data
+        # Create bot and set data
         bot = AnalyticsBot()
         bot.db.studio_data = data.get('youtube_studio')
         bot.db.scraping_data = data.get('youtube_scraping')
         bot.db.portal_data = data.get('portal')
         bot.db.socmed_data = data.get('socmed')
 
-        print("\n✅ Bot initialized successfully!")
+        print("\n✅ Data loaded successfully!")
         return bot, True, None
+
     except Exception as e:
-        import traceback
-        error_msg = f"{str(e)}\n{traceback.format_exc()[:300]}"
-        print(f"\n❌ Exception: {error_msg}")
+        error_msg = str(e)[:200]
+        print(f"\n❌ Error: {error_msg}")
         return None, False, error_msg
 
 # Load data
