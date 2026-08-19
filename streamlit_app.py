@@ -94,13 +94,31 @@ if 'bot' not in st.session_state:
 
 @st.cache_resource
 def load_chatbot_data():
-    """Load data once and cache it"""
+    """Load data once and cache it using DataLoader"""
     try:
+        from data_loader import DataLoader
+
+        # Load data using DataLoader (handles GitHub URLs properly)
+        data = DataLoader.load_from_file_mapping(file_mapping)
+
+        # Check if data loaded successfully
+        has_data = any(df is not None for df in data.values())
+
+        if not has_data:
+            return None, False, "No data loaded from any source"
+
+        # Create bot and manually set data
         bot = AnalyticsBot()
-        success = bot.load_data(file_mapping)
-        return bot, success, None
+        bot.db.studio_data = data.get('youtube_studio')
+        bot.db.scraping_data = data.get('youtube_scraping')
+        bot.db.portal_data = data.get('portal')
+        bot.db.socmed_data = data.get('socmed')
+
+        return bot, True, None
     except Exception as e:
-        return None, False, str(e)
+        import traceback
+        error_msg = f"{str(e)}\n{traceback.format_exc()[:200]}"
+        return None, False, error_msg
 
 # Load data
 bot, data_loaded, load_error = load_chatbot_data()
