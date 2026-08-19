@@ -30,12 +30,12 @@ from github_config import file_mapping
 # ============================================
 
 st.set_page_config(
-    page_title="MNC Analytics Chatbot",
+    page_title="IMG Analytics",
     page_icon="📊",
     layout="wide",
     initial_sidebar_state="expanded",
     menu_items={
-        "About": "MNC Group Analytics Intelligence Platform v1.0.0"
+        "About": "IMG Analytics Intelligence Platform v1.0.0"
     }
 )
 
@@ -133,7 +133,7 @@ st.session_state.load_error = load_error
 col1, col2 = st.columns([3, 1])
 
 with col1:
-    st.title("📊 MNC Analytics Chatbot")
+    st.title("📊 IMG Analytics")
     st.markdown("*Intelligent Q&A System untuk YouTube, Portal & Social Media Analytics*")
 
 with col2:
