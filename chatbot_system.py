@@ -50,37 +50,33 @@ class AnalyticsDatabase:
         self.processed_metrics = None
 
     def load_data(self, file_mapping: Dict[str, str]):
-        """Load all data from Excel files"""
+        """Load all data from Excel files (supports GitHub URLs and local files)"""
         try:
-            if 'youtube_studio' in file_mapping:
-                self.studio_data = pd.read_excel(
-                    file_mapping['youtube_studio'],
-                    sheet_name='Content Youtube Studio'
-                )
+            from data_loader import DataLoader
+
+            # Use DataLoader which properly handles GitHub URLs
+            data = DataLoader.load_from_file_mapping(file_mapping)
+
+            self.studio_data = data.get('youtube_studio')
+            self.scraping_data = data.get('youtube_scraping')
+            self.portal_data = data.get('portal')
+            self.socmed_data = data.get('socmed')
+
+            # Log what was loaded
+            if self.studio_data is not None:
                 logger.info(f"✓ Loaded {len(self.studio_data)} YouTube Studio records")
-
-            if 'youtube_scraping' in file_mapping:
-                self.scraping_data = pd.read_excel(
-                    file_mapping['youtube_scraping'],
-                    sheet_name='Scraping Juli 2026'
-                )
+            if self.scraping_data is not None:
                 logger.info(f"✓ Loaded {len(self.scraping_data)} YouTube Scraping records")
-
-            if 'portal' in file_mapping:
-                self.portal_data = pd.read_excel(
-                    file_mapping['portal'],
-                    sheet_name='Monthly Portal IMG'
-                )
+            if self.portal_data is not None:
                 logger.info(f"✓ Loaded {len(self.portal_data)} Portal records")
-
-            if 'socmed' in file_mapping:
-                self.socmed_data = pd.read_excel(
-                    file_mapping['socmed'],
-                    sheet_name='Facebook, Instagram, Tiktok, X'
-                )
+            if self.socmed_data is not None:
                 logger.info(f"✓ Loaded {len(self.socmed_data)} Social Media records")
 
-            return True
+            # Check if at least some data loaded
+            all_data = [self.studio_data, self.scraping_data, self.portal_data, self.socmed_data]
+            has_data = any(df is not None for df in all_data)
+
+            return has_data
         except Exception as e:
             logger.error(f"Error loading data: {str(e)}")
             return False
