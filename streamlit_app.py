@@ -97,15 +97,30 @@ def load_chatbot_data():
     """Load data once and cache it using DataLoader"""
     try:
         from data_loader import DataLoader
+        import sys
+
+        # Debug: Print file mapping
+        print(f"\n🔍 DEBUG: file_mapping keys = {list(file_mapping.keys())}")
+        for key, path in file_mapping.items():
+            print(f"  {key}: {path[:80]}..." if len(str(path)) > 80 else f"  {key}: {path}")
 
         # Load data using DataLoader (handles GitHub URLs properly)
+        print("\n📥 Starting data load...")
         data = DataLoader.load_from_file_mapping(file_mapping)
+
+        # Debug: Check what loaded
+        print("\n📊 Load results:")
+        for key, df in data.items():
+            if df is not None:
+                print(f"  ✅ {key}: {len(df)} rows")
+            else:
+                print(f"  ❌ {key}: None")
 
         # Check if data loaded successfully
         has_data = any(df is not None for df in data.values())
 
         if not has_data:
-            return None, False, "No data loaded from any source"
+            return None, False, "No data loaded. Check logs above for details."
 
         # Create bot and manually set data
         bot = AnalyticsBot()
@@ -114,10 +129,12 @@ def load_chatbot_data():
         bot.db.portal_data = data.get('portal')
         bot.db.socmed_data = data.get('socmed')
 
+        print("\n✅ Bot initialized successfully!")
         return bot, True, None
     except Exception as e:
         import traceback
-        error_msg = f"{str(e)}\n{traceback.format_exc()[:200]}"
+        error_msg = f"{str(e)}\n{traceback.format_exc()[:300]}"
+        print(f"\n❌ Exception: {error_msg}")
         return None, False, error_msg
 
 # Load data
