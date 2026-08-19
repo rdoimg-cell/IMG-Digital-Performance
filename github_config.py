@@ -22,10 +22,10 @@ Date: August 2026
 # Example: "https://raw.githubusercontent.com/rdo-analytics/mnc-analytics-data/main/..."
 
 github_file_mapping = {
-    'youtube_studio': 'https://github.com/rdoimg-cell/IMG-Digital-Performance/raw/refs/heads/main/Database%20Konten%20IMG%20Juli%202026.xlsx',
-    'youtube_scraping': 'https://github.com/rdoimg-cell/IMG-Digital-Performance/raw/refs/heads/main/Database%20Konten%20Scraping%20Juli%202026.xlsx',
-    'portal': 'https://github.com/rdoimg-cell/IMG-Digital-Performance/raw/refs/heads/main/Database%20Portal%20Performance%20IMG%202026.xlsx',
-    'socmed': 'https://github.com/rdoimg-cell/IMG-Digital-Performance/raw/refs/heads/main/Database%20Rekap%20Socmed%20IMG%202026.xlsx'
+    'youtube_studio': 'https://raw.githubusercontent.com/rdoimg-cell/IMG-Digital-Performance/main/Database%20Konten%20IMG%20Juli%202026.xlsx',
+    'youtube_scraping': 'https://raw.githubusercontent.com/rdoimg-cell/IMG-Digital-Performance/main/Database%20Konten%20Scraping%20Juli%202026.xlsx',
+    'portal': 'https://raw.githubusercontent.com/rdoimg-cell/IMG-Digital-Performance/main/Database%20Portal%20Performance%20IMG%202026.xlsx',
+    'socmed': 'https://raw.githubusercontent.com/rdoimg-cell/IMG-Digital-Performance/main/Database%20Rekap%20Socmed%20IMG%202026.xlsx'
 }
 
 # ============================================
