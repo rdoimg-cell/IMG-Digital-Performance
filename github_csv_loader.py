@@ -9,8 +9,8 @@ import pandas as pd
 from typing import Dict, Optional
 
 # GitHub repository configuration
-GITHUB_OWNER = "mncgroup"  # Change to your GitHub username
-GITHUB_REPO = "analytics-data"  # Change to your repository name
+GITHUB_OWNER = "rdoimg-cell"  # Your GitHub username
+GITHUB_REPO = "IMG-Digital-Performance"  # Your repository name
 GITHUB_BRANCH = "main"
 
 # CSV file mappings
