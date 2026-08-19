@@ -95,20 +95,27 @@ if 'bot' not in st.session_state:
 
 @st.cache_resource
 def load_chatbot_data():
-    """Load data once and cache it - from Google Sheets (Simple CSV method)"""
+    """Load data once and cache it - from Google Sheets"""
     try:
         print("\n🚀 Loading data from Google Sheets...")
 
-        from simple_sheets_loader import load_all_sheets
+        # Try using Google Sheets API loader (more reliable than CSV export)
+        try:
+            from google_sheets_api_loader import load_all_sheets
+            print("  Using Google Sheets API method...")
+        except ImportError:
+            # Fallback to simple CSV export
+            from simple_sheets_loader import load_all_sheets
+            print("  Using CSV export method...")
 
-        # Load using simple CSV export (NO gspread dependency!)
+        # Load data
         data = load_all_sheets()
 
         # Check if data loaded
         has_data = any(df is not None for df in data.values())
 
         if not has_data:
-            return None, False, "Failed to load any data from Google Sheets. Check sheet names."
+            return None, False, "Failed to load any data from Google Sheets. Check sheet names and sharing settings."
 
         # Create bot and set data
         bot = AnalyticsBot()
