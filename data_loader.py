@@ -68,8 +68,10 @@ class DataLoader:
                         print("✗ Failed")
 
                 except Exception as e:
-                    print(f"✗ Error: {str(e)[:50]}")
-                    logger.error(f"Error loading {key}: {str(e)}")
+                    error_detail = str(e)
+                    print(f"✗ Error: {error_detail[:100]}")
+                    logger.error(f"Error loading {key}: {error_detail}")
+                    logger.error(f"File path: {file_path}")
 
         return data
 
