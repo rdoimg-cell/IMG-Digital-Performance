@@ -110,21 +110,26 @@ def load_chatbot_data():
         data = {}
 
         # Load each file using pandas directly
+        errors = {}
         for key, url in file_mapping.items():
             try:
                 print(f"  📥 {key}...", end=" ", flush=True)
+                print(f"\n     URL: {url[:80]}...", flush=True)
                 df = pd.read_excel(url, sheet_name=sheet_names[key])
                 data[key] = df
                 print(f"✅ ({len(df):,} rows)")
             except Exception as e:
-                print(f"❌ {str(e)[:50]}")
+                error_detail = str(e)
+                errors[key] = error_detail
+                print(f"❌ {error_detail[:100]}")
                 data[key] = None
 
         # Check if data loaded
         has_data = any(df is not None for df in data.values())
 
         if not has_data:
-            return None, False, "Failed to load any data from GitHub. Check URLs."
+            error_summary = "\n".join([f"{k}: {v[:100]}" for k, v in errors.items()])
+            return None, False, f"Failed to load data:\n{error_summary}"
 
         # Create bot and set data
         bot = AnalyticsBot()
