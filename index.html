@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ask IMG Analytics</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#f4f6fb; --panel:#ffffff; --panel2:#f8fafc; --line:#e3e8f0;
+  --txt:#16202f; --mut:#64748b; --acc:#4f46e5; --acc2:#0ea5e9;
+  --ok:#059669; --warn:#d97706; --bad:#e11d48;
+  --shadow:0 1px 2px rgba(16,32,64,.05), 0 4px 16px rgba(16,32,64,.06);
+}
+body{
+  font-family:'Inter','Segoe UI Variable','Segoe UI',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif;
+  background:var(--bg);color:var(--txt);
+  height:100vh;overflow:hidden;
+  background-image:radial-gradient(900px 520px at 10% -12%,rgba(79,70,229,.10),transparent 62%),
+                   radial-gradient(800px 520px at 100% 0%,rgba(14,165,233,.09),transparent 58%),
+                   radial-gradient(700px 460px at 50% 112%,rgba(168,85,247,.07),transparent 62%);
+}
+.app{display:grid;grid-template-columns:290px 1fr;height:100vh}
+
+/* ---------- SIDEBAR ---------- */
+.side{border-right:1px solid var(--line);background:rgba(255,255,255,.82);backdrop-filter:blur(18px);
+  display:flex;flex-direction:column;overflow:hidden}
+.brand{padding:22px 20px 16px;border-bottom:1px solid var(--line)}
+.logo{display:flex;align-items:center;gap:11px}
+.logo .mark{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,var(--acc),var(--acc2));
+  display:grid;place-items:center;font-size:19px;box-shadow:0 6px 20px rgba(99,102,241,.42)}
+.logo h1{font-size:16px;font-weight:800;letter-spacing:-.3px;line-height:1.15}
+.logo span{font-size:11px;color:var(--mut);font-weight:500}
+.live{margin-top:14px;display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:600;
+  color:var(--ok);background:#ecfdf5;border:1px solid #a7f3d0;padding:5px 10px;border-radius:99px}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--ok);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+.nav{flex:1;overflow-y:auto;padding:16px 14px 20px}
+.nav::-webkit-scrollbar{width:5px}.nav::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:9px}
+.grp{margin-bottom:18px}
+.grp h3{font-size:10.5px;text-transform:uppercase;letter-spacing:.9px;color:var(--mut);
+  font-weight:700;margin:0 6px 8px}
+.q{display:block;width:100%;text-align:left;background:var(--panel2);border:1px solid var(--line);
+  color:var(--txt);padding:9px 11px;border-radius:9px;font-size:12.5px;font-family:inherit;cursor:pointer;
+  margin-bottom:5px;transition:.16s;line-height:1.35}
+.q:hover{background:#eef2ff;border-color:#c7d2fe;color:var(--acc);transform:translateX(2px)}
+
+.foot{padding:12px 18px;border-top:1px solid var(--line);font-size:10.5px;color:var(--mut);line-height:1.6}
+
+/* ---------- MAIN ---------- */
+.main{display:flex;flex-direction:column;overflow:hidden}
+.top{padding:16px 26px;border-bottom:1px solid var(--line);display:flex;gap:12px;
+  align-items:center;flex-wrap:wrap;background:rgba(255,255,255,.75);backdrop-filter:blur(12px)}
+.kpi{flex:1;min-width:128px;background:var(--panel);border:1px solid var(--line);border-radius:12px;
+  padding:11px 13px;box-shadow:var(--shadow)}
+.kpi .l{font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--mut);font-weight:600}
+.kpi .v{font-size:17.5px;font-weight:800;letter-spacing:-.5px;margin-top:3px;white-space:nowrap;
+  background:linear-gradient(135deg,#1e1b4b,#4f46e5);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.kpi .s{font-size:10.5px;color:var(--mut);margin-top:1px}
+
+.chat{flex:1;overflow-y:auto;padding:26px 26px 8px;scroll-behavior:smooth}
+.chat::-webkit-scrollbar{width:7px}.chat::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:9px}
+.wrap{max-width:860px;margin:0 auto}
+
+.msg{display:flex;gap:12px;margin-bottom:22px;animation:in .32s cubic-bezier(.22,1,.36,1)}
+@keyframes in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.msg.me{flex-direction:row-reverse}
+.av{width:32px;height:32px;border-radius:9px;flex-shrink:0;display:grid;place-items:center;font-size:14px;font-weight:700}
+.msg.bot .av{background:linear-gradient(135deg,var(--acc),var(--acc2));box-shadow:0 4px 14px rgba(99,102,241,.35)}
+.msg.me .av{background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow)}
+.bub{max-width:80%;padding:14px 17px;border-radius:14px;font-size:13.6px;line-height:1.62}
+.msg.bot .bub{background:var(--panel);border:1px solid var(--line);border-top-left-radius:4px;box-shadow:var(--shadow)}
+.msg.me .bub{background:linear-gradient(135deg,var(--acc),#8b5cf6);border-top-right-radius:4px;font-weight:500}
+.bub b{color:#0f172a;font-weight:700}
+.msg.me .bub b{color:#fff}
+.bub .hd{font-size:14.5px;font-weight:800;margin-bottom:11px;display:flex;align-items:center;gap:8px;letter-spacing:-.2px}
+.bub .note{margin-top:11px;padding-top:10px;border-top:1px solid var(--line);font-size:11.8px;color:var(--mut);line-height:1.55}
+
+table{width:100%;border-collapse:collapse;margin:4px 0;font-size:12.6px}
+th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--mut);
+  font-weight:700;padding:6px 9px;border-bottom:1px solid var(--line)}
+td{padding:7px 9px;border-bottom:1px solid #eef1f6}
+tr:last-child td{border-bottom:none}
+tbody tr:hover{background:#f8fafc}
+td.n{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.rk{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:6px;font-size:10.5px;
+  font-weight:800;background:#eef2ff;color:var(--acc);margin-right:8px}
+.rk.g1{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#3b2500}
+.rk.g2{background:linear-gradient(135deg,#cbd5e1,#94a3b8);color:#fff}
+.rk.g3{background:linear-gradient(135deg,#d97706,#b45309);color:#fff}
+.tag{display:inline-block;font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:5px;letter-spacing:.3px}
+.tag.img{background:#ecfdf5;color:var(--ok);border:1px solid #a7f3d0}
+.tag.cmp{background:#f1f5f9;color:var(--mut);border:1px solid #e2e8f0}
+.bar{height:4px;border-radius:9px;background:linear-gradient(90deg,var(--acc),var(--acc2));margin-top:4px}
+.cap{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:14px 0 4px}
+.cap>div{display:flex;align-items:center;gap:9px;background:var(--panel2);border:1px solid var(--line);
+  border-radius:10px;padding:10px 12px;font-size:12.8px;font-weight:600}
+.cap>div span:first-child{font-size:16px;line-height:1}
+@media(max-width:520px){.cap{grid-template-columns:1fr}}
+
+.typing{display:flex;gap:4px;padding:16px 18px}
+.typing i{width:7px;height:7px;border-radius:50%;background:var(--mut);animation:bnc 1.3s infinite}
+.typing i:nth-child(2){animation-delay:.16s}.typing i:nth-child(3){animation-delay:.32s}
+@keyframes bnc{0%,60%,100%{opacity:.28;transform:translateY(0)}30%{opacity:1;transform:translateY(-4px)}}
+
+.inp{padding:14px 26px 20px}
+.box{max-width:860px;margin:0 auto;display:flex;gap:10px;background:var(--panel);
+  border:1px solid var(--line);border-radius:14px;padding:7px 7px 7px 17px;transition:.2s;box-shadow:var(--shadow)}
+.box:focus-within{border-color:var(--acc);box-shadow:0 0 0 4px rgba(79,70,229,.12)}
+.box input{flex:1;background:none;border:none;outline:none;color:var(--txt);font-size:13.8px;
+  font-family:inherit;padding:10px 0}
+.box input::placeholder{color:var(--mut)}
+.box button{background:linear-gradient(135deg,var(--acc),#8b5cf6);border:none;color:#fff;
+  padding:10px 20px;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;
+  font-family:inherit;transition:.18s}
+.box button:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(99,102,241,.42)}
+.hint{max-width:860px;margin:9px auto 0;font-size:10.5px;color:var(--mut);text-align:center}
+
+.burger{display:none}
+@media(max-width:900px){
+  .app{grid-template-columns:1fr}
+  .side{position:fixed;inset:0 auto 0 0;width:280px;z-index:50;transform:translateX(-100%);transition:.25s}
+  .side.open{transform:none}
+  .burger{display:grid;place-items:center;width:36px;height:36px;border-radius:9px;background:var(--panel);
+    border:1px solid var(--line);color:var(--txt);cursor:pointer;font-size:16px;box-shadow:var(--shadow)}
+  .side{box-shadow:0 0 40px rgba(16,32,64,.18)}
+  .top{padding:12px 16px}.chat{padding:18px 16px 8px}.inp{padding:12px 16px 16px}
+  .bub{max-width:92%}.kpi{min-width:104px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side" id="side">
+    <div class="brand">
+      <div class="logo">
+        <div class="mark">📊</div>
+        <div><h1>Ask IMG Analytics</h1><span>Media Performance Intelligence</span></div>
+      </div>
+      <div class="live"><span class="dot"></span><span id="liveTxt">Data aktif</span></div>
+    </div>
+    <div class="nav" id="nav"></div>
+    <div class="foot">
+      Periode: <b id="fPeriod">—</b><br>
+      Update terakhir: <b id="fGen">—</b>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="top">
+      <button class="burger" onclick="document.getElementById('side').classList.toggle('open')">☰</button>
+      <div class="kpi"><div class="l">Total Views YouTube</div><div class="v" id="k1">—</div><div class="s">IMG + kompetitor</div></div>
+      <div class="kpi"><div class="l">Followers Socmed</div><div class="v" id="k2">—</div><div class="s">4 platform</div></div>
+      <div class="kpi"><div class="l">Revenue YouTube</div><div class="v" id="k3">—</div><div class="s">estimasi IDR</div></div>
+      <div class="kpi"><div class="l">Konten Dianalisis</div><div class="v" id="k4">—</div><div class="s">baris data</div></div>
+    </div>
+
+    <div class="chat" id="chat"><div class="wrap" id="wrap"></div></div>
+
+    <div class="inp">
+      <div class="box">
+        <input id="q" placeholder="Tanya apa saja… contoh: channel mana paling profitable?" autocomplete="off">
+        <button onclick="ask()">Kirim</button>
+      </div>
+      <div class="hint">Semua angka dihitung langsung dari database IMG · tekan Enter untuk kirim</div>
+    </div>
+  </main>
+</div>
+
+<script>
+const DATA = {"studio":[{"unit":"IDX Channel","channel":"IDX CHANNEL","videos":1896,"views":10034698,"engaged":9603788,"watch_hours":609629.03,"subs":11755,"ctr":5.34,"pct_viewed":31.16,"impressions":91032117},{"unit":"IDX Channel","channel":"IDX Channel","videos":10139,"views":45355066,"engaged":42794357,"watch_hours":2258769.42,"subs":60330,"ctr":5.15,"pct_viewed":29.72,"impressions":427059694},{"unit":"IDX Channel","channel":"IDX Channel Insight","videos":3559,"views":6650379,"engaged":6135455,"watch_hours":279602.23,"subs":14168,"ctr":4.09,"pct_viewed":33.99,"impressions":57472660},{"unit":"Okezone","channel":"Okezone","videos":7506,"views":87542762,"engaged":85698060,"watch_hours":5968674.05,"subs":81168,"ctr":6.42,"pct_viewed":21.65,"impressions":706412614},{"unit":"Okezone","channel":"Okezone Vibes!","videos":2663,"views":13419605,"engaged":10332140,"watch_hours":578330.48,"subs":15222,"ctr":4.36,"pct_viewed":20.9,"impressions":59020938},{"unit":"Okezone","channel":"Radio RDI","videos":173,"views":359018,"engaged":347701,"watch_hours":12832,"subs":523,"ctr":5.38,"pct_viewed":21.42,"impressions":3301678},{"unit":"Okezone","channel":"Radio RDI 97.1 FM Jakarta","videos":897,"views":550202,"engaged":459983,"watch_hours":18901.24,"subs":1485,"ctr":3.01,"pct_viewed":17.98,"impressions":6806987},{"unit":"Sindonews","channel":"SINDO Kalam","videos":64,"views":38146,"engaged":26438,"watch_hours":1229.14,"subs":70,"ctr":2.44,"pct_viewed":30.13,"impressions":316278},{"unit":"Sindonews","channel":"SINDOnews","videos":2887,"views":35750753,"engaged":34309454,"watch_hours":2709315.9,"subs":20758,"ctr":6.6,"pct_viewed":27.76,"impressions":265991502},{"unit":"Sindonews","channel":"Sindo Kalam","videos":556,"views":257566,"engaged":172596,"watch_hours":10209.9,"subs":830,"ctr":2.37,"pct_viewed":24.1,"impressions":1682805},{"unit":"Sindonews","channel":"Sindo Podcast","videos":4954,"views":7440563,"engaged":7049426,"watch_hours":742938.21,"subs":14762,"ctr":5.73,"pct_viewed":25.98,"impressions":63924627},{"unit":"Sindonews","channel":"Sindonews","videos":17193,"views":231546890,"engaged":221940082,"watch_hours":17198764.01,"subs":167943,"ctr":6.23,"pct_viewed":28.72,"impressions":1783514347},{"unit":"iNews","channel":"Buletin iNews GTV","videos":1993,"views":7785190,"engaged":7781917,"watch_hours":421861.76,"subs":12553,"ctr":5.35,"pct_viewed":23.31,"impressions":86889346},{"unit":"iNews","channel":"Lintas iNews MNCTV","videos":1971,"views":16488557,"engaged":16459650,"watch_hours":1362473.06,"subs":24999,"ctr":5.95,"pct_viewed":19.78,"impressions":143588148},{"unit":"iNews","channel":"Official iNews","videos":19089,"views":579903445,"engaged":531536364,"watch_hours":50144064.38,"subs":280710,"ctr":6.34,"pct_viewed":28.19,"impressions":3593134799},{"unit":"iNews","channel":"Rakyat Bersuara","videos":894,"views":29730848,"engaged":29616180,"watch_hours":6659044.04,"subs":40424,"ctr":7.8,"pct_viewed":24.47,"impressions":231992467},{"unit":"iNews","channel":"Seputar iNews RCTI","videos":2290,"views":22082547,"engaged":21924710,"watch_hours":1718741.91,"subs":33133,"ctr":5.94,"pct_viewed":21.83,"impressions":200166792},{"unit":"iNews","channel":"Trijaya FM","videos":4922,"views":39228529,"engaged":37740604,"watch_hours":2699548.35,"subs":62077,"ctr":5.57,"pct_viewed":26.72,"impressions":359558414},{"unit":"iNews","channel":"iNews Bali Nusra","videos":3165,"views":4084907,"engaged":4051236,"watch_hours":593963.06,"subs":7624,"ctr":5.92,"pct_viewed":18.84,"impressions":35047340},{"unit":"iNews","channel":"iNews Jabar","videos":3222,"views":2714540,"engaged":2697047,"watch_hours":280537.8,"subs":6121,"ctr":5.41,"pct_viewed":17.46,"impressions":22516257},{"unit":"iNews","channel":"iNews Jateng","videos":3233,"views":7989369,"engaged":7939273,"watch_hours":710887.62,"subs":13145,"ctr":6.81,"pct_viewed":21.96,"impressions":61241898},{"unit":"iNews","channel":"iNews Jatim","videos":1399,"views":5959188,"engaged":5954408,"watch_hours":667678.88,"subs":11129,"ctr":6.8,"pct_viewed":23.78,"impressions":52530614},{"unit":"iNews","channel":"iNews Jatim Official","videos":1658,"views":7792923,"engaged":7758302,"watch_hours":916417.94,"subs":16942,"ctr":6.63,"pct_viewed":23.64,"impressions":62402718},{"unit":"iNews","channel":"iNews Premium Sport","videos":218,"views":2595726,"engaged":2591168,"watch_hours":133809,"subs":4180,"ctr":6.37,"pct_viewed":20.05,"impressions":18874050},{"unit":"iNews","channel":"iNews Premium Sports","videos":600,"views":9224399,"engaged":9186456,"watch_hours":745225.05,"subs":12277,"ctr":5.77,"pct_viewed":18.9,"impressions":70144620},{"unit":"iNews","channel":"iNews Sumut","videos":1441,"views":1337746,"engaged":1335781,"watch_hours":255719.53,"subs":2606,"ctr":6.18,"pct_viewed":19.59,"impressions":10986454},{"unit":"iNews","channel":"iNews Sumut Official","videos":1768,"views":1858367,"engaged":1847435,"watch_hours":293267.83,"subs":4177,"ctr":5.98,"pct_viewed":19.33,"impressions":16310791}],"top_videos_img":[{"channel":"Lintas iNews MNCTV","title":"🔴BREAKING NEWS - SIDANG ISBAT PENENTUAN IDUL FITRI 1447 H/2026 (19/03)","views":2417155,"watch_hours":343932.26,"date":"46100"},{"channel":"Official iNews","title":"EKSKLUSIF! Kondisi Terkini Wanita Disekap Pacar 3 Tahun, Wajah Hancur dan Buta Permanen","views":2303498,"watch_hours":95980,"date":"46196"},{"channel":"Official iNews","title":"BREAKING NEWS IRON DOME JEBOL! Rudal Iran Hujani Langit Israel di Malam Hari","views":2240134,"watch_hours":172534.04,"date":"46084"},{"channel":"Official iNews","title":"Iron Dome Jebol? Rudal Iran Hantam Bunker Petinggi Israel | iNews Pagi (10/3)","views":2187199,"watch_hours":166087.81,"date":"46091"},{"channel":"Okezone","title":"Waduh! Lagi Cukur Rambut, Tiba-tiba Salon Dihujani Baku Hantam | Snapnews","views":2179059,"watch_hours":96551.35,"date":"46127"},{"channel":"Official iNews","title":"BREAKING NEWS! Detik-detik Pasukan Militer Iran Serang Dua Kapal Kargo Milik Israel","views":2098966,"watch_hours":139215.26,"date":"46135"},{"channel":"Official iNews","title":"HUJAN RUDAL IRAN HANCURKAN TEL AVIV! Warga Israel Kocar-kacir hingga Tiarap di Jalan | BRE","views":2036553,"watch_hours":200950.51,"date":"46092"},{"channel":"Sindonews","title":"RI SIAGA PERANG! AS Akan Gempur Kapal Iran di Selat Malaka, Ancam Wilayah RI? | SINDO PRIM","views":1978085,"watch_hours":202400.45,"date":"46132"},{"channel":"Trijaya FM","title":"Gebrakan dalam Peperangan, Iran Tak Bisa Dipandang Sebelah Mata | Trijaya Update","views":1921837,"watch_hours":133438.9,"date":"46094"},{"channel":"Official iNews","title":"🔴BREAKING NEWS - SIDANG ISBAT PENENTUAN 1 RAMADAN 1447 H/2026 (17/02)","views":1861693,"watch_hours":216546,"date":"Feb 17, 20"},{"channel":"iNews Premium Sports","title":"🔴BREAKING NEWS Indonesia Vs Iran: Road To King Asia | Final AFC Futsal Asian Cup 2026","views":1798616,"watch_hours":25483,"date":"Feb 7, 202"},{"channel":"Official iNews","title":"Hari ke-6 Perang AS-Israel Vs Iran! Saling Serang hingga Adu Mekanik Rudal","views":1757157,"watch_hours":170528.6,"date":"46086"},{"channel":"Official iNews","title":"BREAKING! Perang Kian Meledak, Iran Bombardir Rudal Baru ke Israel dan Aset AS di Timur Te","views":1680955,"watch_hours":148911.05,"date":"46087"},{"channel":"Official iNews","title":"BREAKING NEWS GELOMBANG SERANGAN KE-100! Iran Tak Mau Damai, Rudal Balistik Terus Hujani I","views":1658824,"watch_hours":155415.54,"date":"46121"},{"channel":"Seputar iNews RCTI","title":"Israel Makin Tak Berdaya! Rudal Iran Serang Lokasi Kontainer Milik Israel | BREAKING NEWS","views":1567186,"watch_hours":87552.69,"date":"46103"},{"channel":"Sindonews","title":"Perang AS-Israel vs Iran Makin Liar Tak Terkendali | Sindo Siang | 07/03 | PART 1","views":1536036,"watch_hours":226688.95,"date":"46088"},{"channel":"Sindonews","title":"URAT NADI ISRAEL PUTUS! 60% Produksi Minyak Berhenti Total Akibat Rudal Presisi Iran!| Sin","views":1514162,"watch_hours":90320.38,"date":"46104"},{"channel":"Official iNews","title":"Israel Lumpuh! Selain Ledakan, Rudal Iran Sebabkan Banjir Besar di Pemukiman | BREAKING NE","views":1491353,"watch_hours":91050.55,"date":"46114"},{"channel":"Official iNews","title":"IRAN TAK MAU DAMAI! Terus Bombardir Israel Pakai Rudal Baru Satu Ton | Breaking News","views":1474119,"watch_hours":152545.03,"date":"46094"},{"channel":"Official iNews","title":"Iran Bombardir Rudal ke Jantung Kota Tel Aviv, Sirine Dibunyikan | iNews Sore 6/3","views":1440601,"watch_hours":98685.17,"date":"46087"},{"channel":"Official iNews","title":"Viral Lomba Cerdas Cermat MPR, Jawaban Benar Tapi Disalahkan Juri","views":1416977,"watch_hours":21361.67,"date":"46153"},{"channel":"Lintas iNews MNCTV","title":"Ditantang Bos China Pengemplang Pajak, Purbaya Langsung Sidak Kantornya","views":1396269,"watch_hours":61190,"date":"Feb 5, 202"},{"channel":"Official iNews","title":"Terkuak Kronologi Pertemuan Eggi Sudjana dan Jokowi, Dibongkar Razman | Rakyat Bersuara 13","views":1347962,"watch_hours":252589,"date":"Jan 13, 20"},{"channel":"Official iNews","title":"Panas! Abu Janda Debat Ikrar Nusa Bhakti & Feri Amsari Soal Jasa AS untuk Indonesia","views":1324713,"watch_hours":140045.62,"date":"46091"},{"channel":"IDX Channel","title":"Iran Blokir Minyak AS & Sekutu di Selat Hormuz | IDXC SHORT","views":1323583,"watch_hours":11762.99,"date":"46093"}],"cluster":[{"cluster":"CNBC Indonesia","videos":782,"views":3479697,"likes":36527,"comments":14041,"er":1.47},{"cluster":"IDX Channel","videos":2436,"views":8210912,"likes":80696,"comments":34561,"er":1.48},{"cluster":"KompasTV","videos":14849,"views":142859855,"likes":724578,"comments":461855,"er":0.83},{"cluster":"Liputan6","videos":1675,"views":21251139,"likes":123894,"comments":72608,"er":1.11},{"cluster":"MetroTV","videos":8348,"views":55932763,"likes":387604,"comments":182230,"er":0.91},{"cluster":"Okezone","videos":1800,"views":18045846,"likes":163778,"comments":78845,"er":1.41},{"cluster":"Sindonews","videos":4393,"views":38966883,"likes":261894,"comments":184229,"er":1.04},{"cluster":"TV One","videos":5133,"views":65173301,"likes":559484,"comments":263953,"er":1.13},{"cluster":"iNews","videos":10185,"views":87810444,"likes":620992,"comments":313588,"er":0.95}],"channels_scraping":[{"cluster":"KompasTV","channel":"KOMPASTV","videos":3545,"views":74116894,"likes":469779,"comments":184982,"er":0.88},{"cluster":"TV One","channel":"tvOneNews","videos":4280,"views":62328604,"likes":543414,"comments":259131,"er":1.11},{"cluster":"iNews","channel":"Official iNews","videos":2291,"views":56633003,"likes":438599,"comments":211992,"er":1.03},{"cluster":"MetroTV","channel":"METRO TV","videos":8082,"views":55023201,"likes":381259,"comments":180986,"er":0.9},{"cluster":"Sindonews","channel":"SINDOnews","videos":3144,"views":37233853,"likes":251326,"comments":179841,"er":1.1},{"cluster":"Liputan6","channel":"Liputan6","videos":1675,"views":21251139,"likes":123894,"comments":72608,"er":1.11},{"cluster":"KompasTV","channel":"KOMPASTV JEMBER","videos":2072,"views":17180532,"likes":0,"comments":58218,"er":0.3},{"cluster":"Okezone","channel":"Okezone","videos":1354,"views":13378358,"likes":120239,"comments":69330,"er":1.53},{"cluster":"KompasTV","channel":"KOMPASTV JAWA TIMUR","videos":998,"views":12547516,"likes":60004,"comments":54483,"er":0.94},{"cluster":"IDX Channel","channel":"IDX CHANNEL","videos":1982,"views":7342527,"likes":72481,"comments":31963,"er":1.42},{"cluster":"KompasTV","channel":"KOMPASTV PALEMBANG","videos":845,"views":7185225,"likes":39852,"comments":37753,"er":1.05},{"cluster":"KompasTV","channel":"KompasTV Pontianak","videos":749,"views":6498987,"likes":37376,"comments":31425,"er":1.03},{"cluster":"iNews","channel":"RAKYAT BERSUARA","videos":118,"views":6297987,"likes":35115,"comments":12006,"er":1.02},{"cluster":"iNews","channel":"Trijaya FM","videos":1162,"views":6084386,"likes":45399,"comments":23240,"er":1.07},{"cluster":"KompasTV","channel":"KOMPASTV LAMPUNG","videos":730,"views":5897908,"likes":0,"comments":27157,"er":0.43},{"cluster":"iNews","channel":"Seputar iNews RCTI","videos":610,"views":5819940,"likes":29057,"comments":15839,"er":1.07},{"cluster":"KompasTV","channel":"KOMPASTV JAWA BARAT","videos":1487,"views":5603086,"likes":40339,"comments":16168,"er":0.98},{"cluster":"KompasTV","channel":"KOMPASTV JAWA TENGAH","videos":1286,"views":5600056,"likes":29622,"comments":23255,"er":0.87},{"cluster":"Okezone","channel":"Okezone Vibes!","videos":341,"views":4365988,"likes":42073,"comments":8911,"er":0.98},{"cluster":"iNews","channel":"iNews Jatim Official","videos":954,"views":4359033,"likes":28995,"comments":21206,"er":1.02},{"cluster":"CNBC Indonesia","channel":"CNBC Indonesia","videos":782,"views":3479697,"likes":36527,"comments":14041,"er":1.47},{"cluster":"iNews","channel":"iNews Jateng","videos":1011,"views":2299928,"likes":10725,"comments":7125,"er":0.78},{"cluster":"KompasTV","channel":"KOMPASTV DEWATA","videos":398,"views":2294004,"likes":14939,"comments":5041,"er":0.99},{"cluster":"Sindonews","channel":"Sindo Podcast","videos":1184,"views":1711046,"likes":10295,"comments":4386,"er":0.83},{"cluster":"KompasTV","channel":"KOMPASTV MANADO","videos":696,"views":1675189,"likes":7456,"comments":5910,"er":0.98},{"cluster":"iNews","channel":"Lintas iNews MNCTV","videos":523,"views":1639063,"likes":9479,"comments":6587,"er":1.04},{"cluster":"iNews","channel":"Buletin iNews GTV","videos":511,"views":1535262,"likes":9726,"comments":9213,"er":1.24},{"cluster":"KompasTV","channel":"KOMPASTV MAKASSAR","videos":757,"views":1512680,"likes":9542,"comments":6715,"er":0.75},{"cluster":"KompasTV","channel":"Kompas TV Medan","videos":458,"views":1499292,"likes":7627,"comments":6795,"er":1.22},{"cluster":"iNews","channel":"iNews Premium Sports","videos":95,"views":1369502,"likes":4659,"comments":506,"er":0.8},{"cluster":"TV One","channel":"Hidup Sehat tvOne","videos":93,"views":1325263,"likes":6962,"comments":345,"er":0.89},{"cluster":"TV One","channel":"Talk Show tvOne RELOAD","videos":218,"views":1300405,"likes":6866,"comments":4267,"er":0.69},{"cluster":"IDX Channel","channel":"IDX Channel Insight","videos":454,"views":868385,"likes":8215,"comments":2598,"er":1.74},{"cluster":"iNews","channel":"iNews Sumut Official","videos":967,"views":813189,"likes":4375,"comments":2641,"er":0.85},{"cluster":"KompasTV","channel":"KOMPASTV RIAU","videos":424,"views":782038,"likes":4170,"comments":2781,"er":0.87},{"cluster":"iNews","channel":"iNews Bali Nusra","videos":978,"views":624555,"likes":3134,"comments":2298,"er":0.8},{"cluster":"MetroTV","channel":"Q&A METRO TV","videos":81,"views":389329,"likes":2870,"comments":30,"er":1.31},{"cluster":"KompasTV","channel":"KOMPASTV GORONTALO","videos":179,"views":353818,"likes":1524,"comments":702,"er":1.37},{"cluster":"iNews","channel":"iNews Jabar","videos":965,"views":334596,"likes":1729,"comments":935,"er":0.72},{"cluster":"Okezone","channel":"Radio RDI 97.1 FM","videos":105,"views":301500,"likes":1466,"comments":604,"er":1.31},{"cluster":"MetroTV","channel":"METRO TV JATIM","videos":30,"views":198692,"likes":1245,"comments":419,"er":0.99},{"cluster":"MetroTV","channel":"METRO TV JATENG & DIY","videos":52,"views":172343,"likes":1234,"comments":429,"er":0.98},{"cluster":"MetroTV","channel":"METRO TV JABAR & BANTEN","videos":50,"views":142021,"likes":954,"comments":358,"er":1.3},{"cluster":"KompasTV","channel":"KOMPASTV SUKABUMI","videos":225,"views":112630,"likes":2348,"comments":470,"er":1.13},{"cluster":"TV One","channel":"Damai Indonesiaku tvOne","videos":341,"views":79097,"likes":1078,"comments":72,"er":1.42},{"cluster":"TV One","channel":"Kata Ustadz","videos":91,"views":72801,"likes":638,"comments":42,"er":1.33},{"cluster":"TV One","channel":"Investigasi tvOne","videos":110,"views":67131,"likes":526,"comments":96,"er":1.77},{"cluster":"Sindonews","channel":"SINDO Kalam","videos":65,"views":21984,"likes":273,"comments":2,"er":2.03},{"cluster":"MetroTV","channel":"METROTV - SUMUT - ACEH - SUMBAR - RIAU - JAMBI","videos":19,"views":2639,"likes":11,"comments":3,"er":0.8},{"cluster":"MetroTV","channel":"HOTROOM METRO TV","videos":3,"views":2618,"likes":17,"comments":4,"er":0.99},{"cluster":"MetroTV","channel":"METRO TV SULAWESI","videos":8,"views":1168,"likes":7,"comments":1,"er":0.3},{"cluster":"MetroTV","channel":"METROTV MALUKU - PAPUA","videos":6,"views":568,"likes":6,"comments":0,"er":0.65},{"cluster":"MetroTV","channel":"METROTV - SUMSEL-BENGKULU-LAMPUNG-BANGKA BELITUNG","videos":2,"views":144,"likes":1,"comments":0,"er":0.77},{"cluster":"MetroTV","channel":"METROTV BALI - NUSA TENGGARA","videos":13,"views":33,"likes":0,"comments":0,"er":0},{"cluster":"MetroTV","channel":"METROTV KALIMANTAN","videos":2,"views":7,"likes":0,"comments":0,"er":0}],"category":[{"category":"VOD","videos":29006,"views":260030715,"er":1.03},{"category":"SHORTS","videos":17736,"views":139572029,"er":0.92},{"category":"LIVE","videos":2859,"views":42128096,"er":1}],"top_videos_all":[{"cluster":"TV One","channel":"tvOneNews","title":"Inilah Ancaman Mematikan Iran yang Membuat Negara Teluk Menangis Memohon | tvOne","views":4393444,"likes":58019,"comments":2135,"er":1.37},{"cluster":"KompasTV","channel":"KOMPASTV","title":"Pemicu Awal Bentrokan Maut Antarwarga di Menteng! Ini Kata Kasat Reskrim Polres Jakpus","views":1601419,"likes":21530,"comments":1277,"er":1.42},{"cluster":"KompasTV","channel":"KOMPASTV","title":"Tifa usai Dengar Dakwaan Jaksa di Kasus Ijazah Jokowi: Saya Akan Melakukan Perlawanan!","views":1333503,"likes":11340,"comments":1352,"er":0.95},{"cluster":"TV One","channel":"tvOneNews","title":"Inilah Ancaman Mematikan Iran yang Membuat Negara Teluk Menangis Memohon | tvOne","views":1122128,"likes":6370,"comments":1070,"er":0.66},{"cluster":"iNews","channel":"Official iNews","title":"Bawa Pedang hingga Busur Panah! TNI-Polisi Cegat Massa yang Hendak Balas Serangan Warga Ma","views":1058462,"likes":4895,"comments":4926,"er":0.93},{"cluster":"KompasTV","channel":"KOMPASTV JAWA TIMUR","title":"Sidang Perdana Kasus Ijazah Jokowi: Jaksa Penuntut Umum Bacakan Dakwaan Dokter Tifa","views":1056933,"likes":5053,"comments":4524,"er":0.91},{"cluster":"iNews","channel":"Official iNews","title":"Istri Nadiem Bongkar Kejanggalan: Penerima Gratifikasi Banyak, kok Cuma Jadi Saksi?","views":996330,"likes":17474,"comments":1227,"er":1.88},{"cluster":"KompasTV","channel":"KOMPASTV JAWA TIMUR","title":"Melihat Langsung Kampung Tenggelam yang Muncul Kembali di Lebak Saat Kemarau!","views":944232,"likes":2441,"comments":422,"er":0.3},{"cluster":"Sindonews","channel":"SINDOnews","title":"Ijazah Joko Widodo: Dituduh Pasal 220 & 323, Apa Yang Terjadi?","views":913052,"likes":9153,"comments":2874,"er":1.32},{"cluster":"KompasTV","channel":"KOMPASTV JEMBER","title":"KEJUTAN IRAN! Drone Naser-2 & Rudal Haj Qassem Bombardir Aset Baru Amerika","views":911605,"likes":0,"comments":655,"er":0.07},{"cluster":"Sindonews","channel":"SINDOnews","title":"Perang Senyap Penegak Hukum, Pakar Politik Buka Suara | Breaking News | 09/07","views":896184,"likes":4887,"comments":3283,"er":0.91},{"cluster":"TV One","channel":"tvOneNews","title":"Serangan Presisi Iran: Pangkalan Militer AS Lumpuh? | tvOne","views":895454,"likes":5543,"comments":969,"er":0.73},{"cluster":"MetroTV","channel":"METRO TV","title":"Gunung Es Raksasa di Greenland Tiba-Tiba Terbalik Picu Gelombang Besar","views":814960,"likes":2174,"comments":391,"er":0.31},{"cluster":"Okezone","channel":"Okezone","title":"Suasana Memanas! Momen Kapolsek Menteng Tak Terima Anak Buahnya Dibentak Massa | Snapnews","views":811418,"likes":4954,"comments":5709,"er":1.31},{"cluster":"TV One","channel":"tvOneNews","title":"AS Alami Kerugian Besar usai kembali Menyerang Iran, Ini Penjelasan Pengamat HI | Breaking","views":806216,"likes":5500,"comments":1702,"er":0.89},{"cluster":"Sindonews","channel":"SINDOnews","title":"200 Orang Dilaporkan Tewas dalam Gempuran Iran, Pangkalan AS Hancur Digempur Rudal | BREAK","views":802676,"likes":6158,"comments":2449,"er":1.07},{"cluster":"iNews","channel":"Official iNews","title":"Miris! Curhat Dosen Lulusan S3 Australia di Sidang MK: Gaji Saya Cuma Rp2,6 Juta","views":766140,"likes":12358,"comments":2829,"er":1.98},{"cluster":"TV One","channel":"tvOneNews","title":"Purn Agung: Serangan Udara Bukan Solusi Lumpuhkan Iran | Kabar Petang","views":759081,"likes":3856,"comments":770,"er":0.61},{"cluster":"MetroTV","channel":"METRO TV","title":"[FULL] TELUSUR KASUS - Taufik Hidayat Hilang Naluri, Beraksi Aniaya Kekasih","views":734935,"likes":3089,"comments":440,"er":0.48},{"cluster":"iNews","channel":"Trijaya FM","title":"Gaya Seskab Teddy Beri Pembekalan kepada 1 600 Taruna Akmil | Trijaya  #shorts #seskabtedd","views":723166,"likes":10270,"comments":677,"er":1.51},{"cluster":"Sindonews","channel":"SINDOnews","title":"IMBAS KASUS JAMPIDSUS? Prabowo Panggil Menhan dan Panglima TNI ke Istana | SINDO SIANG | 1","views":701225,"likes":2816,"comments":2489,"er":0.76},{"cluster":"KompasTV","channel":"KOMPASTV","title":"Detik-Detik Bentrok Warga di Jalan Tambak Menteng, 1 Orang Tewas & 1 Kritis","views":684381,"likes":2791,"comments":1361,"er":0.61},{"cluster":"Sindonews","channel":"SINDOnews","title":"DARI SD SAMPAI S1: Jokowi Bawa Bukti Dokumen Asli Terkait Kasus Ijazahnya | Sindo Malam | ","views":676366,"likes":2888,"comments":4873,"er":1.15},{"cluster":"MetroTV","channel":"METRO TV","title":"Jutaan Rekening Terlacak! Eks Kabareskrim Susno Duadji Ungkap Aliran Dana Mudah #shorts","views":657617,"likes":12263,"comments":570,"er":1.95},{"cluster":"iNews","channel":"Seputar iNews RCTI","title":"🔴LIVE INDONESIA VS KAMBOJA |  STADION PAKANSARI | PIALA AFF 2026 | 27/07","views":639797,"likes":1749,"comments":12,"er":0.28}],"platform":[{"platform":"Facebook","channels":12,"videos":688963,"followers":4342726,"new_followers":3219278,"views":6617297738,"rev_usd":70982,"rev_idr":1206694000,"engagement":92007822,"reach":1037777881},{"platform":"Instagram","channels":15,"videos":136057,"followers":1476130,"new_followers":1988429,"views":5567901362,"rev_usd":0,"rev_idr":0,"engagement":140607362,"reach":1016529672},{"platform":"Tiktok","channels":10,"videos":49388,"followers":12304352,"new_followers":7508664,"views":22892850044,"rev_usd":0,"rev_idr":0,"engagement":510994915,"reach":16257256664},{"platform":"X","channels":11,"videos":222285,"followers":1821533,"new_followers":3574265,"views":12525942,"rev_usd":0,"rev_idr":0,"engagement":1945748,"reach":0}],"socmed_channels":[{"platform":"Tiktok","unit":"iNews","channel":"Official iNews","followers":12304352,"views":15428093832,"rev_idr":0,"engagement":338666838},{"platform":"Tiktok","unit":"Okezone","channel":"Okezone","followers":2825213,"views":4824398758,"rev_idr":0,"engagement":118936034},{"platform":"Facebook","unit":"iNews","channel":"Official iNews","followers":4342726,"views":4126414400,"rev_idr":816663000,"engagement":65931198},{"platform":"Instagram","unit":"iNews","channel":"Official iNews","followers":1476130,"views":1999692650,"rev_idr":0,"engagement":64372495},{"platform":"Tiktok","unit":"Sindonews","channel":"SINDOnews","followers":2941705,"views":1365276138,"rev_idr":0,"engagement":27167289},{"platform":"Instagram","unit":"Okezone","channel":"Okezone","followers":1056545,"views":1115505773,"rev_idr":0,"engagement":27836546},{"platform":"Instagram","unit":"IDX Channel","channel":"IDX CHANNEL","followers":1175299,"views":958827199,"rev_idr":0,"engagement":11968483},{"platform":"Facebook","unit":"Okezone","channel":"Okezone","followers":2953394,"views":926221479,"rev_idr":92123000,"engagement":8033179},{"platform":"Facebook","unit":"Sindonews","channel":"SINDOnews","followers":1536260,"views":698045168,"rev_idr":138958000,"engagement":11663357},{"platform":"Instagram","unit":"Sindonews","channel":"SINDOnews","followers":594262,"views":651591470,"rev_idr":0,"engagement":15398908},{"platform":"Tiktok","unit":"IDX Channel","channel":"IDX CHANNEL","followers":1471384,"views":528781570,"rev_idr":0,"engagement":8803159},{"platform":"Instagram","unit":"Okezone","channel":"Okezone.Celeb","followers":114631,"views":408334980,"rev_idr":0,"engagement":8166546},{"platform":"Facebook","unit":"iNews","channel":"Seputar iNews RCTI","followers":1209056,"views":321938030,"rev_idr":64090000,"engagement":2055974},{"platform":"Tiktok","unit":"Okezone","channel":"Oke Vibes","followers":926410,"views":253086705,"rev_idr":0,"engagement":5966754},{"platform":"Tiktok","unit":"iNews","channel":"MNC Trijaya","followers":1908928,"views":241625303,"rev_idr":0,"engagement":5318287},{"platform":"Facebook","unit":"IDX Channel","channel":"IDX CHANNEL","followers":300595,"views":236379346,"rev_idr":33371000,"engagement":1890724},{"platform":"Facebook","unit":"iNews","channel":"Buletin iNews GTV","followers":1281820,"views":180563632,"rev_idr":51544000,"engagement":911228},{"platform":"Instagram","unit":"Okezone","channel":"Okezone Women","followers":160068,"views":140353495,"rev_idr":0,"engagement":2424307},{"platform":"Instagram","unit":"Okezone","channel":"RDI 97.1 FM Jakarta","followers":91385,"views":124711911,"rev_idr":0,"engagement":4565503},{"platform":"Tiktok","unit":"Okezone","channel":"RDI 97.1 FM Jakarta","followers":155252,"views":92037613,"rev_idr":0,"engagement":2856911},{"platform":"Tiktok","unit":"iNews","channel":"iNews Premium Sports","followers":1595299,"views":88772389,"rev_idr":0,"engagement":391027},{"platform":"Facebook","unit":"iNews","channel":"Lintas iNews MNCTV","followers":844965,"views":64011132,"rev_idr":8075000,"engagement":497076},{"platform":"Instagram","unit":"Okezone","channel":"Global Radio 88.4 FM Jakarta","followers":38776,"views":42438481,"rev_idr":0,"engagement":1975382},{"platform":"Tiktok","unit":"Okezone","channel":"Global Radio 88.4 FM Jakarta","followers":31534,"views":38974135,"rev_idr":0,"engagement":2498470},{"platform":"Instagram","unit":"Okezone","channel":"V Radio","followers":60210,"views":36048852,"rev_idr":0,"engagement":1063460},{"platform":"Tiktok","unit":"Okezone","channel":"V Radio","followers":47937,"views":31803601,"rev_idr":0,"engagement":390146},{"platform":"Facebook","unit":"Okezone","channel":"MNC Update","followers":888351,"views":26042561,"rev_idr":986000,"engagement":80102},{"platform":"Instagram","unit":"iNews","channel":"Seputar iNews RCTI","followers":279103,"views":26032523,"rev_idr":0,"engagement":759604},{"platform":"Instagram","unit":"iNews","channel":"Lintas iNews MNCTV","followers":376111,"views":25638119,"rev_idr":0,"engagement":730251},{"platform":"Instagram","unit":"iNews","channel":"Buletin iNews GTV","followers":179987,"views":23303955,"rev_idr":0,"engagement":725108},{"platform":"Facebook","unit":"iNews","channel":"MNC Trijaya","followers":25223,"views":16977124,"rev_idr":0,"engagement":407069},{"platform":"Facebook","unit":"Okezone","channel":"RDI 97.1 FM Jakarta","followers":94395,"views":15556359,"rev_idr":850000,"engagement":483528},{"platform":"Instagram","unit":"iNews","channel":"iNews Sports","followers":26954,"views":8283088,"rev_idr":0,"engagement":423811},{"platform":"X","unit":"Sindonews","channel":"SINDOnews","followers":412677,"views":8090402,"rev_idr":0,"engagement":904234},{"platform":"Instagram","unit":"iNews","channel":"MNC Trijaya","followers":20398,"views":4450655,"rev_idr":0,"engagement":108763},{"platform":"Facebook","unit":"Okezone","channel":"V Radio","followers":13440,"views":4255391,"rev_idr":34000,"engagement":43260},{"platform":"X","unit":"iNews","channel":"Official iNews","followers":431818,"views":3363762,"rev_idr":0,"engagement":411918},{"platform":"Instagram","unit":"Sindonews","channel":"Sindo Autotech","followers":5810,"views":2688211,"rev_idr":0,"engagement":88195},{"platform":"X","unit":"Okezone","channel":"Okezone","followers":1821533,"views":916240,"rev_idr":0,"engagement":574415},{"platform":"Facebook","unit":"Okezone","channel":"Global Radio 88.4 FM Jakarta","followers":94696,"views":893116,"rev_idr":0,"engagement":11127},{"platform":"X","unit":"IDX Channel","channel":"IDX CHANNEL","followers":44900,"views":155538,"rev_idr":0,"engagement":55181},{"platform":"X","unit":"Okezone","channel":"Global Radio 88.4 FM Jakarta","followers":241772,"views":0,"rev_idr":0,"engagement":0},{"platform":"X","unit":"Okezone","channel":"RDI 97.1 FM Jakarta","followers":43378,"views":0,"rev_idr":0,"engagement":0},{"platform":"X","unit":"Okezone","channel":"V Radio","followers":222682,"views":0,"rev_idr":0,"engagement":0},{"platform":"X","unit":"iNews","channel":"Buletin iNews GTV","followers":11621,"views":0,"rev_idr":0,"engagement":0},{"platform":"X","unit":"iNews","channel":"Lintas iNews MNCTV","followers":35277,"views":0,"rev_idr":0,"engagement":0},{"platform":"X","unit":"iNews","channel":"MNC Trijaya","followers":41820,"views":0,"rev_idr":0,"engagement":0},{"platform":"X","unit":"iNews","channel":"Seputar iNews RCTI","followers":147610,"views":0,"rev_idr":0,"engagement":0}],"yearly":[{"year":2024,"views":1899286384,"watch":117866025.26,"subs":3287605,"videos":180139,"months":12},{"year":2025,"views":2023270687,"watch":154085986.46,"subs":2880928,"videos":136988,"months":12},{"year":2026,"views":1517096352,"watch":125604852.38,"subs":1070602,"videos":95249,"months":7}],"monthly":[{"year":2024,"month":1,"views":157109997,"watch":7665615.68,"subs":298570,"videos":14036},{"year":2024,"month":2,"views":206636479,"watch":11940191.15,"subs":401042,"videos":13884},{"year":2024,"month":3,"views":148207553,"watch":10055408.59,"subs":296688,"videos":11341},{"year":2024,"month":4,"views":122392516,"watch":7162940.42,"subs":219685,"videos":11628},{"year":2024,"month":5,"views":129656297,"watch":7040659.19,"subs":210883,"videos":13432},{"year":2024,"month":6,"views":151860018,"watch":11489234.4,"subs":268680,"videos":14173},{"year":2024,"month":7,"views":186993566,"watch":12294462.66,"subs":280833,"videos":15222},{"year":2024,"month":8,"views":176759248,"watch":11503154.9,"subs":265653,"videos":16065},{"year":2024,"month":9,"views":150458447,"watch":11172514.55,"subs":262518,"videos":16260},{"year":2024,"month":10,"views":158144166,"watch":8702798.23,"subs":246894,"videos":19341},{"year":2024,"month":11,"views":163264894,"watch":8873042.96,"subs":282047,"videos":16745},{"year":2024,"month":12,"views":147803203,"watch":9966002.52,"subs":254112,"videos":18012},{"year":2025,"month":1,"views":128497704,"watch":8283338.31,"subs":203406,"videos":17368},{"year":2025,"month":2,"views":137504631,"watch":8904666.85,"subs":206835,"videos":15645},{"year":2025,"month":3,"views":122761924,"watch":8513135.35,"subs":181777,"videos":14715},{"year":2025,"month":4,"views":113421952,"watch":7582098.53,"subs":174075,"videos":12059},{"year":2025,"month":5,"views":170126615,"watch":13329906.69,"subs":253826,"videos":10888},{"year":2025,"month":6,"views":169976634,"watch":13374183.1,"subs":264813,"videos":6855},{"year":2025,"month":7,"views":154933700,"watch":12602403.15,"subs":226078,"videos":7492},{"year":2025,"month":8,"views":222412603,"watch":16715562.79,"subs":340264,"videos":8192},{"year":2025,"month":9,"views":204340344,"watch":19565259.69,"subs":374442,"videos":9824},{"year":2025,"month":10,"views":197690124,"watch":14044996.3,"subs":279422,"videos":11929},{"year":2025,"month":11,"views":200640995,"watch":14648648.21,"subs":207288,"videos":10846},{"year":2025,"month":12,"views":200963461,"watch":16521787.49,"subs":168702,"videos":11175},{"year":2026,"month":1,"views":155299087,"watch":12002832.73,"subs":126893,"videos":11949},{"year":2026,"month":2,"views":158734955,"watch":12589263.86,"subs":117273,"videos":12873},{"year":2026,"month":3,"views":339178626,"watch":27394128.48,"subs":273083,"videos":13449},{"year":2026,"month":4,"views":258833766,"watch":22430853.02,"subs":156872,"videos":8762},{"year":2026,"month":5,"views":203762095,"watch":17834759.28,"subs":131345,"videos":14638},{"year":2026,"month":6,"views":199220918,"watch":16022267,"subs":129799,"videos":14700},{"year":2026,"month":7,"views":202066905,"watch":17330748,"subs":135337,"videos":18878}],"yt_channels":[{"unit":"iNews","channel":"Official iNews","views":3169384423,"watch":250848139.49,"subs":3358084,"videos":119103,"ctr":7.93},{"unit":"Sindonews","channel":"Sindonews","views":876915895,"watch":61772059.95,"subs":1391101,"videos":87226,"ctr":6.96},{"unit":"Okezone","channel":"Okezone","views":325472465,"watch":23505975.49,"subs":623570,"videos":40483,"ctr":8.07},{"unit":"iNews","channel":"Buletin iNews GTV","views":168786898,"watch":3568171.35,"subs":216727,"videos":20907,"ctr":7.28},{"unit":"iNews","channel":"Seputar iNews RCTI","views":167642133,"watch":5966960.96,"subs":301625,"videos":18384,"ctr":6.93},{"unit":"iNews","channel":"Lintas iNews MNCTV","views":154482221,"watch":6276548.94,"subs":251547,"videos":22388,"ctr":7.54},{"unit":"IDX Channel","channel":"IDX Channel","views":138540765,"watch":6240624.18,"subs":303022,"videos":29900,"ctr":6.28},{"unit":"Sindonews","channel":"SINDOnews","views":92641641,"watch":6813156,"subs":52260,"videos":6076,"ctr":8.5},{"unit":"iNews","channel":"Trijaya FM","views":88370464,"watch":6061852.02,"subs":202129,"videos":9290,"ctr":7.56},{"unit":"iNews","channel":"Rakyat Bersuara","views":57345189,"watch":11554554.23,"subs":143574,"videos":1344,"ctr":8.44},{"unit":"Okezone","channel":"Okezone Vibes!","views":30519134,"watch":1522903.01,"subs":18899,"videos":4742,"ctr":8.22},{"unit":"iNews","channel":"iNews Premium Sport","views":27683951,"watch":2550676.6,"subs":46018,"videos":1568,"ctr":7.72},{"unit":"iNews","channel":"iNews Jatim Official","views":23147903,"watch":2821489.52,"subs":56706,"videos":4553,"ctr":6.86},{"unit":"IDX Channel","channel":"IDX Channel Insight","views":18268560,"watch":754836.81,"subs":63621,"videos":13925,"ctr":6.82},{"unit":"iNews","channel":"iNews Jateng","views":17724328,"watch":1670901.97,"subs":42490,"videos":4845,"ctr":8.7},{"unit":"IDX Channel","channel":"IDX CHANNEL","views":16796130,"watch":899838,"subs":17998,"videos":3828,"ctr":7},{"unit":"Sindonews","channel":"Sindo Kalam","views":15115025,"watch":89005.85,"subs":32128,"videos":871,"ctr":7.03},{"unit":"Sindonews","channel":"Sindo Podcast","views":14907200,"watch":1497581.06,"subs":34484,"videos":6797,"ctr":7.23},{"unit":"iNews","channel":"iNews Bali Nusra","views":12293674,"watch":1446206.5,"subs":35370,"videos":3781,"ctr":7.12},{"unit":"Okezone","channel":"Radio RDI","views":6854325,"watch":137508.3,"subs":11659,"videos":2125,"ctr":5.35},{"unit":"iNews","channel":"iNews Sumut Official","views":6445301,"watch":772301.78,"subs":15753,"videos":5501,"ctr":7.52},{"unit":"iNews","channel":"iNews Jabar","views":6125115,"watch":509356.08,"subs":13518,"videos":4248,"ctr":8.87},{"unit":"iNews","channel":"iNews Premium Sports","views":3328010,"watch":254688,"subs":5855,"videos":219,"ctr":9.5},{"unit":"Okezone","channel":"Radio RDI 97.1 FM Jakarta","views":512167,"watch":19310,"subs":706,"videos":175,"ctr":6},{"unit":"Sindonews","channel":"SINDO Kalam","views":350506,"watch":2218,"subs":291,"videos":97,"ctr":6.5}],"yt_revenue":[{"unit":"iNews","channel":"Official iNews","revenue":14677941671},{"unit":"Sindonews","channel":"Sindonews","revenue":3984357081},{"unit":"Okezone","channel":"Okezone","revenue":1361898891},{"unit":"iNews","channel":"Rakyat Bersuara","revenue":579488353},{"unit":"IDX Channel","channel":"IDX Channel","revenue":551762500},{"unit":"iNews","channel":"Seputar iNews RCTI","revenue":520381131},{"unit":"iNews","channel":"Trijaya FM","revenue":380652388},{"unit":"iNews","channel":"Buletin iNews GTV","revenue":338528074},{"unit":"iNews","channel":"Lintas iNews MNCTV","revenue":279642430},{"unit":"iNews","channel":"iNews Jatim","revenue":163386018},{"unit":"iNews","channel":"iNews Premium Sport","revenue":155974492},{"unit":"iNews","channel":"iNews Jateng","revenue":98413910},{"unit":"iNews","channel":"iNews Bali Nusra","revenue":83667984},{"unit":"Sindonews","channel":"Sindo Podcast","revenue":78256544},{"unit":"IDX Channel","channel":"IDX Channel Insight","revenue":72278394},{"unit":"Okezone","channel":"Okezone Vibes!","revenue":68360670},{"unit":"Okezone","channel":"Okezone Vibes","revenue":66203677},{"unit":"iNews","channel":"iNews Sumut","revenue":41560496},{"unit":"iNews","channel":"iNews Jabar","revenue":31077623},{"unit":"Okezone","channel":"Radio RDI","revenue":6696361},{"unit":"Sindonews","channel":"Sindo Kalam","revenue":3313122}],"yt_revenue_source":[{"source":"Watch Page ads","revenue":21486814081},{"source":"YouTube Premium","revenue":1266566005},{"source":"Affiliate program","revenue":410172663},{"source":"Shorts Feed ads","revenue":177267838},{"source":"Memberships","revenue":98964732},{"source":"Shopping Star Bonus","revenue":64358035},{"source":"Shopping Affiliate bonus","revenue":32372530},{"source":"Super Thanks","revenue":4877579},{"source":"Super Chat","revenue":2002377},{"source":"Super Stickers","revenue":343831},{"source":"Gifted memberships","revenue":102139},{"source":"-","revenue":0}],"portal":[{"group":"Competitor","portal":"Detik","visits":2639303615,"pageviews":6759572829,"uv":551558257,"bounce":0.52,"ppv":2.57},{"group":"Competitor","portal":"Kompas","visits":1118565251,"pageviews":2566985907,"uv":283867499,"bounce":0.59,"ppv":2.3},{"group":"Competitor","portal":"Tribunnews","visits":985174122,"pageviews":2865771051,"uv":228191858,"bounce":0.41,"ppv":3.06},{"group":"Competitor","portal":"Kumparan","visits":525230667,"pageviews":1358788313,"uv":265691348,"bounce":0.52,"ppv":2.71},{"group":"Competitor","portal":"CNNIndonesia","visits":510664287,"pageviews":970872391,"uv":190398170,"bounce":5.87,"ppv":1.91},{"group":"Competitor","portal":"Liputan6","visits":463093230,"pageviews":723357780,"uv":200258000,"bounce":0.46,"ppv":1.51},{"group":"Competitor","portal":"CNBCIndonesia","visits":413776441,"pageviews":692981815,"uv":142970390,"bounce":0.7,"ppv":1.67},{"group":"Competitor","portal":"Tempo","visits":395042685,"pageviews":782930781,"uv":180298687,"bounce":0.66,"ppv":2.03},{"group":"IMG","portal":"Sindonews","visits":347209272,"pageviews":801832616,"uv":150278680,"bounce":0.57,"ppv":2.32},{"group":"Competitor","portal":"IDNTimes","visits":343962987,"pageviews":942172008,"uv":168125768,"bounce":0.54,"ppv":2.81},{"group":"Competitor","portal":"Tvonenews","visits":281353875,"pageviews":856863809,"uv":157024556,"bounce":0.06,"ppv":3.35},{"group":"Competitor","portal":"Jawapos","visits":246039814,"pageviews":510270602,"uv":129173647,"bounce":0.68,"ppv":2.08},{"group":"Competitor","portal":"Viva","visits":241842531,"pageviews":589958617,"uv":117182971,"bounce":0.27,"ppv":2.42},{"group":"Competitor","portal":"Tirto","visits":235663853,"pageviews":455466293,"uv":137542645,"bounce":0.66,"ppv":1.93},{"group":"Competitor","portal":"Suara","visits":228249298,"pageviews":475812545,"uv":102302936,"bounce":0.63,"ppv":1.95},{"group":"Competitor","portal":"Kapanlagi","visits":224745289,"pageviews":615624691,"uv":130157999,"bounce":0.62,"ppv":2.73},{"group":"Competitor","portal":"Bola com","visits":215441707,"pageviews":481559555,"uv":101702149,"bounce":0.5,"ppv":2.2},{"group":"Competitor","portal":"Pikiran-rakyat","visits":204137924,"pageviews":454124680,"uv":134399614,"bounce":0.69,"ppv":2.21},{"group":"IMG","portal":"Okezone","visits":202907365,"pageviews":415921399,"uv":101035490,"bounce":0.4,"ppv":2.06},{"group":"Competitor","portal":"Republika","visits":193970115,"pageviews":507283602,"uv":70245002,"bounce":0.44,"ppv":2.66},{"group":"Competitor","portal":"Disway","visits":180435952,"pageviews":446878730,"uv":76890448,"bounce":0.26,"ppv":2.47},{"group":"Competitor","portal":"Bisnis","visits":142372272,"pageviews":261236013,"uv":78796329,"bounce":0.56,"ppv":1.83},{"group":"Competitor","portal":"Kontan","visits":137447249,"pageviews":291068131,"uv":70484382,"bounce":0.6,"ppv":2.1},{"group":"Competitor","portal":"Grid","visits":111608805,"pageviews":314082834,"uv":51109061,"bounce":0.51,"ppv":2.83},{"group":"Competitor","portal":"Inilah","visits":109874175,"pageviews":181732926,"uv":72353018,"bounce":0.86,"ppv":1.57},{"group":"IMG","portal":"iNews","visits":103882098,"pageviews":205835008,"uv":74190050,"bounce":0.71,"ppv":1.97},{"group":"Competitor","portal":"Merdeka","visits":88792525,"pageviews":157162419,"uv":53257442,"bounce":0.61,"ppv":1.8},{"group":"Competitor","portal":"Bloombergtechnoz","visits":74811987,"pageviews":207570950,"uv":31821232,"bounce":0.44,"ppv":2.72},{"group":"Competitor","portal":"Investor","visits":72131371,"pageviews":135668245,"uv":39216811,"bounce":0.27,"ppv":1.83},{"group":"Competitor","portal":"Katadata","visits":66921750,"pageviews":132040390,"uv":45427625,"bounce":0.62,"ppv":1.99},{"group":"Competitor","portal":"JPNN","visits":50585496,"pageviews":165788323,"uv":25863154,"bounce":0.52,"ppv":3.28},{"group":"IMG","portal":"IDXChannel","visits":30463404,"pageviews":73083549,"uv":16197668,"bounce":0.35,"ppv":2.36}],"portal_revenue":[{"channel":"OKEZONE","revenue":5877792946.79},{"channel":"SINDONEWS.COM","revenue":3308224144.41},{"channel":"INEWS ID","revenue":2317415692.12}],"meta":{"generated":"2026-08-19","period":"Terbaru","rows_studio":100350,"rows_scraping":49601,"rows_socmed":1728,"rows_portal":608}};
+const IMG_UNITS = ['iNews','Sindonews','Okezone','IDX Channel'];
+
+/* ---------- helpers ---------- */
+const N = n => {
+  n = Number(n)||0;
+  if(Math.abs(n)>=1e12) return (n/1e12).toFixed(2)+' triliun';
+  if(Math.abs(n)>=1e9)  return (n/1e9).toFixed(2)+' miliar';
+  if(Math.abs(n)>=1e6)  return (n/1e6).toFixed(2)+' jt';
+  if(Math.abs(n)>=1e3)  return (n/1e3).toFixed(1)+' rb';
+  return n.toLocaleString('id-ID',{maximumFractionDigits:2});
+};
+const RP = n => 'Rp ' + N(n);
+const P  = n => (Number(n)||0).toFixed(2)+'%';
+const esc = s => String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const rk = i => `<span class="rk ${i<3?'g'+(i+1):''}">${i+1}</span>`;
+const isIMG = c => IMG_UNITS.some(u => String(c).toLowerCase().includes(u.toLowerCase()));
+const tagOf = c => isIMG(c) ? '<span class="tag img">IMG</span>' : '<span class="tag cmp">Kompetitor</span>';
+
+function table(head, rows){
+  return `<table><thead><tr>${head.map((h,i)=>`<th${i>0?' style="text-align:right"':''}>${h}</th>`).join('')}</tr></thead>
+  <tbody>${rows.map(r=>`<tr>${r.map((c,i)=>`<td${i>0?' class="n"':''}>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+}
+function card(title, body, note){
+  return `<div class="hd">${title}</div>${body}${note?`<div class="note">${note}</div>`:''}`;
+}
+
+/* ---------- ANSWER ENGINE ---------- */
+function answer(qRaw){
+  const q = qRaw.toLowerCase();
+  const has = (...w) => w.some(x => q.includes(x));
+
+  /* --- perbandingan 2 cluster spesifik (urutan mengikuti kalimat user) --- */
+  const named = DATA.cluster
+    .filter(c => q.includes(c.cluster.toLowerCase()))
+    .sort((a,b) => q.indexOf(a.cluster.toLowerCase()) - q.indexOf(b.cluster.toLowerCase()));
+  if(named.length >= 2 && has('vs','banding','dibanding','compare','lawan')){
+    const [a,b] = named;
+    const win = a.views > b.views ? a : b, lose = a.views > b.views ? b : a;
+    const gap = ((win.views/lose.views - 1)*100).toFixed(1);
+    return card(`⚖️ ${a.cluster} vs ${b.cluster}`,
+      table(['Metrik', a.cluster, b.cluster],[
+        ['Total views', N(a.views), N(b.views)],
+        ['Jumlah video', N(a.videos), N(b.videos)],
+        ['Rata-rata views/video', N(a.views/a.videos), N(b.views/b.videos)],
+        ['Likes', N(a.likes), N(b.likes)],
+        ['Comments', N(a.comments), N(b.comments)],
+        ['Engagement Rate', P(a.er), P(b.er)],
+      ]),
+      `<b>${win.cluster}</b> unggul ${gap}% di total views. Tapi cek ER — volume besar tidak selalu berarti engagement lebih baik.`);
+  }
+
+  /* --- profitable / revenue --- */
+  if(has('profit','revenue','duit','uang','cuan','penghasilan','pendapatan','menguntungkan','monetisasi')){
+    const rev = (DATA.yt_revenue||[]).slice(0,10);
+    const src = (DATA.yt_revenue_source||[]).slice(0,6);
+    const tot = (DATA.yt_revenue||[]).reduce((s,x)=>s+x.revenue,0);
+    let body = table(['Channel','Revenue (IDR)','Share'],
+      rev.map((r,i)=>[rk(i)+esc(r.channel), RP(r.revenue), P(r.revenue/tot*100)]));
+    if(src.length) body += `<div style="margin-top:14px;font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--mut);font-weight:700">Sumber revenue</div>`
+      + table(['Sumber','Revenue (IDR)'], src.map((r,i)=>[rk(i)+esc(r.source), RP(r.revenue)]));
+    return card('💰 Channel Paling Profitable',body,
+      `Total revenue YouTube tercatat <b>${RP(tot)}</b>. <b>${rev[0].channel}</b> menyumbang ${P(rev[0].revenue/tot*100)} dari seluruh pendapatan.`);
+  }
+
+  /* --- subscriber (dicek lebih dulu: kata "subscriber" mengandung pola "er ") --- */
+  if(has('subscriber','subs ','pelanggan','follower')){
+    const s = [...DATA.yt_channels].sort((a,b)=>b.subs-a.subs).slice(0,12);
+    return card('👥 Subscriber per Channel (IMG)',
+      table(['Channel','Subscriber Gained','Views','Watch Time'],
+        s.map((c,i)=>[rk(i)+esc(c.channel)+`<div style="font-size:10.5px;color:var(--mut);margin-top:2px">${esc(c.unit)}</div>`,
+          N(c.subs), N(c.views), N(c.watch)+' jam'])),
+      `Channel dengan pertambahan subscriber terbanyak: <b>${s[0].channel}</b> (+${N(s[0].subs)} selama periode data).`);
+  }
+
+  /* --- engagement rate --- */
+  if(has('engagement','interaksi','like','komentar','comment') || /\ber\b/.test(q)){
+    const s = [...DATA.cluster].sort((a,b)=>b.er-a.er);
+    return card('📈 Engagement Rate per Cluster',
+      table(['Cluster','ER','Likes','Comments','Views'],
+        s.map((c,i)=>[rk(i)+esc(c.cluster)+' '+tagOf(c.cluster), P(c.er), N(c.likes), N(c.comments), N(c.views)])),
+      `<b>${s[0].cluster}</b> punya ER tertinggi (${P(s[0].er)}) — penonton paling aktif berinteraksi. Cluster dengan views besar tapi ER rendah berarti reach luas tapi keterlibatan tipis.`);
+  }
+
+  /* --- platform socmed --- */
+  if(has('platform','tiktok','instagram','facebook','twitter',' x ','socmed','sosmed','media sosial')){
+    const s = [...DATA.platform].sort((a,b)=>b.views-a.views);
+    return card('📱 Perbandingan Platform Social Media',
+      table(['Platform','Followers','Views','Engagement','Akun'],
+        s.map((p,i)=>[rk(i)+esc(p.platform), N(p.followers), N(p.views), N(p.engagement), p.channels])),
+      `<b>${s[0].platform}</b> mendominasi dengan ${N(s[0].views)} views dan ${N(s[0].followers)} followers. Engagement rate efektif TikTok = ${P(s[0].engagement/s[0].views*100)} dari views.`);
+  }
+
+  /* --- portal --- */
+  if(has('portal','website','situs','traffic','visit','similarweb','bounce')){
+    const s = [...DATA.portal].sort((a,b)=>b.visits-a.visits).slice(0,12);
+    const img = DATA.portal.filter(p=>p.group!=='Competitor');
+    return card('🌐 Portal Performance (Similarweb)',
+      table(['Portal','Total Visits','Page Views','Bounce','Page/Visit'],
+        s.map((p,i)=>[rk(i)+esc(p.portal)+' '+(p.group==='Competitor'?'<span class="tag cmp">Kompetitor</span>':'<span class="tag img">IMG</span>'),
+          N(p.visits), N(p.pageviews), P(p.bounce*100), (p.ppv||0).toFixed(2)])),
+      img.length?`Portal IMG di database: <b>${img.map(p=>p.portal).join(', ')}</b>. Bandingkan bounce rate — makin rendah makin bagus kualitas trafiknya.`:'');
+  }
+
+  /* --- shorts vs vod / kategori --- */
+  if(has('shorts','vod','live','kategori','format','jenis konten')){
+    const s = [...(DATA.category||[])].sort((a,b)=>b.views-a.views);
+    return card('🎬 Performa per Format Konten',
+      table(['Format','Video','Total Views','Views/Video','ER'],
+        s.map((c,i)=>[rk(i)+esc(c.category), N(c.videos), N(c.views), N(c.views/c.videos), P(c.er)])),
+      `Format dengan views/video tertinggi: <b>${[...s].sort((a,b)=>b.views/b.videos-a.views/a.videos)[0].category}</b>. Ini indikator efisiensi produksi konten.`);
+  }
+
+  /* --- trend --- */
+  if(has('trend','tren','naik','turun','growth','pertumbuhan','tahun','yoy','bulan')){
+    const y = [...DATA.yearly].sort((a,b)=>a.year-b.year);
+    // bandingkan rata-rata per bulan supaya adil (tahun berjalan belum lengkap)
+    const rows = y.map((x,i)=>{
+      const pm = x.views / x.months, prev = y[i-1];
+      const d = prev ? ((pm / (prev.views/prev.months) - 1) * 100) : null;
+      const badge = d===null ? '—'
+        : `<span style="color:${d>=0?'var(--ok)':'var(--bad)'}">${d>=0?'▲':'▼'} ${Math.abs(d).toFixed(1)}%</span>`;
+      return [String(x.year) + (x.months<12?` <span style="font-size:10px;color:var(--mut)">(${x.months} bln)</span>`:''),
+              N(x.views), N(pm), N(x.videos), badge];
+    });
+    const m = DATA.monthly.slice(-18), mx = Math.max(...m.map(x=>x.views));
+    const spark = `<div style="display:flex;align-items:flex-end;gap:3px;height:72px;margin:14px 0 6px">`
+      + m.map(x=>`<div title="${x.year}-${String(x.month).padStart(2,'0')}: ${N(x.views)} views"
+          style="flex:1;height:${Math.max(6,x.views/mx*100)}%;border-radius:3px 3px 0 0;
+          background:linear-gradient(180deg,var(--acc2),var(--acc))"></div>`).join('')
+      + `</div><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--mut)">
+         <span>${m[0].year}-${String(m[0].month).padStart(2,'0')}</span>
+         <span>views bulanan (18 bulan terakhir)</span>
+         <span>${m[m.length-1].year}-${String(m[m.length-1].month).padStart(2,'0')}</span></div>`;
+    const last = y[y.length-1], prev = y[y.length-2];
+    const dl = (last.views/last.months) / (prev.views/prev.months) - 1;
+    return card('📊 Tren Performa YouTube',
+      table(['Tahun','Total Views','Rata²/Bulan','Video','Growth'], rows) + spark,
+      `Dibandingkan rata-rata bulanan, ${last.year} ${dl>=0?'<b>naik</b>':'<b>turun</b>'} ${Math.abs(dl*100).toFixed(1)}% dari ${prev.year}. `
+      + `Produksi video ${last.videos/last.months < prev.videos/prev.months ? 'menurun' : 'meningkat'}, `
+      + `sementara views per video ${(last.views/last.videos) > (prev.views/prev.videos) ? '<b>naik</b> — konten makin efektif' : 'turun'}. `
+      + (last.months<12 ? `<br>⚠️ Data ${last.year} baru ${last.months} bulan, jadi perbandingan memakai rata-rata per bulan, bukan total.` : ''));
+  }
+
+  /* --- top video --- */
+  if(has('video terbaik','video top','top video','konten terbaik','video viral','viral')){
+    const v = DATA.top_videos_all.slice(0,10);
+    return card('🔥 Video dengan Views Tertinggi',
+      table(['Judul','Views','Likes','ER'],
+        v.map((x,i)=>[rk(i)+esc(x.title)+`<div style="font-size:10.5px;color:var(--mut);margin-top:2px">${esc(x.channel)} · ${esc(x.cluster)}</div>`,
+          N(x.views), N(x.likes), P(x.er)])),
+      `Video teratas: <b>${esc(v[0].channel)}</b> dengan ${N(v[0].views)} views.`);
+  }
+
+  /* --- CTR / impression --- */
+  if(has('ctr','click','impression','impresi','thumbnail')){
+    const s = [...DATA.studio].filter(c=>c.impressions>0).sort((a,b)=>b.ctr-a.ctr).slice(0,12);
+    return card('🎯 Click-Through Rate per Channel',
+      table(['Channel','CTR','Impressions','Views','% Ditonton'],
+        s.map((c,i)=>[rk(i)+esc(c.channel), P(c.ctr), N(c.impressions), N(c.views), P(c.pct_viewed)])),
+      `CTR tertinggi: <b>${s[0].channel}</b> (${P(s[0].ctr)}) — judul & thumbnail paling menarik klik. Rata-rata CTR industri berita YouTube ada di kisaran 4–6%.`);
+  }
+
+  /* --- IMG vs kompetitor / market share --- */
+  if(has('kompetitor','competitor','saingan','market share','pangsa','posisi img','img vs')){
+    const img = DATA.cluster.filter(c=>isIMG(c.cluster));
+    const cmp = DATA.cluster.filter(c=>!isIMG(c.cluster));
+    const iv = img.reduce((s,x)=>s+x.views,0), cv = cmp.reduce((s,x)=>s+x.views,0);
+    const ie = img.reduce((s,x)=>s+x.er*x.videos,0)/img.reduce((s,x)=>s+x.videos,0);
+    const ce = cmp.reduce((s,x)=>s+x.er*x.videos,0)/cmp.reduce((s,x)=>s+x.videos,0);
+    return card('🏁 IMG vs Kompetitor',
+      table(['Metrik','IMG Group','Kompetitor'],[
+        ['Total views', N(iv), N(cv)],
+        ['Market share views', P(iv/(iv+cv)*100), P(cv/(iv+cv)*100)],
+        ['Jumlah video', N(img.reduce((s,x)=>s+x.videos,0)), N(cmp.reduce((s,x)=>s+x.videos,0))],
+        ['Engagement Rate', P(ie), P(ce)],
+      ]) + `<div class="bar" style="width:${(iv/(iv+cv)*100).toFixed(1)}%"></div>`,
+      `IMG menguasai <b>${P(iv/(iv+cv)*100)}</b> dari total views yang dipantau. ER IMG ${ie>ce?'<b>lebih tinggi</b>':'lebih rendah'} dari kompetitor (${P(ie)} vs ${P(ce)}).`);
+  }
+
+  /* --- top channel (default ranking) --- */
+  if(has('top','terbaik','terbanyak','ranking','peringkat','tertinggi','channel','unggul','besar')){
+    const s = [...DATA.cluster].sort((a,b)=>b.views-a.views);
+    const ch = [...DATA.channels_scraping].sort((a,b)=>b.views-a.views).slice(0,10);
+    return card('🏆 Ranking Performa',
+      `<div style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--mut);font-weight:700;margin-bottom:6px">Per cluster</div>`
+      + table(['Cluster','Views','Video','ER'],
+          s.map((c,i)=>[rk(i)+esc(c.cluster)+' '+tagOf(c.cluster), N(c.views), N(c.videos), P(c.er)]))
+      + `<div style="margin-top:14px;font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--mut);font-weight:700;margin-bottom:6px">Top 10 channel</div>`
+      + table(['Channel','Views','ER'],
+          ch.map((c,i)=>[rk(i)+esc(c.channel)+`<div style="font-size:10.5px;color:var(--mut);margin-top:2px">${esc(c.cluster)}</div>`, N(c.views), P(c.er)])),
+      `<b>${s[0].cluster}</b> memimpin dengan ${N(s[0].views)} views dari ${N(s[0].videos)} video.`);
+  }
+
+  /* --- ringkasan / overview --- */
+  if(has('ringkas','summary','overview','gambaran','laporan','report','kesimpulan','insight')){
+    const s = [...DATA.cluster].sort((a,b)=>b.views-a.views);
+    const p = [...DATA.platform].sort((a,b)=>b.views-a.views);
+    const img = DATA.cluster.filter(c=>isIMG(c.cluster));
+    const iv = img.reduce((a,x)=>a+x.views,0), tv = DATA.cluster.reduce((a,x)=>a+x.views,0);
+    const rev = (DATA.yt_revenue||[]).reduce((a,x)=>a+x.revenue,0);
+    return card('📋 Ringkasan Eksekutif',
+      table(['Indikator','Nilai'],[
+        ['Total views YouTube (semua cluster)', N(tv)],
+        ['Market share IMG', P(iv/tv*100)],
+        ['Cluster teratas', `${s[0].cluster} (${N(s[0].views)})`],
+        ['Platform socmed terbesar', `${p[0].platform} (${N(p[0].views)} views)`],
+        ['Total followers socmed', N(DATA.platform.reduce((a,x)=>a+x.followers,0))],
+        ['Revenue YouTube', RP(rev)],
+        ['Konten dianalisis', N(DATA.meta.rows_scraping + DATA.meta.rows_studio)+' baris'],
+      ]),
+      `Periode data: <b>${DATA.meta.period}</b>. Tanya lebih spesifik untuk breakdown per channel, platform, atau portal.`);
+  }
+
+  /* --- fallback --- */
+  return card('🤔 Coba lebih spesifik',
+    `<div style="line-height:1.75">Saya bisa menjawab tentang:<br>
+     • <b>Ranking</b> — "channel mana paling banyak views?"<br>
+     • <b>Revenue</b> — "channel mana paling profitable?"<br>
+     • <b>Engagement</b> — "cluster mana ER-nya tertinggi?"<br>
+     • <b>Platform</b> — "bandingkan TikTok vs Instagram"<br>
+     • <b>Portal</b> — "traffic portal gimana?"<br>
+     • <b>Kompetitor</b> — "posisi IMG vs kompetitor?"<br>
+     • <b>Tren</b> — "tren views 3 tahun terakhir"<br>
+     • <b>Format</b> — "Shorts vs VOD mana lebih bagus?"<br>
+     • <b>Perbandingan</b> — "iNews vs KompasTV"</div>`,
+    `Pertanyaan kamu: "<b>${esc(qRaw)}</b>" belum saya kenali polanya.`);
+}
+
+/* ---------- UI ---------- */
+const wrap = document.getElementById('wrap'), chat = document.getElementById('chat');
+function push(who, html){
+  const d = document.createElement('div');
+  d.className = 'msg ' + who;
+  d.innerHTML = `<div class="av">${who==='bot'?'📊':'🧑'}</div><div class="bub">${html}</div>`;
+  wrap.appendChild(d); chat.scrollTop = chat.scrollHeight; return d;
+}
+function ask(text){
+  const el = document.getElementById('q');
+  const t = (text || el.value).trim(); if(!t) return;
+  el.value = '';
+  push('me', esc(t));
+  const tp = push('bot', '<div class="typing"><i></i><i></i><i></i></div>');
+  setTimeout(()=>{ tp.querySelector('.bub').innerHTML = answer(t); chat.scrollTop = chat.scrollHeight; }, 380);
+  if(window.innerWidth<=900) document.getElementById('side').classList.remove('open');
+}
+document.getElementById('q').addEventListener('keypress', e => { if(e.key==='Enter') ask(); });
+
+/* sidebar suggestions */
+const SUG = {
+  'Performa & Ranking':['Channel mana paling banyak views?','Ranking cluster YouTube','Video apa yang paling viral?'],
+  'Uang & Monetisasi':['Channel mana paling profitable?','Dari mana sumber revenue terbesar?'],
+  'Engagement':['Cluster mana engagement rate tertinggi?','Channel mana CTR-nya paling bagus?'],
+  'Kompetitor':['Posisi IMG vs kompetitor?','iNews vs KompasTV','Sindonews vs MetroTV'],
+  'Platform & Portal':['Bandingkan platform social media','Traffic portal gimana?','Shorts vs VOD mana lebih bagus?'],
+  'Lainnya':['Tren views 3 tahun terakhir','Ringkasan eksekutif','Channel mana subscriber terbanyak?']
+};
+document.getElementById('nav').innerHTML = Object.entries(SUG).map(([g,qs])=>
+  `<div class="grp"><h3>${g}</h3>${qs.map(q=>`<button class="q" onclick="ask('${q.replace(/'/g,"\\'")}')">${q}</button>`).join('')}</div>`
+).join('');
+
+/* KPI + footer */
+(function init(){
+  const tv = DATA.cluster.reduce((a,x)=>a+x.views,0);
+  const fl = DATA.platform.reduce((a,x)=>a+x.followers,0);
+  const rv = (DATA.yt_revenue||[]).reduce((a,x)=>a+x.revenue,0);
+  const rows = DATA.meta.rows_scraping + DATA.meta.rows_studio + DATA.meta.rows_socmed + DATA.meta.rows_portal;
+  document.getElementById('k1').textContent = N(tv);
+  document.getElementById('k2').textContent = N(fl);
+  document.getElementById('k3').textContent = RP(rv);
+  document.getElementById('k4').textContent = N(rows);
+  document.getElementById('fPeriod').textContent = DATA.meta.period;
+  document.getElementById('fGen').textContent = DATA.meta.generated;
+  document.getElementById('liveTxt').textContent = 'Data ' + DATA.meta.period;
+
+  push('bot', card('👋 Halo! Welcome to Ask IMG Analytics.',
+    `<div style="line-height:1.7">Saya adalah <b>AI Analytics Assistant</b> untuk membantu Anda memahami data Digital iNews Media Group.</div>
+     <div class="cap">
+       ${[['📊','Cari insight'],['📈','Analisis performa'],['🔎','Temukan tren'],['💡','Peluang dan rekomendasi']]
+         .map(([ic,t])=>`<div><span>${ic}</span><span>${t}</span></div>`).join('')}
+     </div>
+     <div style="line-height:1.7;margin-top:12px">Tanyakan apa saja terkait data IMG. Saya bantu analisisnya!</div>`,
+    `Basis data: <b>${N(rows)} baris</b> — ${DATA.cluster.length} cluster media, ${DATA.platform.length} platform social media, ${DATA.portal.length} portal berita. Pilih pertanyaan di panel kiri, atau ketik sendiri di bawah.`));
+})();
+</script>
+</body>
+</html>
