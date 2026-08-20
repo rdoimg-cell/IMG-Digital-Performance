@@ -25,18 +25,26 @@ body{
 /* ---------- SIDEBAR ---------- */
 .side{border-right:1px solid var(--line);background:rgba(255,255,255,.82);backdrop-filter:blur(18px);
   display:flex;flex-direction:column;overflow:hidden}
-.brand{padding:22px 20px 16px;border-bottom:1px solid var(--line)}
-.logo{display:flex;align-items:center;gap:11px}
-.logo .mark{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,var(--acc),var(--acc2));
-  display:grid;place-items:center;font-size:19px;box-shadow:0 6px 20px rgba(99,102,241,.42)}
-.logo h1{font-size:16px;font-weight:800;letter-spacing:-.3px;line-height:1.15}
-.logo span{font-size:11px;color:var(--mut);font-weight:500}
-.live{margin-top:14px;display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:600;
+.brand{padding:18px 20px 14px;border-bottom:1px solid var(--line)}
+.logo{display:flex;flex-direction:column;align-items:flex-start;gap:10px}
+.logo .mark{height:30px;width:auto;object-fit:contain;display:block}
+.logo h1{font-size:16.5px;font-weight:800;letter-spacing:-.3px;line-height:1.2}
+.logo span{font-size:11px;color:var(--mut);font-weight:500;display:block;margin-top:2px}
+.live{margin-top:12px;display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:600;
   color:var(--ok);background:#ecfdf5;border:1px solid #a7f3d0;padding:5px 10px;border-radius:99px}
 .dot{width:6px;height:6px;border-radius:50%;background:var(--ok);animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
 
-.nav{flex:1;overflow-y:auto;padding:16px 14px 20px}
+.pick{padding:12px 14px 4px;border-bottom:1px solid var(--line)}
+.pick h3{font-size:10.5px;text-transform:uppercase;letter-spacing:.9px;color:var(--mut);
+  font-weight:700;margin:0 2px 7px}
+.pick select{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:9px;
+  background:var(--panel2);color:var(--txt);font-size:12.5px;font-family:inherit;cursor:pointer;outline:none}
+.pick select:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(79,70,229,.10)}
+.pick .now{margin-top:7px;font-size:10.5px;color:var(--mut);line-height:1.45}
+.pick .now b{color:var(--acc)}
+
+.nav{flex:1;overflow-y:auto;padding:14px 14px 20px}
 .nav::-webkit-scrollbar{width:5px}.nav::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:9px}
 .grp{margin-bottom:18px}
 .grp h3{font-size:10.5px;text-transform:uppercase;letter-spacing:.9px;color:var(--mut);
@@ -54,7 +62,8 @@ body{
 /* ---------- MAIN ---------- */
 .main{display:flex;flex-direction:column;overflow:hidden}
 .top{padding:16px 26px;border-bottom:1px solid var(--line);display:flex;gap:12px;
-  align-items:center;flex-wrap:wrap;background:rgba(255,255,255,.75);backdrop-filter:blur(12px)}
+  align-items:center;flex-wrap:wrap;background:rgba(255,255,255,.75);backdrop-filter:blur(12px);
+  transition:padding .22s ease, opacity .22s ease}
 .kpi{flex:1;min-width:128px;background:var(--panel);border:1px solid var(--line);border-radius:12px;
   padding:11px 13px;box-shadow:var(--shadow)}
 .kpi .l{font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--mut);font-weight:600}
@@ -72,13 +81,44 @@ body{
 .av{width:32px;height:32px;border-radius:9px;flex-shrink:0;display:grid;place-items:center;font-size:14px;font-weight:700}
 .msg.bot .av{background:linear-gradient(135deg,var(--acc),var(--acc2));box-shadow:0 4px 14px rgba(99,102,241,.35)}
 .msg.me .av{background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow)}
-.bub{max-width:80%;padding:14px 17px;border-radius:14px;font-size:13.6px;line-height:1.62}
+.bub{max-width:80%;min-width:0;padding:14px 17px;border-radius:14px;font-size:13.6px;line-height:1.62;
+  overflow-wrap:anywhere;word-break:break-word}
+.msg{min-width:0}
+/* tabel lebar bisa digeser mendatar, bukan diperas sampai angka terpotong */
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:4px -3px}
+.tw::-webkit-scrollbar{height:5px}
+.tw::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:9px}
+.tw table{margin:0}
+/* petunjuk kalau tabel masih ada lanjutannya ke kanan */
+.tw{position:relative}
+.tw.geser::after{content:'';position:sticky;right:0;top:0;float:right;width:26px;height:100%;
+  pointer-events:none;background:linear-gradient(90deg,transparent,var(--panel) 78%)}
+.geser-tip{font-size:10px;color:var(--mut);margin-top:-2px;margin-bottom:6px;display:none}
+.geser-tip.on{display:block}
+td.n,th{white-space:nowrap}          /* angka & judul kolom jangan dipotong */
+td:first-child{overflow-wrap:anywhere;min-width:112px}
 .msg.bot .bub{background:var(--panel);border:1px solid var(--line);border-top-left-radius:4px;box-shadow:var(--shadow)}
 .msg.me .bub{background:linear-gradient(135deg,var(--acc),#8b5cf6);border-top-right-radius:4px;font-weight:500}
 .bub b{color:#0f172a;font-weight:700}
 .msg.me .bub b{color:#fff}
 .bub .hd{font-size:14.5px;font-weight:800;margin-bottom:11px;display:flex;align-items:center;gap:8px;letter-spacing:-.2px}
 .bub .note{margin-top:11px;padding-top:10px;border-top:1px solid var(--line);font-size:11.8px;color:var(--mut);line-height:1.55}
+.bub .pf{margin-top:10px;padding:7px 10px;background:var(--panel2);border:1px solid var(--line);
+  border-radius:8px;font-size:11px;color:var(--mut);line-height:1.5}
+.bub .pf b{color:var(--acc);font-weight:700}
+.bub .acts{margin-top:10px;display:flex;gap:7px;flex-wrap:wrap}
+.bub .acts button{background:var(--panel2);border:1px solid var(--line);color:var(--mut);
+  padding:6px 11px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;
+  font-family:inherit;width:auto;transition:.15s}
+.bub .acts button:hover{background:#eef2ff;border-color:#c7d2fe;color:var(--acc)}
+.bub .warn{margin-top:11px;padding:10px 12px;background:#fffbeb;border:1px solid #fde68a;
+  border-radius:9px;font-size:12px;color:#92400e;line-height:1.6}
+.bub .warn b{color:#78350f}
+.bub .warn .t{font-weight:800;display:block;margin-bottom:3px}
+.nope{line-height:1.75}
+.nope .ok{margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
+.nope code{background:var(--panel2);border:1px solid var(--line);padding:1px 6px;
+  border-radius:5px;font-size:11.5px}
 
 table{width:100%;border-collapse:collapse;margin:4px 0;font-size:12.6px}
 th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--mut);
@@ -111,9 +151,14 @@ td.n{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
 .box{max-width:860px;margin:0 auto;display:flex;gap:10px;background:var(--panel);
   border:1px solid var(--line);border-radius:14px;padding:7px 7px 7px 17px;transition:.2s;box-shadow:var(--shadow)}
 .box:focus-within{border-color:var(--acc);box-shadow:0 0 0 4px rgba(79,70,229,.12)}
-.box input{flex:1;background:none;border:none;outline:none;color:var(--txt);font-size:13.8px;
-  font-family:inherit;padding:10px 0}
-.box input::placeholder{color:var(--mut)}
+.box{align-items:flex-end}
+.box textarea{flex:1;background:none;border:none;outline:none;color:var(--txt);font-size:13.8px;
+  font-family:inherit;padding:10px 0;resize:none;line-height:1.5;max-height:132px;overflow-y:auto;
+  min-height:38px}
+.box textarea::placeholder{color:var(--mut)}
+.box textarea::-webkit-scrollbar{width:5px}
+.box textarea::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:9px}
+.box button{align-self:flex-end;flex-shrink:0}
 .box button{background:linear-gradient(135deg,var(--acc),#8b5cf6);border:none;color:#fff;
   padding:10px 20px;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;
   font-family:inherit;transition:.18s}
@@ -123,28 +168,66 @@ td.n{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
 .hint .by b{color:var(--acc);font-weight:700}
 
 .burger{display:none}
+.close{display:none}
+#scrim{display:none}
+
 @media(max-width:900px){
   .app{grid-template-columns:1fr}
-  .side{position:fixed;inset:0 auto 0 0;width:280px;z-index:50;transform:translateX(-100%);transition:.25s}
+
+  /* --- panel kiri jadi laci yang bisa ditutup --- */
+  .side{position:fixed;inset:0 auto 0 0;width:284px;z-index:60;transform:translateX(-100%);
+    transition:transform .25s ease;box-shadow:0 0 40px rgba(16,32,64,.22);background:#fff}
   .side.open{transform:none}
-  .burger{display:grid;place-items:center;width:36px;height:36px;border-radius:9px;background:var(--panel);
-    border:1px solid var(--line);color:var(--txt);cursor:pointer;font-size:16px;box-shadow:var(--shadow)}
-  .side{box-shadow:0 0 40px rgba(16,32,64,.18)}
-  .top{padding:12px 16px}.chat{padding:18px 16px 8px}.inp{padding:12px 16px 16px}
-  .bub{max-width:92%}.kpi{min-width:104px}
+  #scrim{display:block;position:fixed;inset:0;z-index:55;background:rgba(16,32,64,.34);
+    opacity:0;pointer-events:none;transition:opacity .25s}
+  #scrim.on{opacity:1;pointer-events:auto}
+  .brand{position:relative;padding-right:52px}
+  .close{display:grid;place-items:center;position:absolute;top:16px;right:14px;
+    width:32px;height:32px;border-radius:9px;background:var(--panel2);border:1px solid var(--line);
+    color:var(--mut);font-size:14px;cursor:pointer;font-family:inherit;line-height:1}
+  .close:active{background:#eef2ff}
+  .burger{display:grid;place-items:center;width:34px;height:34px;border-radius:9px;background:var(--panel);
+    border:1px solid var(--line);color:var(--txt);cursor:pointer;font-size:15px;box-shadow:var(--shadow);
+    flex-shrink:0}
+
+  /* KPI mengecil saat menggulir ke bawah, supaya ruang baca lega */
+  .top.ringkas{padding-top:0;padding-bottom:0;opacity:0;
+    max-height:0;overflow:hidden;border-bottom-color:transparent}
+
+  /* --- kartu KPI diperkecil, 2 kolom --- */
+  .top{padding:9px 12px;gap:7px;max-height:240px;
+    transition:max-height .22s ease, padding .22s ease, opacity .22s ease}
+  .kpi{flex:1 1 calc(50% - 24px);min-width:0;padding:6px 9px;border-radius:9px}
+  .kpi .l{font-size:8px;letter-spacing:.3px;line-height:1.2}
+  .kpi .v{font-size:13px;margin-top:1px}
+  .kpi .s{font-size:8.5px;line-height:1.2}
+
+  .chat{padding:16px 13px 6px}.inp{padding:10px 13px 14px}
+  .bub{max-width:94%;font-size:13px;padding:12px 14px}
+  table{font-size:11.5px}th{font-size:9px;padding:5px 7px}td{padding:6px 7px}
+  .tw{margin-left:-4px;margin-right:-4px}
+  td:first-child{min-width:96px}
+}
+
+@media(max-width:420px){
+  .kpi .v{font-size:12px}
+  .kpi .l{font-size:7.5px}
 }
 </style>
 </head>
 <body>
+<div id="scrim"></div>
 <div class="app">
   <aside class="side" id="side">
     <div class="brand">
       <div class="logo">
-        <div class="mark">📊</div>
+        <img class="mark" src="data:image/png;base64,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" alt="iNews Media Group">
         <div><h1>Ask IMG Analytics</h1><span>Media Performance Intelligence</span></div>
       </div>
+      <button class="close" id="closeSide" aria-label="Tutup menu">✕</button>
       <div class="live"><span class="dot"></span><span id="liveTxt">Data aktif</span></div>
     </div>
+    <div class="pick" id="pick"></div>
     <div class="nav" id="nav"></div>
     <div class="foot">
       Periode: <b id="fPeriod">—</b><br>
@@ -156,7 +239,7 @@ td.n{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
 
   <main class="main">
     <div class="top">
-      <button class="burger" onclick="document.getElementById('side').classList.toggle('open')">☰</button>
+      <button class="burger" id="openSide" aria-label="Buka menu">☰</button>
       <div class="kpi"><div class="l">Total Views YouTube IMG</div><div class="v" id="k1">—</div><div class="s" id="s1">—</div></div>
       <div class="kpi"><div class="l">Revenue YouTube IMG</div><div class="v" id="k2">—</div><div class="s" id="s2">—</div></div>
       <div class="kpi"><div class="l">Total Followers YouTube IMG</div><div class="v" id="k3">—</div><div class="s" id="s3">—</div></div>
@@ -167,8 +250,9 @@ td.n{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
 
     <div class="inp">
       <div class="box">
-        <input id="q" placeholder="Tanya apa saja… contoh: channel mana paling profitable?" autocomplete="off">
-        <button onclick="ask()">Kirim</button>
+        <textarea id="q" rows="1" placeholder="Tanya apa saja tentang data IMG…"
+          autocomplete="off" spellcheck="false"></textarea>
+        <button onclick="ask()" aria-label="Kirim">Kirim</button>
       </div>
       <div class="hint"><span class="by">Ask IMG Analytics — dikembangkan oleh <b>RDO IMG Team</b></span></div>
     </div>
@@ -189,24 +273,673 @@ const N = n => {
   return n.toLocaleString('id-ID',{maximumFractionDigits:2});
 };
 const RP = n => 'Rp ' + N(n);
-const P  = n => (Number(n)||0).toFixed(2)+'%';
+const PC = n => (Number(n)||0).toFixed(2)+'%';
 const esc = s => String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
 const rk = i => `<span class="rk ${i<3?'g'+(i+1):''}">${i+1}</span>`;
 const isIMG = c => IMG_UNITS.some(u => String(c).toLowerCase().includes(u.toLowerCase()));
 const tagOf = c => isIMG(c) ? '<span class="tag img">IMG</span>' : '<span class="tag cmp">Kompetitor</span>';
 
 function table(head, rows){
-  return `<table><thead><tr>${head.map((h,i)=>`<th${i>0?' style="text-align:right"':''}>${h}</th>`).join('')}</tr></thead>
-  <tbody>${rows.map(r=>`<tr>${r.map((c,i)=>`<td${i>0?' class="n"':''}>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  return `<div class="tw"><table><thead><tr>${head.map((h,i)=>`<th${i>0?' style="text-align:right"':''}>${h}</th>`).join('')}</tr></thead>
+  <tbody>${rows.map(r=>`<tr>${r.map((c,i)=>`<td${i>0?' class="n"':''}>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
 }
 function card(title, body, note){
   return `<div class="hd">${title}</div>${body}${note?`<div class="note">${note}</div>`:''}`;
+}
+
+
+/* ---------- PERIODE ---------- */
+const BLN_ID = ['Januari','Februari','Maret','April','Mei','Juni',
+                'Juli','Agustus','September','Oktober','November','Desember'];
+
+// urut dari yang paling panjang, supaya "januari" tidak keburu cocok ke "jan"
+const BLN_MAP = [
+  ['januari',1],['january',1],['jan',1],
+  ['februari',2],['february',2],['pebruari',2],['feb',2],
+  ['maret',3],['march',3],['mar',3],
+  ['april',4],['apr',4],
+  ['mei',5],['may',5],
+  ['juni',6],['june',6],['jun',6],
+  ['juli',7],['july',7],['jul',7],
+  ['agustus',8],['august',8],['agu',8],['agt',8],['aug',8],
+  ['september',9],['sept',9],['sep',9],
+  ['oktober',10],['october',10],['okt',10],['oct',10],
+  ['november',11],['nov',11],
+  ['desember',12],['december',12],['des',12],['dec',12],
+];
+const BLN_RE = BLN_MAP.map(x => x[0]).join('|');
+const blnNo = w => (BLN_MAP.find(x => x[0] === w) || [null, null])[1];
+
+const ymLabel = P => P.y1 === P.y2
+  ? (P.m1 === P.m2 ? `${BLN_ID[P.m1-1]} ${P.y1}`
+                   : `${BLN_ID[P.m1-1]}–${BLN_ID[P.m2-1]} ${P.y1}`)
+  : `${BLN_ID[P.m1-1]} ${P.y1} – ${BLN_ID[P.m2-1]} ${P.y2}`;
+
+const mkP = (y1,m1,y2,m2) => {
+  const P = {y1,m1,y2,m2};
+  P.label = ymLabel(P);
+  return P;
+};
+
+/* Membaca periode dari kalimat. Mengembalikan null kalau tidak ada periode. */
+function parsePeriod(qRaw){
+  const q = ' ' + qRaw.toLowerCase().replace(/[–—]/g, '-') + ' ';
+  const cov = (DATA.coverage && DATA.coverage.youtube) || null;
+  const LY = cov ? cov.to[0] : new Date().getFullYear();
+  const LM = cov ? cov.to[1] : 12;
+  let m;
+
+  /* "3 bulan terakhir" / "6 bulan terakhir" */
+  if ((m = q.match(/(\d{1,2})\s*bulan\s*(terakhir|belakangan|ke\s*belakang)/))){
+    const n = Math.max(1, Math.min(48, parseInt(m[1], 10)));
+    const end = LY * 12 + LM, start = end - n + 1;
+    return mkP(Math.floor((start - 1) / 12), (start - 1) % 12 + 1, LY, LM);
+  }
+
+  /* "bulan lalu" / "bulan kemarin" */
+  if (/bulan\s*(lalu|kemarin|sebelumnya)/.test(q)){
+    const t = LY * 12 + LM - 1;
+    return mkP(Math.floor((t - 1) / 12), (t - 1) % 12 + 1, Math.floor((t - 1) / 12), (t - 1) % 12 + 1);
+  }
+
+  /* "bulan ini" / "bulan terakhir" */
+  if (/bulan\s*(ini|terakhir)\b/.test(q)) return mkP(LY, LM, LY, LM);
+
+  /* "ytd" / "year to date" / "tahun ini" */
+  if (/\bytd\b|year\s*to\s*date|tahun\s*(ini|berjalan)/.test(q)) return mkP(LY, 1, LY, LM);
+
+  /* "tahun lalu" */
+  if (/tahun\s*(lalu|kemarin|sebelumnya)/.test(q)) return mkP(LY - 1, 1, LY - 1, 12);
+
+  /* rentang lengkap: "januari 2025 - maret 2026" */
+  if ((m = q.match(new RegExp(`\\b(${BLN_RE})\\s*(20\\d\\d)\\s*(?:-|s/?d|sampai|hingga|sd|to)\\s*(${BLN_RE})\\s*(20\\d\\d)`)))){
+    return mkP(+m[2], blnNo(m[1]), +m[4], blnNo(m[3]));
+  }
+
+  /* rentang satu tahun: "jan-juli 2026", "januari sampai juli 2026" */
+  if ((m = q.match(new RegExp(`\\b(${BLN_RE})\\s*(?:-|s/?d|sampai|hingga|sd|to)\\s*(${BLN_RE})\\s*(20\\d\\d)?`)))){
+    const y = m[3] ? +m[3] : LY;
+    return mkP(y, blnNo(m[1]), y, blnNo(m[2]));
+  }
+
+  /* kuartal: "q1 2026", "kuartal 2 2026", "triwulan 3" */
+  if ((m = q.match(/\b(?:q|kuartal\s*|triwulan\s*)([1-4])\b\s*(20\d\d)?/))){
+    const k = +m[1], y = m[2] ? +m[2] : LY;
+    return mkP(y, k * 3 - 2, y, k * 3);
+  }
+
+  /* semester: "semester 1 2026", "h1 2026" */
+  if ((m = q.match(/\b(?:semester\s*|smt\s*|h)([12])\b\s*(20\d\d)?/))){
+    const h = +m[1], y = m[2] ? +m[2] : LY;
+    return mkP(y, h * 6 - 5, y, h * 6);
+  }
+
+  /* satu bulan: "juli 2026" atau "bulan juli" */
+  if ((m = q.match(new RegExp(`\\b(${BLN_RE})\\s*(20\\d\\d)`)))){
+    return mkP(+m[2], blnNo(m[1]), +m[2], blnNo(m[1]));
+  }
+  if ((m = q.match(new RegExp(`\\bbulan\\s+(${BLN_RE})\\b`)))){
+    return mkP(LY, blnNo(m[1]), LY, blnNo(m[1]));
+  }
+
+  /* tahun saja: "2025" atau "tahun 2025" */
+  if ((m = q.match(/\b(?:tahun\s*)?(20\d\d)\b/))){
+    const y = +m[1];
+    return mkP(y, 1, y, y === LY ? LM : 12);
+  }
+
+  /* nama bulan berdiri sendiri tanpa tahun: "revenue Mei" -> Mei tahun terakhir */
+  if ((m = q.match(new RegExp(`\\b(${BLN_RE})\\b`)))){
+    const bl = blnNo(m[1]);
+    const y = bl <= LM ? LY : LY - 1;     // bulan yang belum lewat -> tahun sebelumnya
+    return mkP(y, bl, y, bl);
+  }
+
+  return null;
+}
+
+
+/* Membaca DUA periode dari kalimat, mis. "revenue Q1 vs Q2 2026".
+   Kalau sisi kiri tidak menyebut tahun, tahun diambil dari sisi kanan. */
+function parsePeriodPair(qRaw){
+  const q = qRaw.toLowerCase().replace(/[–—]/g, '-');
+  const parts = q.split(/\s+(?:vs\.?|versus|dibandingkan\s+dengan|dibandingkan|dibanding|bandingkan|banding|lebih\s+\w+\s+dari(?:pada)?|daripada|ketimbang)\s+/);
+  if (parts.length !== 2) return null;
+
+  const B = parsePeriod(parts[1]);
+  if (!B) return null;
+
+  let kiri = parts[0];
+  const thn = parts[1].match(/20\d\d/);
+  if (thn && !/20\d\d/.test(kiri)) kiri += ' ' + thn[0];
+  const A = parsePeriod(kiri);
+  if (!A) return null;
+  if (A.y1 === B.y1 && A.m1 === B.m1 && A.y2 === B.y2 && A.m2 === B.m2) return null;
+  return [A, B];
+}
+
+/* Kartu perbandingan dua periode. */
+function comparePeriods(qRaw, A, B){
+  const q = qRaw.toLowerCase();
+  const hasQ = (...w) => w.some(x => q.includes(x));
+  const delta = (a, b) => {
+    if (!b) return '—';
+    const d = (a / b - 1) * 100;
+    return `<span style="color:${d >= 0 ? 'var(--ok)' : 'var(--bad)'}">${d >= 0 ? '▲' : '▼'} ${Math.abs(d).toFixed(1)}%</span>`;
+  };
+  const sum = (ts, P, col) => rollup(TS(ts), P, ['y'], [col]).list.reduce((a, x) => a + x[col], 0);
+
+  /* --- portal --- */
+  if (hasQ('portal', 'traffic', 'visit', 'situs')){
+    const f = c => [sum('ts_portal', A, c), sum('ts_portal', B, c)];
+    const [v1, v2] = f('visits'), [p1, p2] = f('pageviews'), [u1, u2] = f('uv');
+    return card(`⚖️ Portal — ${A.label} vs ${B.label}`,
+      table(['Metrik', A.label, B.label, 'Selisih'], [
+        ['Total visits', N(v1), N(v2), delta(v1, v2)],
+        ['Page views', N(p1), N(p2), delta(p1, p2)],
+        ['Unique visitors', N(u1), N(u2), delta(u1, u2)],
+      ]), covNote(A, 'portal') + covNote(B, 'portal'));
+  }
+
+  /* --- socmed --- */
+  if (hasQ('socmed', 'sosmed', 'tiktok', 'instagram', 'facebook', 'platform', 'follower')){
+    const foll = P => rollup(TS('ts_socmed'), P, ['platform', 'channel'], ['views', 'engagement'], ['followers'])
+      .list.reduce((a, x) => ({f: a.f + x.followers, v: a.v + x.views, e: a.e + x.engagement}), {f: 0, v: 0, e: 0});
+    const a = foll(A), b = foll(B);
+    return card(`⚖️ Social Media — ${A.label} vs ${B.label}`,
+      table(['Metrik', A.label, B.label, 'Selisih'], [
+        ['Followers (akhir periode)', N(a.f), N(b.f), delta(a.f, b.f)],
+        ['Views', N(a.v), N(b.v), delta(a.v, b.v)],
+        ['Engagement', N(a.e), N(b.e), delta(a.e, b.e)],
+      ]), covNote(A, 'socmed') + covNote(B, 'socmed'));
+  }
+
+  /* --- YouTube: revenue / views / subscriber (default) --- */
+  const gy = P => {
+    const r = rollup(TS('ts_youtube'), P, ['channel'], ['revenue', 'views', 'watch', 'subs_gained'], ['lifetime']);
+    const t = r.list.reduce((a, x) => ({
+      rev: a.rev + x.revenue, views: a.views + x.views, watch: a.watch + x.watch,
+      sg: a.sg + x.subs_gained, life: a.life + x.lifetime}), {rev: 0, views: 0, watch: 0, sg: 0, life: 0});
+    t.months = r.months; t.list = r.list;
+    return t;
+  };
+  const a = gy(A), b = gy(B);
+
+  const baris = [
+    ['Revenue', RP(a.rev), RP(b.rev), delta(a.rev, b.rev)],
+    ['Views', N(a.views), N(b.views), delta(a.views, b.views)],
+    ['Watch time', N(a.watch) + ' jam', N(b.watch) + ' jam', delta(a.watch, b.watch)],
+    ['Subscriber bertambah', '+' + N(a.sg), '+' + N(b.sg), delta(a.sg, b.sg)],
+    ['Jumlah bulan', a.months, b.months, '—'],
+    ['Revenue / bulan', RP(a.months ? a.rev / a.months : 0), RP(b.months ? b.rev / b.months : 0),
+      delta(a.months ? a.rev / a.months : 0, b.months ? b.rev / b.months : 0)],
+  ];
+
+  // rincian per channel kalau yang ditanya revenue
+  let extra = '';
+  if (hasQ('revenue', 'profit', 'duit', 'uang', 'cuan', 'pendapatan', 'penghasilan')){
+    const mp = new Map();
+    a.list.forEach(x => mp.set(x.channel, {ch: x.channel, a: x.revenue, b: 0}));
+    b.list.forEach(x => {
+      const o = mp.get(x.channel) || {ch: x.channel, a: 0, b: 0};
+      o.b = x.revenue; mp.set(x.channel, o);
+    });
+    const rows = [...mp.values()].filter(x => x.a || x.b).sort((x, y) => (y.a + y.b) - (x.a + x.b)).slice(0, 10);
+    extra = `<div style="margin-top:14px;font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--mut);font-weight:700">Revenue per channel</div>`
+      + table(['Channel', A.label, B.label, 'Selisih'],
+          rows.map((r, i) => [rk(i) + esc(r.ch), RP(r.a), RP(r.b), delta(r.a, r.b)]));
+  }
+
+  const naik = a.rev >= b.rev;
+  return card(`⚖️ YouTube IMG — ${A.label} vs ${B.label}`,
+    table(['Metrik', A.label, B.label, 'Selisih'], baris) + extra,
+    `Revenue ${A.label} <b>${naik ? 'lebih tinggi' : 'lebih rendah'}</b> ${Math.abs((a.rev / (b.rev || 1) - 1) * 100).toFixed(1)}% dibanding ${B.label}. `
+    + `Kolom "Selisih" membandingkan periode pertama terhadap periode kedua.`
+    + covNote(A, 'youtube') + covNote(B, 'youtube'));
+}
+
+/* ---------- AKSES DERET WAKTU ---------- */
+function TS(name){
+  const t = DATA[name] || {cols: [], rows: []};
+  const ix = {}; t.cols.forEach((c, i) => ix[c] = i);
+  return {ix, rows: t.rows, has: t.rows.length > 0};
+}
+const inP = (r, P) => {
+  if (!P) return true;
+  const t = r[0] * 12 + r[1];
+  return t >= P.y1 * 12 + P.m1 && t <= P.y2 * 12 + P.m2;
+};
+
+/* Kelompokkan baris deret waktu: sum untuk metrik, max untuk nilai lifetime. */
+function rollup(ts, P, keys, sums, lasts){
+  const rows = ts.rows.filter(r => inP(r, P));
+  // bulan terakhir di dalam rentang -> dipakai untuk nilai lifetime (follower/subscriber)
+  const lastT = rows.length ? Math.max(...rows.map(r => r[0] * 12 + r[1])) : null;
+  const map = new Map();
+  for (const r of rows){
+    const kv = keys.map(k => r[ts.ix[k]]);
+    const id = kv.join('');
+    let o = map.get(id);
+    if (!o){ o = {_k: kv, _n: 0}; sums.forEach(c => o[c] = 0); (lasts||[]).forEach(c => o[c] = 0); map.set(id, o); }
+    o._n++;
+    sums.forEach(c => o[c] += Number(r[ts.ix[c]]) || 0);
+    if (lasts && r[0] * 12 + r[1] === lastT)
+      lasts.forEach(c => o[c] = Math.max(o[c], Number(r[ts.ix[c]]) || 0));
+  }
+  const list = [...map.values()].map(o => { keys.forEach((k, i) => o[k] = o._k[i]); return o; });
+  // dikembalikan sebagai objek supaya jumlah bulan tidak ikut hilang saat list di-.filter()
+  return {list, months: new Set(rows.map(r => r[0] * 12 + r[1])).size, lastT};
+}
+
+/* Cek apakah periode yang diminta masih tercakup datanya. */
+function covNote(P, key){
+  if (!P) return '';
+  const c = DATA.coverage && DATA.coverage[key];
+  if (!c) return '';
+  const a = c.from[0] * 12 + c.from[1], b = c.to[0] * 12 + c.to[1];
+  const x = P.y1 * 12 + P.m1, y = P.y2 * 12 + P.m2;
+  if (y < a || x > b)
+    return `<br>⚠️ Data ${key} yang tersedia hanya ${BLN_ID[c.from[1]-1]} ${c.from[0]} – ${BLN_ID[c.to[1]-1]} ${c.to[0]}. Periode yang Anda minta di luar rentang itu.`;
+  if (x < a || y > b)
+    return `<br>⚠️ Sebagian periode di luar data. Yang tersedia hanya ${BLN_ID[c.from[1]-1]} ${c.from[0]} – ${BLN_ID[c.to[1]-1]} ${c.to[0]}.`;
+  return '';
+}
+
+/* Peringatan untuk data yang hanya berisi satu bulan (Scraping & YouTube Studio). */
+function snapNote(P){
+  if (!P) return '';
+  return `<br>⚠️ Angka di atas <b>bukan</b> periode ${P.label}. Data engagement, ranking cluster, top video, dan CTR berasal dari file Scraping & YouTube Studio yang hanya berisi <b>${DATA.coverage ? DATA.coverage.snapshot_only : 'satu bulan'}</b>. Untuk analisis berperiode, tanyakan revenue, views, subscriber, followers, atau portal.`;
+}
+const tt = (title, P) => P ? `${title} · ${P.label}` : title;
+
+/* Apakah periode yang diminta ada di luar cakupan sumber? */
+function diLuarCakupan(src, P){
+  if (!P) return false;
+  const c = (DATA.coverage || {})[src];
+  if (!c) return false;
+  const a = c.from[0]*12 + c.from[1], b = c.to[0]*12 + c.to[1];
+  return (P.y2*12 + P.m2) < a || (P.y1*12 + P.m1) > b;
+}
+
+/* Pesan kalau periode yang diminta tidak tercakup sumber datanya. */
+function kosong(src, P){
+  const c = (DATA.coverage || {})[src];
+  const NAMA = {youtube:'Recap YouTube', socmed:'Social Media', portal:'Portal (Similarweb)',
+                portal_sales:'Revenue Direct Sales Portal', studio:'YouTube Studio', scraping:'Scraping'};
+  const rng = c ? `${BLN_ID[c.from[1]-1]} ${c.from[0]} – ${BLN_ID[c.to[1]-1]} ${c.to[0]}` : '-';
+  return `<div style="line-height:1.7">Tidak ada data untuk periode <b>${P ? P.label : '-'}</b>.<br>
+    Sumbernya (${NAMA[src] || src}) hanya tersedia untuk <b>${rng}</b>.</div>`;
+}
+
+
+/* ---------- SARING TABEL BERDIMENSI TANGGAL ---------- */
+const ymOf = t => { const y = +String(t).slice(0,4), m = +String(t).slice(5,7); return y*12 + m; };
+const inDate = (t, P) => {
+  if (!P) return true;
+  const x = ymOf(t);
+  return x >= P.y1*12 + P.m1 && x <= P.y2*12 + P.m2;
+};
+
+/* Ringkas tabel harian umum (ts_money / ts_jam). */
+function tglRollup(name, P, keyCol, sums){
+  const t = TS(name), ix = t.ix;
+  const rows = t.rows.filter(r => inDate(r[ix.tgl], P));
+  const map = new Map();
+  for (const r of rows){
+    const k = r[ix[keyCol]];
+    let o = map.get(k);
+    if (!o){ o = {[keyCol]: k}; sums.forEach(c => o[c] = 0); map.set(k, o); }
+    sums.forEach(c => o[c] += Number(r[ix[c]]) || 0);
+  }
+  return {list: [...map.values()], hari: new Set(rows.map(r => r[ix.tgl])).size};
+}
+
+/* Ringkas tabel bulanan umum (ts_demografi / ts_portal_tipe). */
+function bulanRollup(name, P, keys, sums, means){
+  const t = TS(name), ix = t.ix;
+  const rows = t.rows.filter(r => inP(r, P));
+  const map = new Map();
+  for (const r of rows){
+    const kv = keys.map(k => r[ix[k]]), id = kv.join('');
+    let o = map.get(id);
+    if (!o){ o = {_n:0}; keys.forEach((k,i)=>o[k]=kv[i]); (sums||[]).concat(means||[]).forEach(c=>o[c]=0); map.set(id,o); }
+    o._n++;
+    (sums||[]).forEach(c => o[c] += Number(r[ix[c]]) || 0);
+    (means||[]).forEach(c => o[c] += Number(r[ix[c]]) || 0);
+  }
+  const list = [...map.values()].map(o => {
+    (means||[]).forEach(c => o[c] = o._n ? o[c]/o._n : 0);
+    return o;
+  });
+  return {list, bulan: new Set(rows.map(r => r[0]*12 + r[1])).size};
+}
+
+/* Sumber data yang dipakai jawaban terakhir -> dipakai untuk catatan di bawah. */
+let SRC = null;
+
+/* Keterangan periode yang selalu ditempel di bawah setiap jawaban. */
+function periodFooter(P){
+  const c = DATA.coverage || {};
+  const NAMA = {youtube:'Recap YouTube', socmed:'Social Media', portal:'Portal (Similarweb)',
+                portal_sales:'Revenue Direct Sales Portal', studio:'YouTube Studio', scraping:'Scraping'};
+  const rng = k => {
+    const v = c[k];
+    if (!v) return '';
+    return `${BLN_ID[v.from[1]-1]} ${v.from[0]} – ${BLN_ID[v.to[1]-1]} ${v.to[0]}`;
+  };
+  let baris = P
+    ? `📅 Periode ditampilkan: <b>${P.label}</b>`
+    : `📅 Periode ditampilkan: <b>seluruh data</b>`;
+  if (SRC && c[SRC]) baris += ` &nbsp;·&nbsp; Sumber: ${NAMA[SRC] || SRC} (tersedia ${rng(SRC)})`;
+  return `<div class="pf">${baris}</div>`;
+}
+
+
+/* ==================== PENJAGA KEJUJURAN ====================
+   Mesin ini mencocokkan kata kunci, bukan memahami kalimat. Tanpa penjaga,
+   pertanyaan yang tidak dipahami tetap dijawab dengan tabel yang salah sasaran.
+   Dua lapis pengaman:
+   (1) maksud yang memang belum didukung -> ditolak terang-terangan
+   (2) bagian pertanyaan yang diabaikan  -> diberi peringatan di bawah jawaban  */
+
+/* Kumpulan nama entitas yang ada di data, untuk mendeteksi penyaringan
+   yang diminta user tapi belum bisa dilakukan. */
+const ENTITAS = (() => {
+  const add = (set, arr, f) => (arr || []).forEach(x => { const v = f(x); if (v && String(v).length >= 5) set.add(String(v)); });
+  const channel = new Set(), program = new Set(), kategori = new Set(), lain = new Set();
+  add(channel, (DATA.audit || {}).canon, x => x);
+  add(channel, DATA.channels_scraping, x => x.channel);
+  add(channel, DATA.socmed_channels, x => x.channel);
+  add(lain, DATA.cluster, x => x.cluster);
+  add(lain, DATA.portal, x => x.portal);
+  if (DATA.ts_dim){
+    const ix = {}; DATA.ts_dim.cols.forEach((c,i)=>ix[c]=i);
+    for (const r of DATA.ts_dim.rows){
+      if (r[ix.dim] === 'program') program.add(r[ix.key]);
+      if (r[ix.dim] === 'kategori') kategori.add(r[ix.key]);
+    }
+  }
+  // kata terlalu umum -> jangan dianggap nama entitas
+  const buang = new Set(['other','others','video','views','event','sport','live','radio content',
+                         'digital content','tv content','(tidak diisi)']);
+  const bersih = st => [...st].filter(x => !buang.has(x.toLowerCase()));
+  return {channel: bersih(channel), program: bersih(program),
+          kategori: bersih(kategori), lain: bersih(lain)};
+})();
+
+/* Entitas yang benar-benar dipakai jawaban (diisi oleh jawaban perbandingan). */
+let USED_ENT = [];
+let USED_SYARAT = false;
+
+/* Cari nama entitas yang disebut di pertanyaan. */
+function entitasDisebut(qRaw){
+  const q = ' ' + qRaw.toLowerCase() + ' ';
+  const out = [];
+  for (const [jenis, arr] of [['channel', ENTITAS.channel], ['program', ENTITAS.program],
+                              ['kategori', ENTITAS.kategori], ['cluster/portal', ENTITAS.lain]]){
+    for (const nama of arr){
+      if (q.includes(' ' + nama.toLowerCase()) || q.includes(nama.toLowerCase() + ' '))
+        out.push({jenis, nama});
+    }
+  }
+  // satu nama bisa muncul di beberapa daftar sekaligus (mis. 'Okezone' adalah
+  // channel sekaligus cluster) -> samakan dulu, baru buang yang tercakup nama
+  // yang lebih panjang ('iNews' di dalam 'iNews Jabar')
+  const uniq = [...new Map(out.map(e => [e.nama.toLowerCase(), e])).values()];
+  return uniq.filter(a => !uniq.some(b =>
+    b.nama.length > a.nama.length && b.nama.toLowerCase().includes(a.nama.toLowerCase())));
+}
+
+/* Syarat angka: "di atas 2%", "lebih dari 1 juta", "minimal 100 rb" */
+function syaratAngka(qRaw){
+  const m = qRaw.toLowerCase().match(/(di\s*atas|lebih\s*dari|melebihi|minimal|paling\s*sedikit|>=?|di\s*bawah|kurang\s*dari|maksimal|<=?)\s*(rata-?rata|median|[\d.,]+\s*(?:%|persen|juta|jt|ribu|rb|miliar|m)?)/);
+  return m ? `${m[1]} ${m[2]}`.replace(/\s+/g,' ').trim() : null;
+}
+
+/* Maksud yang memang belum didukung -> tolak terang-terangan. */
+function maksudBelumDidukung(qRaw){
+  const q = ' ' + qRaw.toLowerCase() + ' ';
+  const ada = (...w) => w.some(x => q.includes(x));
+
+  const kartu = (ikon, judul, apa, bisa) => card(`${ikon} ${judul}`,
+    `<div class="nope">${apa}
+       <div class="ok"><b>Yang bisa saya bantu sekarang:</b><br>${bisa}</div></div>`,
+    'Saya sengaja tidak menampilkan tabel apa pun, supaya tidak ada angka yang salah ditafsirkan.');
+
+  if (ada('rekomendasi','saran','sebaiknya','apa yang harus','langkah apa','strategi',
+          'bagaimana caranya meningkat','perlu dievaluasi','layak dipertahankan','harus ditutup',
+          'perlu diperbaiki','bermasalah'))
+    return kartu('💡', 'Rekomendasi belum didukung',
+      'Saya belum bisa menyusun rekomendasi. Yang bisa saya lakukan adalah menunjukkan mana yang berkinerja baik dan buruk.',
+      '<code>Kategori apa paling bagus?</code>, <code>Program terbaik</code>, <code>Original vs Repack</code>, <code>Jam berapa terbaik posting?</code>');
+
+  if (ada('detailnya','lebih detail dong','rinciannya dong'))
+    return kartu('💬', 'Perincian lebih dalam belum didukung',
+      'Saya belum bisa membuka rincian dari jawaban sebelumnya.',
+      'Sebutkan langsung yang ingin dilihat. Contoh: <code>Program Rakyat Bersuara</code>, <code>Kategori apa paling bagus di Official iNews?</code>');
+
+  if (ada('export','ekspor','unduh','download','simpan ke excel','ke excel','csv'))
+    return kartu('📤', 'Ada tombolnya di bawah jawaban',
+      'Setiap jawaban punya tombol <b>📋 Salin tabel</b> dan <b>⬇ Unduh CSV</b> tepat di bawahnya.',
+      'Tanyakan dulu datanya (mis. <code>Revenue Jan-Juli 2026</code>), lalu klik tombol di bawah tabel yang muncul. '
+      + 'CSV-nya sudah memakai pemisah titik-koma supaya langsung rapi di Excel Indonesia.');
+
+  if (ada('kirim ke','email','whatsapp','pdf'))
+    return kartu('📤', 'Pengiriman belum didukung',
+      'Saya belum bisa mengirim hasil lewat email atau pesan.',
+      'Gunakan tombol <b>Salin tabel</b> atau <b>Unduh CSV</b> di bawah setiap jawaban, lalu lampirkan sendiri.');
+
+  if (ada('target','rkap','rencana kerja','budget','anggaran'))
+    return kartu('🎯', 'Data target belum ada',
+      'Yang saya punya hanya angka <b>realisasi</b>. Target atau RKAP belum ada di keempat file Excel-nya.',
+      'Kalau target dimasukkan ke salah satu sheet, saya bisa menghitung pencapaiannya. Untuk saat ini: <code>Revenue Jan-Juli 2026</code>.');
+
+  if (ada('grafik','chart','diagram','visualisasi','plot'))
+    return kartu('📈', 'Grafik masih terbatas',
+      'Saya baru punya grafik batang sederhana, itu pun hanya di beberapa jawaban.',
+      'Grafik tersedia di <code>Tren views 3 tahun terakhir</code>, <code>Performa harian</code>, dan <code>Jam berapa terbaik posting?</code>.');
+
+  return null;
+}
+
+/* Peringatan kalau ada bagian pertanyaan yang saya abaikan. */
+function peringatanDiabaikan(qRaw){
+  const ent = entitasDisebut(qRaw).filter(e => !USED_ENT.includes(e.nama));
+  const syarat = USED_SYARAT ? null : syaratAngka(qRaw);
+  const majemuk = /\b(tapi|namun|sedangkan|sementara)\b/i.test(qRaw) ? true : false;
+  if (!ent.length && !syarat && !majemuk) return '';
+
+  const bagian = [];
+  if (ent.length) bagian.push(`nama ${[...new Set(ent.map(e=>e.jenis))].join('/')}: <b>${ent.map(e=>esc(e.nama)).join(', ')}</b>`);
+  if (syarat) bagian.push(`syarat angka: <b>${esc(syarat)}</b>`);
+  if (majemuk) bagian.push(`syarat majemuk (<b>tapi/sedangkan</b>)`);
+
+  return `<div class="warn"><span class="t">⚠️ Sebagian pertanyaan Anda belum saya proses</span>
+    Saya mengabaikan ${bagian.join(' dan ')}. Angka di atas adalah <b>keseluruhan data</b>, belum disaring sesuai itu.
+    <br>Penyaringan per nama dan syarat angka belum didukung — untuk sementara, cari barisnya sendiri di tabel.</div>`;
+}
+
+
+/* ---------- PENYARINGAN PER ENTITAS ---------- */
+
+/* Cari satu nama dari daftar yang disebut di pertanyaan (yang terpanjang menang). */
+function cariNama(qRaw, daftar){
+  const q = ' ' + qRaw.toLowerCase() + ' ';
+  let hit = null;
+  for (const nama of daftar){
+    const n = nama.toLowerCase();
+    if ((q.includes(' ' + n) || q.includes(n + ' ')) && (!hit || nama.length > hit.length))
+      hit = nama;
+  }
+  return hit;
+}
+const channelDisebut  = q => cariNama(q, ENTITAS.channel);
+
+/* Unit induk (iNews, Sindonews, Okezone, IDX Channel) -> daftar channel di bawahnya. */
+const UNIT_CH = (() => {
+  const m = {};
+  (DATA.studio || []).forEach(x => { (m[x.unit] = m[x.unit] || []).push(x.channel); });
+  return m;
+})();
+const unitDisebut = q => cariNama(q, Object.keys(UNIT_CH));
+const programDisebut  = q => cariNama(q, ENTITAS.program);
+const kategoriDisebut = q => cariNama(q, ENTITAS.kategori);
+
+/* Ringkas dimensi editorial, boleh disaring per channel.
+   Tanpa channel -> pakai ts_dim (harian, bisa disaring sampai tanggal).
+   Dengan channel -> pakai ts_dim_ch (bulanan, karena disilang dengan channel). */
+function dimRollup(dim, P, chFilter){
+  if (chFilter && DATA.ts_dim_ch){
+    const t = TS('ts_dim_ch'), ix = t.ix;
+    // chFilter boleh satu nama channel, atau daftar channel (untuk satu unit)
+    const set = new Set((Array.isArray(chFilter) ? chFilter : [chFilter]).map(x => String(x).toLowerCase()));
+    const rows = t.rows.filter(r => r[ix.dim] === dim
+      && set.has(String(r[ix.channel]).toLowerCase()) && inP(r, P));
+    const map = new Map();
+    for (const r of rows){
+      const k = r[ix.key];
+      let o = map.get(k);
+      if (!o){ o = {key:k, videos:0, views:0, watch:0, revenue:0, eng:0, subs:0, ctr_sum:0, pct_sum:0}; map.set(k,o); }
+      o.videos += r[ix.videos]; o.views += r[ix.views]; o.watch += r[ix.watch];
+      o.revenue += r[ix.revenue]; o.eng += r[ix.eng];
+      o.ctr_sum += r[ix.ctr_sum]; o.pct_sum += r[ix.pct_sum];
+    }
+    const list = [...map.values()].map(o => ({...o,
+      ctr: o.videos ? o.ctr_sum/o.videos : 0, pct: o.videos ? o.pct_sum/o.videos : 0}))
+      .sort((a,b) => b.views - a.views);
+    return {list, hari: null, bulan: new Set(rows.map(r => r[0]*12+r[1])).size,
+            channel: chFilter};
+  }
+
+  const t = TS('ts_dim'), ix = t.ix;
+  const rows = t.rows.filter(r => r[ix.dim] === dim && inDate(r[ix.tgl], P));
+  const map = new Map();
+  for (const r of rows){
+    const k = r[ix.key];
+    let o = map.get(k);
+    if (!o){ o = {key:k, videos:0, views:0, watch:0, revenue:0, eng:0, subs:0, ctr_sum:0, pct_sum:0}; map.set(k,o); }
+    o.videos += r[ix.videos]; o.views += r[ix.views]; o.watch += r[ix.watch];
+    o.revenue += r[ix.revenue]; o.eng += r[ix.eng]; o.subs += r[ix.subs];
+    o.ctr_sum += r[ix.ctr_sum]; o.pct_sum += r[ix.pct_sum];
+  }
+  const list = [...map.values()].map(o => ({...o,
+    ctr: o.videos ? o.ctr_sum/o.videos : 0, pct: o.videos ? o.pct_sum/o.videos : 0}))
+    .sort((a,b) => b.views - a.views);
+  return {list, hari: new Set(rows.map(r => r[ix.tgl])).size, channel: null};
+}
+
+/* Judul yang ikut menyebut channel bila disaring. */
+const namaFilter = ch => !ch ? '' : (Array.isArray(ch) ? (ch.label || 'unit terpilih') : ch);
+const ttc = (judul, P, ch) => tt(judul + (ch ? ` · ${namaFilter(ch)}` : ''), P);
+/* Catatan sumber saat disaring per channel (data silang bersifat bulanan). */
+const catatanCh = R => R.channel
+  ? ` Disaring untuk <b>${esc(namaFilter(R.channel))}</b> (rincian per channel dihitung bulanan).`
+  : (R.hari ? ` Dihitung dari ${R.hari} hari data.` : '');
+
+/* ---------- SYARAT ANGKA ---------- */
+/* "ER di atas 2%", "revenue di bawah 100 juta", "RPM di bawah rata-rata" */
+function bacaSyarat(qRaw){
+  const q = qRaw.toLowerCase();
+  const m = q.match(/(di\s*atas|lebih\s*dari|melebihi|minimal|>=?|di\s*bawah|kurang\s*dari|maksimal|<=?)\s*(rata-?rata|median|[\d.,]+)\s*(%|persen|juta|jt|ribu|rb|miliar)?/);
+  if (!m) return null;
+  const naik = /atas|lebih|melebihi|minimal|>/.test(m[1]);
+  const rel  = /rata|median/.test(m[2]);
+  let nilai = rel ? null : parseFloat(m[2].replace(/\./g, '').replace(',', '.'));
+  const sat = m[3] || '';
+  if (nilai !== null){
+    if (/juta|jt/.test(sat)) nilai *= 1e6;
+    else if (/ribu|rb/.test(sat)) nilai *= 1e3;
+    else if (/miliar/.test(sat)) nilai *= 1e9;
+  }
+  // metrik apa yang dimaksud
+  let metrik = 'views';
+  if (/\ber\b|engagement/.test(q)) metrik = 'er';
+  else if (/rpm/.test(q)) metrik = 'rpm';
+  else if (/cpm/.test(q)) metrik = 'cpm';
+  else if (/ctr/.test(q)) metrik = 'ctr';
+  else if (/revenue|pendapatan/.test(q)) metrik = 'revenue';
+  else if (/bounce/.test(q)) metrik = 'bounce';
+  else if (/follower|subscriber/.test(q)) metrik = 'followers';
+  return {naik, rel, nilai, metrik, teks: m[0].trim()};
+}
+
+/* Terapkan syarat ke daftar hasil. Mengembalikan {list, info} */
+function terapkanSyarat(list, syarat, ambilNilai){
+  if (!syarat) return {list, info: ''};
+  USED_SYARAT = true;
+  const nilai = list.map(ambilNilai).filter(v => isFinite(v));
+  if (!nilai.length) return {list, info: ''};
+  const ambang = syarat.rel
+    ? nilai.reduce((a,b) => a+b, 0) / nilai.length
+    : syarat.nilai;
+  const hasil = list.filter(x => syarat.naik ? ambilNilai(x) > ambang : ambilNilai(x) < ambang);
+  const sat = ['er','ctr','bounce','pct'].includes(syarat.metrik) ? '%' : '';
+  const label = syarat.rel ? `rata-rata (${N(ambang)}${sat})` : `${N(ambang)}${sat}`;
+  return {list: hasil,
+          info: `Disaring: ${syarat.metrik.toUpperCase()} ${syarat.naik ? 'di atas' : 'di bawah'} <b>${label}</b> — `
+                + `${hasil.length} dari ${list.length} baris memenuhi.`};
+}
+
+
+/* ---------- KONTEKS PERTANYAAN TERAKHIR ----------
+   Setiap pertanyaan tetap dijawab berdiri sendiri, tapi pertanyaan lanjutan
+   seperti "bagaimana bulan sebelumnya?" disusun ulang memakai konteks terakhir. */
+let LAST_Q = null, LAST_P = null;
+
+function sambungLanjutan(qRaw){
+  const q = qRaw.toLowerCase().trim();
+  if (!LAST_Q) return null;
+
+  const geser = n => {
+    const dasar = LAST_P || (DATA.coverage && DATA.coverage.youtube
+      ? mkP(DATA.coverage.youtube.to[0], DATA.coverage.youtube.to[1],
+            DATA.coverage.youtube.to[0], DATA.coverage.youtube.to[1]) : null);
+    if (!dasar) return null;
+    const pjg = (dasar.y2*12 + dasar.m2) - (dasar.y1*12 + dasar.m1) + 1;
+    const e = dasar.y1*12 + dasar.m1 - 1 + (n + 1) * pjg;
+    const st = e - pjg + 1;
+    return mkP(Math.floor((st-1)/12), (st-1)%12+1, Math.floor((e-1)/12), (e-1)%12+1);
+  };
+
+  // Penanda KUAT: kalimat pendek yang memang menyambung, mis.
+  // "bagaimana dengan bulan sebelumnya?" -> dipakai lebih dulu daripada jawaban biasa.
+  const pendek = q.split(/\s+/).length <= 6;
+  const awalanLanjut = /^(bagaimana|gimana|kalau|yang tadi|tadi)\b/.test(q);
+  if (pendek && awalanLanjut && /\b(bulan|periode)\s+(sebelumnya|lalu)\b/.test(q)){
+    const P2 = geser(-1);
+    return P2 ? {kuat: true, q: LAST_Q, P: P2, alasan: `melanjutkan "<b>${esc(LAST_Q)}</b>" untuk ${P2.label}`} : null;
+  }
+  if (pendek && awalanLanjut && /\b(bulan|periode)\s+(berikutnya|sesudahnya|setelahnya)\b/.test(q)){
+    const P2 = geser(1);
+    return P2 ? {kuat: true, q: LAST_Q, P: P2, alasan: `melanjutkan "<b>${esc(LAST_Q)}</b>" untuk ${P2.label}`} : null;
+  }
+  // "yang tadi tapi untuk iNews" / "kalau di Okezone?"
+  const ent = channelDisebut(qRaw) || cariNama(qRaw, ENTITAS.lain);
+  if (ent && q.split(/\s+/).length <= 7 &&
+      /^(yang tadi|tadi|kalau|bagaimana|gimana|untuk|di)\b/.test(q)){
+    return {kuat: false, q: `${LAST_Q} ${ent}`, P: LAST_P, alasan: `melanjutkan "<b>${esc(LAST_Q)}</b>" untuk <b>${esc(ent)}</b>`};
+  }
+  return null;
 }
 
 /* ---------- ANSWER ENGINE ---------- */
 function answer(qRaw){
   const q = qRaw.toLowerCase();
   const has = (...w) => w.some(x => q.includes(x));
+  SRC = null;
+  USED_ENT = [];
+  USED_SYARAT = false;
+
+  // Lapis 1: maksud yang memang belum didukung -> tolak, jangan tampilkan tabel apa pun
+  const tolak = maksudBelumDidukung(qRaw);
+  if (tolak) return tolak;
+
+  // Periode dari kalimat; kalau tidak ada, pakai pilihan di panel kiri.
+  const P = parsePeriod(qRaw) || ACTIVE_P;
+
+  // "Q1 vs Q2 2026" -> tabel perbandingan dua periode
+  const pair = parsePeriodPair(qRaw);
+  if (pair) return comparePeriods(qRaw, pair[0], pair[1]);
 
   /* --- perbandingan 2 cluster spesifik (urutan mengikuti kalimat user) --- */
   const named = DATA.cluster
@@ -214,6 +947,7 @@ function answer(qRaw){
     .sort((a,b) => q.indexOf(a.cluster.toLowerCase()) - q.indexOf(b.cluster.toLowerCase()));
   if(named.length >= 2 && has('vs','banding','dibanding','compare','lawan')){
     const [a,b] = named;
+    USED_ENT = named.map(x => x.cluster);
     const win = a.views > b.views ? a : b, lose = a.views > b.views ? b : a;
     const gap = ((win.views/lose.views - 1)*100).toFixed(1);
     return card(`⚖️ ${a.cluster} vs ${b.cluster}`,
@@ -223,32 +957,561 @@ function answer(qRaw){
         ['Rata-rata views/video', N(a.views/a.videos), N(b.views/b.videos)],
         ['Likes', N(a.likes), N(b.likes)],
         ['Comments', N(a.comments), N(b.comments)],
-        ['Engagement Rate', P(a.er), P(b.er)],
+        ['Engagement Rate', PC(a.er), PC(b.er)],
       ]),
       `<b>${win.cluster}</b> unggul ${gap}% di total views. Tapi cek ER — volume besar tidak selalu berarti engagement lebih baik.`);
   }
 
+  /* --- kategori konten --- */
+  if(has('kategori','category','jenis konten','tipe konten') && DATA.ts_dim){
+    SRC = 'studio';
+    let CH = channelDisebut(qRaw); if(CH) USED_ENT.push(CH);
+    if(!CH){ const U = unitDisebut(qRaw);
+      if(U){ USED_ENT.push(U); CH = UNIT_CH[U]; CH.label = U; } }
+    const KT = kategoriDisebut(qRaw); if(KT) USED_ENT.push(KT);
+    const SY = bacaSyarat(qRaw);
+    const R = dimRollup('kategori', P, CH);
+    if(KT) R.list = R.list.filter(x => x.key.toLowerCase() === KT.toLowerCase());
+    const amb = x => SY && SY.metrik==='er' ? x.eng/x.views*100
+               : SY && SY.metrik==='revenue' ? x.revenue
+               : SY && SY.metrik==='ctr' ? x.ctr : x.views;
+    const F = terapkanSyarat(R.list, SY, amb); if(SY) USED_ENT.push(SY.teks);
+    const g = F.list.map(x => ({...x, kategori: x.key}));
+    if(!g.length) return card(ttc('🗂️ Kategori Konten', P, CH),
+      SY ? `<div>Tidak ada kategori yang memenuhi syarat <b>${esc(SY.teks)}</b>.</div>` : kosong('studio', P), '');
+    return card(ttc('🗂️ Performa per Kategori Konten', P, CH),
+      table(['Kategori','Video','Views','Views/Video','Revenue','ER'],
+        g.slice(0,12).map((c,i)=>[rk(i)+esc(c.key), N(c.videos), N(c.views),
+          N(c.views/c.videos), RP(c.revenue), PC(c.eng/c.views*100)])),
+      `<b>${esc(g[0].key)}</b> menyumbang views terbesar. Tapi yang paling efisien per video: `
+      + `<b>${esc([...g].sort((a,b)=>b.views/b.videos-a.views/a.videos)[0].key)}</b>. `
+      + catatanCh(R) + (F.info ? '<br>' + F.info : ''));
+  }
+
+  /* --- program --- */
+  if(has('program','acara','tayangan') && DATA.ts_dim){
+    SRC = 'studio';
+    const PG = programDisebut(qRaw);
+    // satu nama bisa jadi program sekaligus channel (mis. 'Rakyat Bersuara');
+    // di jawaban program, anggap itu nama program saja
+    let CH = channelDisebut(qRaw);
+    if (CH && PG && CH.toLowerCase() === PG.toLowerCase()) CH = null;
+    if (CH) USED_ENT.push(CH);
+    const SY = bacaSyarat(qRaw);
+    const R = dimRollup('program', P, CH);
+    let base = R.list;
+    if(PG){ USED_ENT.push(PG); base = base.filter(x => x.key.toLowerCase() === PG.toLowerCase()); }
+    const amb = x => SY && SY.metrik==='er' ? x.eng/x.views*100
+               : SY && SY.metrik==='revenue' ? x.revenue
+               : SY && SY.metrik==='ctr' ? x.ctr : x.views;
+    const F = terapkanSyarat(base, SY, amb); if(SY) USED_ENT.push(SY.teks);
+    const g = F.list.map(x => ({...x, program: x.key}));
+    if(!g.length) return card(ttc(PG ? `📺 Program ${PG}` : '📺 Program Terbaik', P, CH),
+      diLuarCakupan('studio', P) ? kosong('studio', P)
+      : `<div>Tidak ada data yang cocok${PG ? ` untuk program <b>${esc(PG)}</b>` : ''}${SY ? ` dengan syarat <b>${esc(SY.teks)}</b>` : ''}${CH ? ` di channel <b>${esc(CH)}</b>` : ''}.</div>`, '');
+    if(PG && g.length === 1){
+      const x = g[0];
+      const perCh = DATA.ts_dim_ch ? (() => {
+        const t = TS('ts_dim_ch'), ix = t.ix;
+        const rr = t.rows.filter(r => r[ix.dim]==='program' && r[ix.key].toLowerCase()===PG.toLowerCase() && inP(r,P));
+        const mp = new Map();
+        for(const r of rr){
+          const k = r[ix.channel]; const o = mp.get(k) || {channel:k, videos:0, views:0, revenue:0};
+          o.videos += r[ix.videos]; o.views += r[ix.views]; o.revenue += r[ix.revenue]; mp.set(k,o);
+        }
+        return [...mp.values()].sort((a,b)=>b.views-a.views);
+      })() : [];
+      return card(ttc(`📺 Program: ${PG}`, P, CH),
+        table(['Metrik','Nilai'],[
+          ['Jumlah episode', N(x.videos)],
+          ['Total views', N(x.views)],
+          ['Views per episode', N(x.views/x.videos)],
+          ['Revenue', RP(x.revenue)],
+          ['Watch time', N(x.watch)+' jam'],
+          ['Engagement per views', PC(x.eng/x.views*100)],
+        ]) + (perCh.length > 1 ? `<div style="margin-top:14px;font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--mut);font-weight:700">Per channel</div>`
+          + table(['Channel','Episode','Views','Revenue'],
+              perCh.map((c,i)=>[rk(i)+esc(c.channel), N(c.videos), N(c.views), RP(c.revenue)])) : ''),
+        catatanCh(R));
+    }
+    return card(ttc('📺 Program Terbaik', P, CH),
+      table(['Program','Episode','Views','Views/Episode','Revenue'],
+        g.slice(0,12).map((c,i)=>[rk(i)+esc(c.key), N(c.videos), N(c.views),
+          N(c.views/c.videos), RP(c.revenue)])),
+      `Dari ${g.length} program teratas. Paling efisien per episode: `
+      + `<b>${esc([...g].sort((a,b)=>b.views/b.videos-a.views/a.videos)[0].key)}</b>. `
+      + `Revenue tertinggi: <b>${esc([...g].sort((a,b)=>b.revenue-a.revenue)[0].key)}</b>.`
+      + catatanCh(R) + (F.info ? '<br>' + F.info : ''));
+  }
+
+  /* --- part / sub part --- */
+  if(has('part','divisi','tv content','digital content') && DATA.ts_dim){
+    SRC = 'studio';
+    let CH = channelDisebut(qRaw); if(CH) USED_ENT.push(CH);
+    if(!CH){ const U = unitDisebut(qRaw);
+      if(U){ USED_ENT.push(U); CH = UNIT_CH[U]; CH.label = U; } }
+    const R = dimRollup('part', P, CH), gp = R.list;
+    if(!gp.length) return card(ttc('🏢 Performa per Part', P, CH), kosong('studio', P), '');
+    let body = table(['Part','Video','Views','Views/Video','Revenue','Watch Time'],
+      gp.map((c,i)=>[rk(i)+esc(c.key), N(c.videos), N(c.views),
+        N(c.views/c.videos), RP(c.revenue), N(c.watch)+' jam']));
+    const gs = dimRollup('subpart', P, CH).list;
+    if(gs.length) body += `<div style="margin-top:14px;font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--mut);font-weight:700">Sub Part</div>`
+      + table(['Sub Part','Video','Views','Revenue'],
+          gs.map((c,i)=>[rk(i)+esc(c.key), N(c.videos), N(c.views), RP(c.revenue)]));
+    const t = gp.reduce((a,x)=>a+x.views,0);
+    return card(ttc('🏢 Performa per Part', P, CH), body,
+      `<b>${esc(gp[0].key)}</b> menguasai ${PC(gp[0].views/t*100)} dari views.` + catatanCh(R));
+  }
+
+  /* --- original vs repack --- */
+  if(has('original','repack','daur ulang') && DATA.ts_dim){
+    SRC = 'studio';
+    let CH = channelDisebut(qRaw); if(CH) USED_ENT.push(CH);
+    if(!CH){ const U = unitDisebut(qRaw);
+      if(U){ USED_ENT.push(U); CH = UNIT_CH[U]; CH.label = U; } }
+    const R = dimRollup('original', P, CH), g = R.list, t = g.reduce((a,x)=>a+x.views,0);
+    if(!g.length) return card(ttc('♻️ Original vs Repack', P, CH), kosong('studio', P), '');
+    return card(ttc('♻️ Original vs Repack', P, CH),
+      table(['Jenis','Video','Views','Views/Video','Revenue','Share'],
+        g.map((c,i)=>[rk(i)+esc(c.key), N(c.videos), N(c.views),
+          N(c.views/c.videos), RP(c.revenue), PC(c.views/t*100)])),
+      g.length>1 ? `Konten Original menghasilkan ${N(g[0].views/g[0].videos)} views/video, `
+        + `Repack ${N(g[1].views/g[1].videos)} views/video — selisih `
+        + `${Math.abs(((g[0].views/g[0].videos)/(g[1].views/g[1].videos)-1)*100).toFixed(0)}%.` : '');
+  }
+
+  /* --- durasi konten --- */
+  if(has('durasi','duration','panjang video','berapa menit') && DATA.ts_dim){
+    SRC = 'studio';
+    let CH = channelDisebut(qRaw); if(CH) USED_ENT.push(CH);
+    if(!CH){ const U = unitDisebut(qRaw);
+      if(U){ USED_ENT.push(U); CH = UNIT_CH[U]; CH.label = U; } }
+    const R = dimRollup('durasi', P, CH), g = R.list;
+    if(!g.length) return card(ttc('⏱️ Performa per Durasi Video', P, CH), kosong('studio', P), '');
+    return card(ttc('⏱️ Performa per Durasi Video', P, CH),
+      table(['Durasi','Video','Views','Views/Video','% Ditonton','Revenue'],
+        g.map((c,i)=>[rk(i)+esc(c.key), N(c.videos), N(c.views),
+          N(c.views/c.videos), PC(c.pct), RP(c.revenue)])),
+      `Video <b>&gt;8 menit</b> mendominasi revenue karena bisa dipasangi lebih banyak iklan, `
+      + `sementara video pendek unggul di persentase ditonton.`);
+  }
+
+  /* --- jam posting --- */
+  if(has('jam','waktu posting','kapan posting','upload hour','jam tayang','prime time') && DATA.ts_jam){
+    SRC = 'scraping';
+    const R = tglRollup('ts_jam', P, 'jam', ['videos','views','er_sum']);
+    const all = R.list.map(x=>({...x, er: x.videos ? x.er_sum/x.videos : 0})).sort((a,b)=>a.jam-b.jam);
+    if(!all.length) return card(tt('🕐 Jam Unggah Terbaik', P), kosong('scraping', P), '');
+    const g = [...all].sort((a,b)=>b.views-a.views);
+    const tot = all.reduce((a,x)=>a+x.views,0), mx = Math.max(...all.map(x=>x.views));
+    const spark = `<div style="display:flex;align-items:flex-end;gap:2px;height:64px;margin:12px 0 4px">`
+      + all.map(x=>`<div title="Jam ${x.jam}: ${N(x.views)} views"
+          style="flex:1;height:${Math.max(4,x.views/mx*100)}%;border-radius:3px 3px 0 0;
+          background:linear-gradient(180deg,var(--acc2),var(--acc))"></div>`).join('')
+      + `</div><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--mut)">
+         <span>00:00</span><span>views per jam unggah</span><span>23:00</span></div>`;
+    return card(tt('🕐 Jam Unggah Terbaik', P),
+      table(['Jam','Video','Views','Views/Video','ER'],
+        g.slice(0,8).map((c,i)=>[rk(i)+`${String(c.jam).padStart(2,'0')}:00`,
+          N(c.videos), N(c.views), N(c.views/c.videos), PC(c.er)])) + spark,
+      `Jam <b>${String(g[0].jam).padStart(2,'0')}:00</b> menghasilkan views tertinggi `
+      + `(${PC(g[0].views/tot*100)} dari total). Dihitung dari ${R.hari} hari data.`);
+  }
+
+  /* --- harian --- */
+  if(has('harian','per hari','per tanggal','tanggal berapa','hari terbaik') && DATA.studio_daily){
+    SRC = 'studio';
+    const t0 = DATA.studio_daily, ix = {}; t0.cols.forEach((c,i)=>ix[c]=i);
+    const t = {cols: t0.cols, rows: t0.rows.filter(r => inDate(r[ix.tgl], P))};
+    if(!t.rows.length) return card(tt('📅 Performa Harian', P), kosong('studio', P), '');
+    const rows = [...t.rows].sort((a,b)=>b[ix.views]-a[ix.views]);
+    const mx = Math.max(...t.rows.map(r=>r[ix.views]));
+    const spark = `<div style="display:flex;align-items:flex-end;gap:2px;height:64px;margin:12px 0 4px">`
+      + t.rows.map(r=>`<div title="${r[ix.tgl]}: ${N(r[ix.views])} views"
+          style="flex:1;height:${Math.max(4,r[ix.views]/mx*100)}%;border-radius:3px 3px 0 0;
+          background:linear-gradient(180deg,var(--acc2),var(--acc))"></div>`).join('')
+      + `</div><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--mut)">
+         <span>${t.rows[0][ix.tgl]}</span><span>views harian</span><span>${t.rows[t.rows.length-1][ix.tgl]}</span></div>`;
+    return card(tt('📅 Performa Harian', P),
+      table(['Tanggal','Video','Views','Revenue'],
+        rows.slice(0,8).map((r,i)=>[rk(i)+r[ix.tgl], N(r[ix.videos]), N(r[ix.views]), RP(r[ix.revenue])])) + spark,
+      `Hari terbaik: <b>${rows[0][ix.tgl]}</b> dengan ${N(rows[0][ix.views])} views. `
+      + `Total ${t.rows.length} hari data.`);
+  }
+
+  /* --- demografi --- */
+  if(has('demografi','umur','usia','gender','jenis kelamin','audiens','penonton perempuan','penonton laki') && DATA.ts_demografi){
+    SRC = 'socmed';
+    const cols = DATA.ts_demografi.cols.filter(c => c!=='y' && c!=='m' && c!=='platform');
+    const R = bulanRollup('ts_demografi', P, ['platform'], [], cols);
+    const g = R.list;
+    if(!g.length) return card(tt('👤 Demografi Audiens', P), kosong('socmed', P), '');
+    const ages = cols.filter(k=>k.includes('Years'));
+    return card(tt('👤 Demografi Audiens Social Media', P),
+      table(['Platform','Laki-laki','Perempuan', ...ages.map(a=>a.replace(' Years',''))],
+        g.map(p=>[esc(p.platform), PC(p.Male), PC(p.Female), ...ages.map(a=>PC(p[a]))])),
+      `Kelompok umur terbesar rata-rata <b>25–34 tahun</b>. `
+      + `TikTok punya proporsi 18–24 tahun paling tinggi — cocok untuk konten yang menyasar anak muda. `
+      + `Rata-rata dari ${R.bulan} bulan data.`);
+  }
+
+  /* --- monetisasi RPM/CPM --- */
+  if(has('rpm','cpm','iklan','ads','monetisasi per') && DATA.ts_money){
+    SRC = 'studio';
+    const R = tglRollup('ts_money', P, 'channel', ['videos','views','revenue','rpm_sum','cpm_sum','likes','shares','comments']);
+    const g = R.list.map(x=>({...x, rpm: x.videos?x.rpm_sum/x.videos:0, cpm: x.videos?x.cpm_sum/x.videos:0}))
+                    .filter(x=>x.revenue>0).sort((a,b)=>b.rpm-a.rpm);
+    const CHm = channelDisebut(qRaw); if(CHm) USED_ENT.push(CHm);
+    const SYm = bacaSyarat(qRaw);
+    let gm2 = CHm ? g.filter(x => x.channel.toLowerCase() === CHm.toLowerCase()) : g;
+    const ambM = x => SYm && SYm.metrik==='cpm' ? x.cpm : SYm && SYm.metrik==='revenue' ? x.revenue : x.rpm;
+    const Fm = terapkanSyarat(gm2, SYm, ambM); if(SYm) USED_ENT.push(SYm.teks);
+    gm2 = Fm.list;
+    if(!gm2.length) return card(ttc('💵 Efisiensi Monetisasi', P, CHm),
+      diLuarCakupan('studio', P) ? kosong('studio', P)
+      : `<div>Tidak ada channel yang cocok${SYm ? ` dengan syarat <b>${esc(SYm.teks)}</b>` : ''}.</div>`, '');
+    return card(ttc('💵 Efisiensi Monetisasi per Channel', P, CHm),
+      table(['Channel','RPM','CPM','Revenue','Like','Share'],
+        gm2.slice(0,12).map((c,i)=>[rk(i)+esc(c.channel), RP(c.rpm), RP(c.cpm),
+          RP(c.revenue), N(c.likes), N(c.shares)])),
+      `RPM = pendapatan per 1.000 views, CPM = biaya pengiklan per 1.000 tayangan iklan. `
+      + `RPM tertinggi: <b>${esc(gm2[0].channel)}</b> (${RP(gm2[0].rpm)}).`
+      + (Fm.info ? '<br>' + Fm.info : ''));
+  }
+
+  /* --- kualitas trafik portal --- */
+  if(has('bounce','durasi kunjungan','kualitas trafik','lama kunjungan') && DATA.ts_portal){
+    SRC = 'portal';
+    const R = rollup(TS('ts_portal'), P, ['group','portal'], ['visits','dur_sum','bounce_sum','n']);
+    const g = R.list.map(x=>({...x, durasi_detik: x.n?x.dur_sum/x.n:0, bounce: x.n?x.bounce_sum/x.n:0}))
+                    .filter(x=>x.visits>0).sort((a,b)=>b.durasi_detik-a.durasi_detik);
+    if(!g.length) return card(tt('🎯 Kualitas Trafik Portal', P), kosong('portal', P), '');
+    const mmss = d => `${Math.floor(d/60)}:${String(Math.round(d%60)).padStart(2,'0')}`;
+    return card(tt('🎯 Kualitas Trafik Portal', P),
+      table(['Portal','Durasi Kunjungan','Bounce Rate','Visits'],
+        g.slice(0,12).map((c,i)=>[rk(i)+esc(c.portal)+' '+(c.group==='Competitor'?'<span class="tag cmp">Kompetitor</span>':'<span class="tag img">IMG</span>'),
+          mmss(c.durasi_detik), PC(c.bounce*100), N(c.visits)])),
+      `Durasi kunjungan terlama: <b>${esc(g[0].portal)}</b> (${mmss(g[0].durasi_detik)}). `
+      + `Bounce rate rendah + durasi lama = pembaca benar-benar membaca, bukan sekadar mampir.`);
+  }
+
+  /* --- revenue portal per tipe --- */
+  if(has('artikel','banner','programmatic','direct sales','jenis penjualan','tipe revenue') && DATA.ts_portal_tipe){
+    SRC = 'portal_sales';
+    const R = bulanRollup('ts_portal_tipe', P, ['tipe'], ['revenue']);
+    const g = R.list.filter(x=>x.revenue>0).sort((a,b)=>b.revenue-a.revenue);
+    if(!g.length) return card(tt('🧾 Revenue Portal per Jenis Penjualan', P), kosong('portal_sales', P), '');
+    const t = g.reduce((a,x)=>a+x.revenue,0);
+    return card(tt('🧾 Revenue Portal per Jenis Penjualan', P),
+      table(['Jenis','Revenue','Share'],
+        g.map((c,i)=>[rk(i)+esc(c.tipe), RP(c.revenue), PC(c.revenue/t*100)])),
+      `Total <b>${RP(t)}</b> dari ${R.bulan} bulan. <b>${esc(g[0].tipe)}</b> menyumbang ${PC(g[0].revenue/t*100)}.`);
+  }
+
+
+  /* --- audit / kualitas nama channel --- */
+  if(has('nama channel','penamaan','audit','kualitas data','cek data','duplikat','digabung') && DATA.audit){
+    const a = DATA.audit;
+    const tot = a.rename.reduce((x,r)=>x+r.baris,0);
+    let body = a.rename.length
+      ? table(['Ditulis di Excel','Diseragamkan jadi','Baris'],
+          a.rename.map((r,i)=>[rk(i)+esc(r.dari), esc(r.jadi), N(r.baris)]))
+      : '<div>Tidak ada nama yang perlu diseragamkan.</div>';
+
+    if(a.unknown && a.unknown.length){
+      body += `<div style="margin-top:14px;font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--bad);font-weight:700">Belum dikenali</div>`
+        + table(['Sheet','Nama','Mungkin maksudnya'],
+            a.unknown.map(u=>[esc(u.sheet), esc(u.nama), u.mirip ? esc(u.mirip) : '—']));
+    }
+
+    body += `<div style="margin-top:14px;font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--mut);font-weight:700">20 nama baku (acuan: sheet Youtube Studio)</div>`
+      + `<div style="margin-top:6px;line-height:1.9">` +
+        a.canon.map(c=>`<span class="tag img" style="margin:0 4px 4px 0">${esc(c)}</span>`).join('') + `</div>`;
+
+    return card('🧹 Penyeragaman Nama Channel', body,
+      a.unknown && a.unknown.length
+        ? `<b style="color:var(--bad)">${a.unknown.length} nama belum dikenali</b> — perlu ditambahkan ke tabel alias, atau diperbaiki di Excel-nya.`
+        : `<b>${N(tot)} baris</b> diseragamkan dari ${a.rename.length} varian penulisan. Semua nama sudah cocok dengan 20 channel baku. `
+          + `File Excel <b>tidak diubah</b> — penyeragaman dilakukan saat data diolah, jadi otomatis berlaku lagi tiap kali update.`);
+  }
+
+  /* --- cakupan data --- */
+  if(has('berapa channel','cakupan','coverage','data apa saja','sumber data','berapa banyak channel')){
+    const g = DATA.cluster_channels || [];
+    const img = g.filter(x=>x.img), cmp = g.filter(x=>!x.img);
+    const sum = a => a.reduce((s,x)=>s+x.channels,0);
+    return card('📚 Cakupan Data',
+      table(['Cluster','Channel','Video Dianalisis','Status'],
+        g.map(c=>[esc(c.cluster), N(c.channels), N(c.videos),
+          c.img?'<span class="tag img">IMG</span>':'<span class="tag cmp">Kompetitor</span>'])),
+      `<b>${sum(img)} channel IMG</b> dan <b>${sum(cmp)} channel kompetitor</b> di file Scraping. `
+      + `YouTube & socmed punya data bulanan ${DATA.coverage?`${DATA.coverage.youtube.from[1]}/${DATA.coverage.youtube.from[0]}–${DATA.coverage.youtube.to[1]}/${DATA.coverage.youtube.to[0]}`:''}, `
+      + `sedangkan Scraping & YouTube Studio hanya ${DATA.coverage?DATA.coverage.snapshot_only:''} (tapi Studio rinci per tanggal).`);
+  }
+
+
+  /* --- peringkat bersyarat: channel mana yang naik / turun --- */
+  if(/\b(mana|siapa)\b/.test(q) && /\b(naik|turun|menurun|meningkat|tumbuh|anjlok|melonjak)\b/.test(q)){
+    SRC = 'youtube';
+    const cov = DATA.coverage.youtube;
+    // periode pembanding: kalau user menyebut periode, bandingkan dengan sepanjang itu
+    // sebelumnya; kalau tidak, bandingkan bulan terakhir dengan bulan sebelumnya
+    let A, B;
+    if(P){
+      const pjg = (P.y2*12+P.m2) - (P.y1*12+P.m1) + 1;
+      const e = P.y1*12 + P.m1 - 1, st = e - pjg + 1;
+      B = mkP(Math.floor((st-1)/12), (st-1)%12+1, Math.floor((e-1)/12), (e-1)%12+1);
+      A = P;
+    } else {
+      const t2 = cov.to[0]*12 + cov.to[1], t1 = t2 - 1;
+      A = mkP(Math.floor((t2-1)/12), (t2-1)%12+1, Math.floor((t2-1)/12), (t2-1)%12+1);
+      B = mkP(Math.floor((t1-1)/12), (t1-1)%12+1, Math.floor((t1-1)/12), (t1-1)%12+1);
+    }
+    const metrik = /revenue|pendapatan|duit|cuan/.test(q) ? 'revenue'
+                 : /subscriber|follower/.test(q) ? 'subs_gained' : 'views';
+    const namaM = {revenue:'Revenue', subs_gained:'Subscriber bertambah', views:'Views'}[metrik];
+    const fmt = metrik === 'revenue' ? RP : N;
+    const amb = Pq => { const o = {}; rollup(TS('ts_youtube'), Pq, ['channel'], [metrik]).list
+                          .forEach(x => o[x.channel] = x[metrik]); return o; };
+    const a = amb(A), b = amb(B);
+    const naikTanya = /naik|meningkat|tumbuh|melonjak/.test(q);
+    let rows = Object.keys({...a, ...b}).map(ch => {
+      const va = a[ch] || 0, vb = b[ch] || 0;
+      return {ch, va, vb, d: vb ? (va/vb - 1) * 100 : (va ? 100 : 0), abs: va - vb};
+    }).filter(x => x.va || x.vb);
+    rows = rows.filter(x => naikTanya ? x.abs > 0 : x.abs < 0)
+               .sort((x,y) => naikTanya ? y.abs - x.abs : x.abs - y.abs);
+    if(!rows.length) return card(`📉 Channel yang ${naikTanya ? 'naik' : 'turun'}`,
+      `<div>Tidak ada channel yang ${naikTanya ? 'naik' : 'turun'} pada perbandingan ini.</div>`,
+      `Membandingkan <b>${A.label}</b> terhadap <b>${B.label}</b>.`);
+    const tot = rows.reduce((s2,x)=>s2+x.abs,0);
+    return card(`${naikTanya ? '📈' : '📉'} Channel yang ${naikTanya ? 'Naik' : 'Turun'} — ${namaM}`,
+      table(['Channel', B.label, A.label, 'Selisih', '%'],
+        rows.slice(0,12).map((x,i)=>[rk(i)+esc(x.ch), fmt(x.vb), fmt(x.va),
+          `<span style="color:${x.abs>=0?'var(--ok)':'var(--bad)'}">${x.abs>=0?'+':''}${fmt(x.abs)}</span>`,
+          `${x.d>=0?'+':''}${x.d.toFixed(1)}%`])),
+      `<b>${rows.length} channel</b> ${naikTanya ? 'naik' : 'turun'}, total ${fmt(Math.abs(tot))}. `
+      + `Penyumbang terbesar: <b>${esc(rows[0].ch)}</b> (${fmt(Math.abs(rows[0].abs))}). `
+      + `Membandingkan ${A.label} terhadap ${B.label}.`
+      + covNote(A,'youtube') + covNote(B,'youtube'));
+  }
+
+  /* --- analisis kontribusi: apa yang membuat angka berubah --- */
+  if(/\b(kenapa|mengapa|penyebab|sebabnya|apa yang menyebabkan|apa yang membuat|faktor)\b/.test(q)){
+    SRC = 'youtube';
+    const cov = DATA.coverage.youtube;
+    const pasang = parsePeriodPair(qRaw);
+    let A, B;
+    if(pasang){ A = pasang[0]; B = pasang[1]; }
+    else if(P){
+      const pjg = (P.y2*12+P.m2) - (P.y1*12+P.m1) + 1;
+      const e = P.y1*12 + P.m1 - 1, st = e - pjg + 1;
+      A = P; B = mkP(Math.floor((st-1)/12), (st-1)%12+1, Math.floor((e-1)/12), (e-1)%12+1);
+    } else {
+      const t2 = cov.to[0]*12 + cov.to[1], t1 = t2 - 1;
+      A = mkP(Math.floor((t2-1)/12), (t2-1)%12+1, Math.floor((t2-1)/12), (t2-1)%12+1);
+      B = mkP(Math.floor((t1-1)/12), (t1-1)%12+1, Math.floor((t1-1)/12), (t1-1)%12+1);
+    }
+    const metrik = /revenue|pendapatan|duit|cuan/.test(q) ? 'revenue'
+                 : /subscriber|follower/.test(q) ? 'subs_gained' : 'views';
+    const namaM = {revenue:'Revenue', subs_gained:'Subscriber bertambah', views:'Views'}[metrik];
+    const fmt = metrik === 'revenue' ? RP : N;
+    const CHq = channelDisebut(qRaw); if(CHq) USED_ENT.push(CHq);
+    const amb = Pq => { const o = {};
+      rollup(TS('ts_youtube'), Pq, ['channel'], [metrik]).list
+        .filter(x => !CHq || x.channel.toLowerCase() === CHq.toLowerCase())
+        .forEach(x => o[x.channel] = x[metrik]); return o; };
+    const a = amb(A), b = amb(B);
+    const ta = Object.values(a).reduce((s2,v)=>s2+v,0), tb = Object.values(b).reduce((s2,v)=>s2+v,0);
+    if(!ta && !tb) return card('🔎 Analisis Kontribusi', kosong('youtube', A), '');
+    const rows = Object.keys({...a,...b}).map(ch => {
+      const va = a[ch]||0, vb = b[ch]||0, d = va - vb;
+      return {ch, va, vb, d, andil: (tb - ta) ? d / (ta - tb) * 100 : 0};
+    }).filter(x => x.d).sort((x,y) => Math.abs(y.d) - Math.abs(x.d));
+    const selisih = ta - tb;
+    const turun = selisih < 0;
+    const dugaTurun = /turun|menurun|anjlok|lebih rendah|berkurang|drop/.test(q);
+    const dugaNaik  = /naik|meningkat|melonjak|lebih tinggi|bertambah/.test(q);
+    // kalau arah perubahan ternyata berlawanan dengan dugaan di pertanyaan, katakan
+    const koreksi = (dugaTurun && !turun) ? `<div class="warn"><span class="t">ℹ️ Arahnya justru sebaliknya</span>
+        ${namaM} <b>tidak turun</b> pada perbandingan ini — malah <b>naik ${fmt(Math.abs(selisih))}</b>
+        (${(Math.abs(selisih)/(tb||1)*100).toFixed(1)}%) dari ${B.label} ke ${A.label}.</div>`
+      : (dugaNaik && turun) ? `<div class="warn"><span class="t">ℹ️ Arahnya justru sebaliknya</span>
+        ${namaM} <b>tidak naik</b> pada perbandingan ini — malah <b>turun ${fmt(Math.abs(selisih))}</b>
+        (${(Math.abs(selisih)/(tb||1)*100).toFixed(1)}%) dari ${B.label} ke ${A.label}.</div>` : '';
+    const andilBesar = rows.some(x => Math.abs(x.andil) > 100);
+    return card(`🔎 Apa yang Membuat ${namaM} ${turun ? 'Turun' : 'Naik'}?`, koreksi +
+      table(['Channel', B.label, A.label, 'Selisih', 'Andil'],
+        rows.slice(0,10).map((x,i)=>[rk(i)+esc(x.ch), fmt(x.vb), fmt(x.va),
+          `<span style="color:${x.d>=0?'var(--ok)':'var(--bad)'}">${x.d>=0?'+':''}${fmt(x.d)}</span>`,
+          `${x.andil>=0?'+':''}${x.andil.toFixed(0)}%`])),
+      `Total ${namaM.toLowerCase()} ${turun ? 'turun' : 'naik'} <b>${fmt(Math.abs(selisih))}</b> `
+      + `(${(Math.abs(selisih)/(tb||1)*100).toFixed(1)}%) dari ${B.label} ke ${A.label}. `
+      + `Penyumbang perubahan terbesar: <b>${esc(rows[0].ch)}</b> (${rows[0].d >= 0 ? '+' : ''}${fmt(rows[0].d)}).`
+      + (andilBesar ? `<br>Kolom "Andil" bisa melebihi 100% karena kenaikan di satu channel saling meniadakan dengan penurunan di channel lain.` : '')
+      + `<br>⚠️ Ini <b>penguraian angka</b>, bukan sebab sesungguhnya — menunjukkan <i>di mana</i> perubahan terjadi, bukan <i>mengapa</i>.`
+      + covNote(A,'youtube') + covNote(B,'youtube'));
+  }
+
+  /* --- deteksi anomali --- */
+  if(has('anomali','janggal','aneh','tidak wajar','outlier','lonjakan','anjlok tiba')){
+    SRC = 'studio';
+    const t = DATA.studio_daily; if(!t) return card('🔍 Deteksi Anomali', kosong('studio', P), '');
+    const ix = {}; t.cols.forEach((c,i)=>ix[c]=i);
+    const rows = t.rows.filter(r => inDate(r[ix.tgl], P));
+    if(rows.length < 5) return card(tt('🔍 Deteksi Anomali', P),
+      '<div>Data harian terlalu sedikit untuk menilai kewajaran.</div>', '');
+    const v = rows.map(r => r[ix.views]);
+    const rata = v.reduce((a,b)=>a+b,0)/v.length;
+    const sd = Math.sqrt(v.reduce((a,b)=>a+(b-rata)**2,0)/v.length);
+    const skor = rows.map(r => ({tgl:r[ix.tgl], views:r[ix.views], videos:r[ix.videos],
+                                 revenue:r[ix.revenue], z:(r[ix.views]-rata)/(sd||1)}))
+                     .filter(x => Math.abs(x.z) >= 1.8)
+                     .sort((a,b)=>Math.abs(b.z)-Math.abs(a.z));
+    if(!skor.length) return card(tt('🔍 Deteksi Anomali', P),
+      `<div>Tidak ada hari yang menyimpang jauh dari kebiasaan. Semua di rentang wajar `
+      + `(${N(rata-1.8*sd)} – ${N(rata+1.8*sd)} views).</div>`,
+      `Rata-rata harian ${N(rata)} views, simpangan baku ${N(sd)}. Dinilai dari ${rows.length} hari.`);
+    return card(tt('🔍 Hari yang Menyimpang', P),
+      table(['Tanggal','Views','Video','Revenue','Simpangan'],
+        skor.slice(0,10).map((x,i)=>[rk(i)+x.tgl, N(x.views), N(x.videos), RP(x.revenue),
+          `<span style="color:${x.z>=0?'var(--ok)':'var(--bad)'}">${x.z>=0?'▲':'▼'} ${Math.abs(x.z).toFixed(1)}σ</span>`])),
+      `Rata-rata harian <b>${N(rata)}</b> views. ${skor.length} hari menyimpang lebih dari 1,8 simpangan baku. `
+      + `Tanda ▲ berarti jauh di atas kebiasaan, ▼ jauh di bawah. `
+      + `<br>⚠️ Ini penanda statistik, bukan berarti datanya salah — bisa jadi memang ada peristiwa besar hari itu.`);
+  }
+
+  /* --- korelasi antar metrik --- */
+  if(has('korelasi','hubungan antara','berbanding lurus','berbanding terbalik','berkaitan dengan')){
+    SRC = 'youtube';
+    const R = rollup(TS('ts_youtube'), P, ['channel'], ['views','revenue','watch','subs_gained']).list;
+    if(R.length < 3) return card(tt('🔗 Korelasi', P), kosong('youtube', P), '');
+    const pearson = (xs, ys) => {
+      const n = xs.length, mx = xs.reduce((a,b)=>a+b,0)/n, my = ys.reduce((a,b)=>a+b,0)/n;
+      let sxy=0, sx=0, sy=0;
+      for(let i=0;i<n;i++){ const dx=xs[i]-mx, dy=ys[i]-my; sxy+=dx*dy; sx+=dx*dx; sy+=dy*dy; }
+      return (sx&&sy) ? sxy/Math.sqrt(sx*sy) : 0;
+    };
+    const arti = r => Math.abs(r)>=.8 ? 'sangat kuat' : Math.abs(r)>=.6 ? 'kuat'
+                    : Math.abs(r)>=.4 ? 'sedang' : Math.abs(r)>=.2 ? 'lemah' : 'hampir tidak ada';
+    const pasang = [['Views','Revenue','views','revenue'], ['Views','Watch time','views','watch'],
+                    ['Views','Subscriber','views','subs_gained'], ['Watch time','Revenue','watch','revenue'],
+                    ['Subscriber','Revenue','subs_gained','revenue']];
+    // deret bulanan (total seluruh channel) -> lebih informatif karena tidak
+    // terpengaruh perbedaan ukuran antar channel
+    const perBulan = new Map();
+    for(const r of TS('ts_youtube').rows){
+      if(!inP(r, P)) continue;
+      const k = r[0]*12 + r[1];
+      const o = perBulan.get(k) || {views:0, revenue:0, watch:0, subs_gained:0};
+      const ixy = TS('ts_youtube').ix;
+      o.views += r[ixy.views]; o.revenue += r[ixy.revenue];
+      o.watch += r[ixy.watch]; o.subs_gained += r[ixy.subs_gained];
+      perBulan.set(k, o);
+    }
+    const M = [...perBulan.values()];
+    const baris = pasang.map(([na,nb,ka,kb]) => {
+      const rc = pearson(R.map(x=>x[ka]), R.map(x=>x[kb]));
+      const rm = M.length >= 3 ? pearson(M.map(x=>x[ka]), M.map(x=>x[kb])) : null;
+      return [`${na} ↔ ${nb}`, rc.toFixed(2), rm===null ? '—' : rm.toFixed(2),
+              rm===null ? '—' : `${rm>=0?'searah':'berlawanan'}, ${arti(rm)}`];
+    });
+    return card(tt('🔗 Hubungan Antar Metrik', P),
+      table(['Pasangan metrik','Antar channel','Antar bulan','Kekuatan (antar bulan)'], baris),
+      `<b>Antar channel</b> (${R.length} channel) hampir selalu mendekati 1 — wajar, karena channel besar `
+      + `unggul di semua metrik sekaligus. Yang lebih berguna adalah <b>antar bulan</b> `
+      + `(${M.length} bulan): apakah saat views naik, revenue ikut naik. `
+      + `<br>Nilai 1 berarti bergerak seiring sempurna, 0 tidak berhubungan, −1 berlawanan arah. `
+      + `<br>⚠️ Korelasi <b>bukan</b> sebab-akibat.`);
+  }
+
+  /* --- proyeksi sederhana --- */
+  if(has('prediksi','perkiraan','proyeksi','forecast','ramalan','bulan depan','tahun depan','estimasi bulan')){
+    SRC = 'youtube';
+    const t = TS('ts_youtube'), ix = t.ix;
+    const metrik = /views|tonton/.test(q) ? 'views' : 'revenue';
+    const namaM = metrik === 'views' ? 'Views' : 'Revenue';
+    const fmt = metrik === 'views' ? N : RP;
+    const per = new Map();
+    for(const r of t.rows){
+      const k = r[0]*12 + r[1];
+      per.set(k, (per.get(k)||0) + r[ix[metrik]]);
+    }
+    const seri = [...per.entries()].sort((a,b)=>a[0]-b[0]);
+    if(seri.length < 4) return card('🔮 Proyeksi', '<div>Data bulanan terlalu sedikit.</div>', '');
+    const n = Math.min(6, seri.length);
+    const ak = seri.slice(-n);
+    // regresi linear sederhana atas n bulan terakhir
+    const xs = ak.map((_,i)=>i), ys = ak.map(x=>x[1]);
+    const mx = xs.reduce((a,b)=>a+b,0)/n, my = ys.reduce((a,b)=>a+b,0)/n;
+    let sxy=0, sxx=0;
+    for(let i=0;i<n;i++){ sxy += (xs[i]-mx)*(ys[i]-my); sxx += (xs[i]-mx)**2; }
+    const b1 = sxx ? sxy/sxx : 0, b0 = my - b1*mx;
+    const rata = my;
+    const proy = [1,2,3].map(k => ({k, lin: Math.max(0, b0 + b1*(n-1+k)), rata}));
+    const akhir = seri[seri.length-1][0];
+    const lbl = k => { const t2 = akhir + k; return `${BLN_ID[(t2-1)%12]} ${Math.floor((t2-1)/12)}`; };
+    return card(`🔮 Proyeksi ${namaM} (sederhana)`,
+      table(['Bulan','Proyeksi tren','Rata² 6 bulan terakhir'],
+        proy.map(x => [lbl(x.k), fmt(x.lin), fmt(x.rata)]))
+      + `<div style="margin-top:14px;font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--mut);font-weight:700">Dasar perhitungan</div>`
+      + table(['Bulan','Realisasi'], ak.map(x => [`${BLN_ID[(x[0]-1)%12]} ${Math.floor((x[0]-1)/12)}`, fmt(x[1])])),
+      `Dihitung dengan garis tren lurus atas <b>${n} bulan terakhir</b> — metode paling sederhana. `
+      + `Arah tren ${b1>=0 ? '<b>naik</b>' : '<b>turun</b>'} ${fmt(Math.abs(b1))} per bulan. `
+      + `<br>⚠️ Ini <b>bukan ramalan</b>. Tidak memperhitungkan musim, hari besar, perubahan strategi, maupun algoritma platform. `
+      + `Pakai sebagai patokan kasar saja.`);
+  }
+
   /* --- profitable / revenue --- */
   if(has('profit','revenue','duit','uang','cuan','penghasilan','pendapatan','menguntungkan','monetisasi')){
-    const rev = (DATA.yt_revenue||[]).slice(0,10);
-    const src = (DATA.yt_revenue_source||[]).slice(0,6);
-    const tot = (DATA.yt_revenue||[]).reduce((s,x)=>s+x.revenue,0);
+    let CHr = channelDisebut(qRaw); let labelR = CHr;
+    if(CHr) USED_ENT.push(CHr);
+    if(!CHr){ const U = unitDisebut(qRaw);
+      if(U){ USED_ENT.push(U); CHr = UNIT_CH[U]; labelR = U; } }
+    const setR = CHr ? new Set((Array.isArray(CHr)?CHr:[CHr]).map(x=>String(x).toLowerCase())) : null;
+    const R = rollup(TS('ts_youtube'), P, ['channel'], ['revenue','views']);
+    const g = R.list.filter(x => x.revenue>0 && (!setR || setR.has(x.channel.toLowerCase())))
+                    .sort((a,b)=>b.revenue-a.revenue);
+    if(!g.length) return card(ttc('💰 Revenue YouTube IMG', P, labelR),
+      '<div>Tidak ada data revenue untuk periode itu.</div>', covNote(P,'youtube'));
+    const tot = g.reduce((s,x)=>s+x.revenue,0);
+    const rev = g.slice(0,10);
+
     let body = table(['Channel','Revenue (IDR)','Share'],
-      rev.map((r,i)=>[rk(i)+esc(r.channel), RP(r.revenue), P(r.revenue/tot*100)]));
-    if(src.length) body += `<div style="margin-top:14px;font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--mut);font-weight:700">Sumber revenue</div>`
-      + table(['Sumber','Revenue (IDR)'], src.map((r,i)=>[rk(i)+esc(r.source), RP(r.revenue)]));
-    return card('💰 Channel Paling Profitable',body,
-      `Total revenue YouTube tercatat <b>${RP(tot)}</b>. <b>${rev[0].channel}</b> menyumbang ${P(rev[0].revenue/tot*100)} dari seluruh pendapatan.`);
+      rev.map((r,i)=>[rk(i)+esc(r.channel), RP(r.revenue), PC(r.revenue/tot*100)]));
+
+    const src = rollup(TS('ts_revenue_source'), P, ['source'], ['revenue']).list.filter(x=>x.revenue>0);
+    if(src.length){
+      src.sort((a,b)=>b.revenue-a.revenue);
+      body += `<div style="margin-top:14px;font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--mut);font-weight:700">Sumber revenue</div>`
+        + table(['Sumber','Revenue (IDR)'], src.slice(0,6).map((r,i)=>[rk(i)+esc(r.source), RP(r.revenue)]));
+    }
+    const perMo = R.months ? tot/R.months : 0;
+    return card(ttc('💰 Revenue YouTube IMG', P, labelR), body,
+      `Total revenue <b>${RP(tot)}</b>${P?` sepanjang ${P.label}`:' (seluruh data)'} dari ${R.months} bulan `
+      + `(rata-rata <b>${RP(perMo)}</b>/bulan). <b>${esc(rev[0].channel)}</b> menyumbang ${PC(rev[0].revenue/tot*100)}.`
+      + covNote(P,'youtube'));
   }
 
   /* --- subscriber (dicek lebih dulu: kata "subscriber" mengandung pola "er ") --- */
   if(has('subscriber','subs ','pelanggan','follower')){
-    const s = [...DATA.yt_channels].sort((a,b)=>b.subs-a.subs).slice(0,12);
-    return card('👥 Subscriber per Channel (IMG)',
-      table(['Channel','Subscriber Gained','Views','Watch Time'],
-        s.map((c,i)=>[rk(i)+esc(c.channel)+`<div style="font-size:10.5px;color:var(--mut);margin-top:2px">${esc(c.unit)}</div>`,
-          N(c.subs), N(c.views), N(c.watch)+' jam'])),
-      `Channel dengan pertambahan subscriber terbanyak: <b>${s[0].channel}</b> (+${N(s[0].subs)} selama periode data).`);
+    // "follower" untuk platform socmed ditangani blok platform di bawah
+    if(!has('tiktok','instagram','facebook','twitter','socmed','sosmed','platform')){
+      const g = rollup(TS('ts_youtube'), P, ['unit','channel'], ['subs_gained','views'], ['lifetime']).list
+                  .sort((a,b)=>b.lifetime-a.lifetime);
+      if(!g.length) return card(tt('👥 Subscriber YouTube IMG', P),
+        '<div>Tidak ada data untuk periode itu.</div>', covNote(P,'youtube'));
+      const totL = g.reduce((s,x)=>s+x.lifetime,0), totG = g.reduce((s,x)=>s+x.subs_gained,0);
+      return card(tt('👥 Subscriber YouTube IMG', P),
+        table(['Channel','Total Subscriber','Pertambahan','Views'],
+          g.slice(0,12).map((c,i)=>[rk(i)+esc(c.channel)+`<div style="font-size:10.5px;color:var(--mut);margin-top:2px">${esc(c.unit)}</div>`,
+            N(c.lifetime), '+'+N(c.subs_gained), N(c.views)])),
+        `Total <b>${N(totL)}</b> subscriber dari ${g.length} channel, bertambah <b>+${N(totG)}</b>`
+        + `${P?` sepanjang ${P.label}`:' selama seluruh data'}. `
+        + `Kolom "Total Subscriber" adalah posisi di bulan terakhir rentang, bukan penjumlahan antar bulan.`
+        + covNote(P,'youtube'));
+    }
   }
 
   /* --- engagement rate --- */
@@ -256,37 +1519,58 @@ function answer(qRaw){
     const s = [...DATA.cluster].sort((a,b)=>b.er-a.er);
     return card('📈 Engagement Rate per Cluster',
       table(['Cluster','ER','Likes','Comments','Views'],
-        s.map((c,i)=>[rk(i)+esc(c.cluster)+' '+tagOf(c.cluster), P(c.er), N(c.likes), N(c.comments), N(c.views)])),
-      `<b>${s[0].cluster}</b> punya ER tertinggi (${P(s[0].er)}) — penonton paling aktif berinteraksi. Cluster dengan views besar tapi ER rendah berarti reach luas tapi keterlibatan tipis.`);
+        s.map((c,i)=>[rk(i)+esc(c.cluster)+' '+tagOf(c.cluster), PC(c.er), N(c.likes), N(c.comments), N(c.views)])),
+      `<b>${s[0].cluster}</b> punya ER tertinggi (${PC(s[0].er)}) — penonton paling aktif berinteraksi. Cluster dengan views besar tapi ER rendah berarti reach luas tapi keterlibatan tipis.` + snapNote(P));
   }
 
   /* --- platform socmed --- */
   if(has('platform','tiktok','instagram','facebook','twitter',' x ','socmed','sosmed','media sosial')){
-    const s = [...DATA.platform].sort((a,b)=>b.views-a.views);
-    return card('📱 Perbandingan Platform Social Media',
+    const ch = rollup(TS('ts_socmed'), P, ['platform','channel'], ['views','new_followers','engagement'], ['followers']).list;
+    if(!ch.length) return card(tt('📱 Platform Social Media', P),
+      '<div>Tidak ada data untuk periode itu.</div>', covNote(P,'socmed'));
+    const byP = new Map();
+    for(const c of ch){
+      let o = byP.get(c.platform);
+      if(!o){ o = {platform:c.platform, views:0, followers:0, engagement:0, gained:0, n:0}; byP.set(c.platform,o); }
+      o.views += c.views; o.followers += c.followers; o.engagement += c.engagement;
+      o.gained += c.new_followers; o.n++;
+    }
+    const s = [...byP.values()].sort((a,b)=>b.views-a.views);
+    const totF = s.reduce((a,x)=>a+x.followers,0);
+    return card(tt('📱 Perbandingan Platform Social Media', P),
       table(['Platform','Followers','Views','Engagement','Akun'],
-        s.map((p,i)=>[rk(i)+esc(p.platform), N(p.followers), N(p.views), N(p.engagement), p.channels])),
-      `<b>${s[0].platform}</b> mendominasi dengan ${N(s[0].views)} views dan ${N(s[0].followers)} followers. Engagement rate efektif TikTok = ${P(s[0].engagement/s[0].views*100)} dari views.`);
+        s.map((p,i)=>[rk(i)+esc(p.platform), N(p.followers), N(p.views), N(p.engagement), p.n])),
+      `<b>${esc(s[0].platform)}</b> memimpin dengan ${N(s[0].views)} views dan ${N(s[0].followers)} followers `
+      + `(${PC(s[0].followers/totF*100)} dari total ${N(totF)}). `
+      + `Engagement per views ${esc(s[0].platform)} = ${PC(s[0].engagement/s[0].views*100)}. `
+      + `Followers adalah posisi di bulan terakhir rentang.`
+      + covNote(P,'socmed'));
   }
 
   /* --- portal --- */
   if(has('portal','website','situs','traffic','visit','similarweb','bounce')){
-    const s = [...DATA.portal].sort((a,b)=>b.visits-a.visits).slice(0,12);
-    const img = DATA.portal.filter(p=>p.group!=='Competitor');
-    return card('🌐 Portal Performance (Similarweb)',
-      table(['Portal','Total Visits','Page Views','Bounce','Page/Visit'],
-        s.map((p,i)=>[rk(i)+esc(p.portal)+' '+(p.group==='Competitor'?'<span class="tag cmp">Kompetitor</span>':'<span class="tag img">IMG</span>'),
-          N(p.visits), N(p.pageviews), P(p.bounce*100), (p.ppv||0).toFixed(2)])),
-      img.length?`Portal IMG di database: <b>${img.map(p=>p.portal).join(', ')}</b>. Bandingkan bounce rate — makin rendah makin bagus kualitas trafiknya.`:'');
+    const RP_ = rollup(TS('ts_portal'), P, ['group','portal'], ['visits','pageviews','uv']);
+    const g = RP_.list.sort((a,b)=>b.visits-a.visits);
+    if(!g.length) return card(tt('🌐 Portal Performance', P),
+      '<div>Tidak ada data untuk periode itu.</div>', covNote(P,'portal'));
+    const img = g.filter(p=>p.group!=='Competitor');
+    const totV = g.reduce((a,x)=>a+x.visits,0);
+    return card(tt('🌐 Portal Performance (Similarweb)', P),
+      table(['Portal','Total Visits','Page Views','Unique Visitor','Page/Visit'],
+        g.slice(0,12).map((p,i)=>[rk(i)+esc(p.portal)+' '+(p.group==='Competitor'?'<span class="tag cmp">Kompetitor</span>':'<span class="tag img">IMG</span>'),
+          N(p.visits), N(p.pageviews), N(p.uv), (p.visits? p.pageviews/p.visits : 0).toFixed(2)])),
+      (img.length ? `Portal IMG: <b>${img.map(p=>esc(p.portal)).join(', ')}</b> — total ${N(img.reduce((a,x)=>a+x.visits,0))} visits `
+        + `(${PC(img.reduce((a,x)=>a+x.visits,0)/totV*100)} dari seluruh portal yang dipantau). ` : '')
+      + `Data ${RP_.months} bulan.` + covNote(P,'portal'));
   }
 
   /* --- shorts vs vod / kategori --- */
-  if(has('shorts','vod','live','kategori','format','jenis konten')){
+  if(has('shorts','vod',' live','format konten','format video')){
     const s = [...(DATA.category||[])].sort((a,b)=>b.views-a.views);
     return card('🎬 Performa per Format Konten',
       table(['Format','Video','Total Views','Views/Video','ER'],
-        s.map((c,i)=>[rk(i)+esc(c.category), N(c.videos), N(c.views), N(c.views/c.videos), P(c.er)])),
-      `Format dengan views/video tertinggi: <b>${[...s].sort((a,b)=>b.views/b.videos-a.views/a.videos)[0].category}</b>. Ini indikator efisiensi produksi konten.`);
+        s.map((c,i)=>[rk(i)+esc(c.category), N(c.videos), N(c.views), N(c.views/c.videos), PC(c.er)])),
+      `Format dengan views/video tertinggi: <b>${[...s].sort((a,b)=>b.views/b.videos-a.views/a.videos)[0].category}</b>. Ini indikator efisiensi produksi konten.` + snapNote(P));
   }
 
   /* --- trend --- */
@@ -326,8 +1610,8 @@ function answer(qRaw){
     return card('🔥 Video dengan Views Tertinggi',
       table(['Judul','Views','Likes','ER'],
         v.map((x,i)=>[rk(i)+esc(x.title)+`<div style="font-size:10.5px;color:var(--mut);margin-top:2px">${esc(x.channel)} · ${esc(x.cluster)}</div>`,
-          N(x.views), N(x.likes), P(x.er)])),
-      `Video teratas: <b>${esc(v[0].channel)}</b> dengan ${N(v[0].views)} views.`);
+          N(x.views), N(x.likes), PC(x.er)])),
+      `Video teratas: <b>${esc(v[0].channel)}</b> dengan ${N(v[0].views)} views.` + snapNote(P));
   }
 
   /* --- CTR / impression --- */
@@ -335,8 +1619,8 @@ function answer(qRaw){
     const s = [...DATA.studio].filter(c=>c.impressions>0).sort((a,b)=>b.ctr-a.ctr).slice(0,12);
     return card('🎯 Click-Through Rate per Channel',
       table(['Channel','CTR','Impressions','Views','% Ditonton'],
-        s.map((c,i)=>[rk(i)+esc(c.channel), P(c.ctr), N(c.impressions), N(c.views), P(c.pct_viewed)])),
-      `CTR tertinggi: <b>${s[0].channel}</b> (${P(s[0].ctr)}) — judul & thumbnail paling menarik klik. Rata-rata CTR industri berita YouTube ada di kisaran 4–6%.`);
+        s.map((c,i)=>[rk(i)+esc(c.channel), PC(c.ctr), N(c.impressions), N(c.views), PC(c.pct_viewed)])),
+      `CTR tertinggi: <b>${s[0].channel}</b> (${PC(s[0].ctr)}) — judul & thumbnail paling menarik klik. Rata-rata CTR industri berita YouTube ada di kisaran 4–6%.` + snapNote(P));
   }
 
   /* --- IMG vs kompetitor / market share --- */
@@ -349,24 +1633,40 @@ function answer(qRaw){
     return card('🏁 IMG vs Kompetitor',
       table(['Metrik','IMG Group','Kompetitor'],[
         ['Total views', N(iv), N(cv)],
-        ['Market share views', P(iv/(iv+cv)*100), P(cv/(iv+cv)*100)],
+        ['Market share views', PC(iv/(iv+cv)*100), PC(cv/(iv+cv)*100)],
         ['Jumlah video', N(img.reduce((s,x)=>s+x.videos,0)), N(cmp.reduce((s,x)=>s+x.videos,0))],
-        ['Engagement Rate', P(ie), P(ce)],
+        ['Engagement Rate', PC(ie), PC(ce)],
       ]) + `<div class="bar" style="width:${(iv/(iv+cv)*100).toFixed(1)}%"></div>`,
-      `IMG menguasai <b>${P(iv/(iv+cv)*100)}</b> dari total views yang dipantau. ER IMG ${ie>ce?'<b>lebih tinggi</b>':'lebih rendah'} dari kompetitor (${P(ie)} vs ${P(ce)}).`);
+      `IMG menguasai <b>${PC(iv/(iv+cv)*100)}</b> dari total views yang dipantau. ER IMG ${ie>ce?'<b>lebih tinggi</b>':'lebih rendah'} dari kompetitor (${PC(ie)} vs ${PC(ce)}).` + snapNote(P));
   }
 
   /* --- top channel (default ranking) --- */
-  if(has('top','terbaik','terbanyak','ranking','peringkat','tertinggi','channel','unggul','besar')){
+  if(has('top','terbaik','terbanyak','ranking','peringkat','tertinggi','channel','unggul','besar',
+         'views','view','tonton','ditonton','penonton','watch time','jam tayang')){
     const s = [...DATA.cluster].sort((a,b)=>b.views-a.views);
     const ch = [...DATA.channels_scraping].sort((a,b)=>b.views-a.views).slice(0,10);
+    if(P){
+      // periode diminta -> pakai deret waktu YouTube IMG (cluster hanya 1 bulan)
+      const RY = rollup(TS('ts_youtube'), P, ['unit','channel'], ['views','watch','revenue','subs_gained']);
+      const g = RY.list.sort((a,b)=>b.views-a.views);
+      if(g.length){
+        const tot = g.reduce((a,x)=>a+x.views,0);
+        return card(tt('🏆 Ranking Channel YouTube IMG', P),
+          table(['Channel','Views','Share','Watch Time','Revenue'],
+            g.slice(0,12).map((c,i)=>[rk(i)+esc(c.channel)+`<div style="font-size:10.5px;color:var(--mut);margin-top:2px">${esc(c.unit)}</div>`,
+              N(c.views), PC(c.views/tot*100), N(c.watch)+' jam', RP(c.revenue)])),
+          `Total <b>${N(tot)}</b> views dari ${g.length} channel IMG sepanjang ${P.label} (${RY.months} bulan). `
+          + `Ranking kompetitor tidak bisa difilter periode — data Scraping hanya ${DATA.coverage ? DATA.coverage.snapshot_only : 'satu bulan'}.`
+          + covNote(P,'youtube'));
+      }
+    }
     return card('🏆 Ranking Performa',
       `<div style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--mut);font-weight:700;margin-bottom:6px">Per cluster</div>`
       + table(['Cluster','Views','Video','ER'],
-          s.map((c,i)=>[rk(i)+esc(c.cluster)+' '+tagOf(c.cluster), N(c.views), N(c.videos), P(c.er)]))
+          s.map((c,i)=>[rk(i)+esc(c.cluster)+' '+tagOf(c.cluster), N(c.views), N(c.videos), PC(c.er)]))
       + `<div style="margin-top:14px;font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--mut);font-weight:700;margin-bottom:6px">Top 10 channel</div>`
       + table(['Channel','Views','ER'],
-          ch.map((c,i)=>[rk(i)+esc(c.channel)+`<div style="font-size:10.5px;color:var(--mut);margin-top:2px">${esc(c.cluster)}</div>`, N(c.views), P(c.er)])),
+          ch.map((c,i)=>[rk(i)+esc(c.channel)+`<div style="font-size:10.5px;color:var(--mut);margin-top:2px">${esc(c.cluster)}</div>`, N(c.views), PC(c.er)])),
       `<b>${s[0].cluster}</b> memimpin dengan ${N(s[0].views)} views dari ${N(s[0].videos)} video.`);
   }
 
@@ -380,7 +1680,7 @@ function answer(qRaw){
     return card('📋 Ringkasan Eksekutif',
       table(['Indikator','Nilai'],[
         ['Total views YouTube (semua cluster)', N(tv)],
-        ['Market share IMG', P(iv/tv*100)],
+        ['Market share IMG', PC(iv/tv*100)],
         ['Cluster teratas', `${s[0].cluster} (${N(s[0].views)})`],
         ['Platform socmed terbesar', `${p[0].platform} (${N(p[0].views)} views)`],
         ['Total followers socmed', N(DATA.platform.reduce((a,x)=>a+x.followers,0))],
@@ -390,19 +1690,84 @@ function answer(qRaw){
       `Periode data: <b>${DATA.meta.period}</b>. Tanya lebih spesifik untuk breakdown per channel, platform, atau portal.`);
   }
 
+
   /* --- fallback --- */
   return card('🤔 Coba lebih spesifik',
     `<div style="line-height:1.75">Saya bisa menjawab tentang:<br>
-     • <b>Ranking</b> — "channel mana paling banyak views?"<br>
-     • <b>Revenue</b> — "channel mana paling profitable?"<br>
-     • <b>Engagement</b> — "cluster mana ER-nya tertinggi?"<br>
-     • <b>Platform</b> — "bandingkan TikTok vs Instagram"<br>
-     • <b>Portal</b> — "traffic portal gimana?"<br>
-     • <b>Kompetitor</b> — "posisi IMG vs kompetitor?"<br>
-     • <b>Tren</b> — "tren views 3 tahun terakhir"<br>
-     • <b>Format</b> — "Shorts vs VOD mana lebih bagus?"<br>
-     • <b>Perbandingan</b> — "iNews vs KompasTV"</div>`,
+     • <b>Ranking &amp; views</b> — "channel mana paling banyak views?"<br>
+     • <b>Revenue</b> — "revenue Jan-Juli 2026", "RPM per channel"<br>
+     • <b>Kategori &amp; program</b> — "kategori apa paling bagus?", "program terbaik"<br>
+     • <b>Part / Sub Part</b> — "performa TV Content vs Digital Content"<br>
+     • <b>Original vs Repack</b> — "original atau repack yang lebih bagus?"<br>
+     • <b>Durasi &amp; jam unggah</b> — "jam berapa terbaik posting?"<br>
+     • <b>Harian</b> — "performa harian", "tanggal berapa terbaik?"<br>
+     • <b>Demografi</b> — "demografi audiens socmed"<br>
+     • <b>Platform &amp; portal</b> — "bandingkan TikTok vs Instagram", "kualitas trafik portal"<br>
+     • <b>Kompetitor</b> — "posisi IMG vs kompetitor?", "iNews vs KompasTV"<br>
+     • <b>Cakupan data</b> — "berapa channel yang dipantau?"<br><br>
+     Untuk memindahkan hasil ke Excel, pakai tombol <b>Salin tabel</b> atau <b>Unduh CSV</b>
+     yang ada di bawah setiap jawaban.</div>`,
     `Pertanyaan kamu: "<b>${esc(qRaw)}</b>" belum saya kenali polanya.`);
+}
+
+
+/* Tandai tabel yang masih ada lanjutannya ke kanan. */
+function tandaiGeser(el){
+  el.querySelectorAll('.tw').forEach(tw => {
+    const perlu = tw.querySelector('table').scrollWidth > tw.clientWidth + 2;
+    tw.classList.toggle('geser', perlu);
+    if (perlu && !tw.dataset.tip){
+      tw.dataset.tip = '1';
+      const tip = document.createElement('div');
+      tip.className = 'geser-tip on';
+      tip.textContent = '← geser tabel ke samping untuk melihat kolom lainnya →';
+      tw.after(tip);
+      tw.addEventListener('scroll', () => {
+        tw.classList.toggle('geser', tw.scrollLeft + tw.clientWidth < tw.querySelector('table').scrollWidth - 2);
+      }, {passive:true});
+    }
+  });
+}
+window.addEventListener('resize', () => document.querySelectorAll('.msg.bot').forEach(tandaiGeser));
+
+/* ---------- SALIN / UNDUH TABEL ---------- */
+function tombolSalin(){
+  return `<div class="acts">
+    <button onclick="salinTabel(this)">📋 Salin tabel</button>
+    <button onclick="unduhTabel(this)">⬇ Unduh CSV</button></div>`;
+}
+function ambilTabel(btn){
+  const bub = btn.closest('.bub');
+  const tabel = [...bub.querySelectorAll('table')];
+  if (!tabel.length) return null;
+  return tabel.map(t => [...t.querySelectorAll('tr')]
+    .map(tr => [...tr.querySelectorAll('th,td')]
+      .map(td => td.innerText.replace(/\s+/g, ' ').trim()).join('\t')).join('\n')).join('\n\n');
+}
+function salinTabel(btn){
+  const teks = ambilTabel(btn);
+  if (!teks) return kabar(btn, 'Tidak ada tabel');
+  navigator.clipboard.writeText(teks)
+    .then(() => kabar(btn, '✓ Tersalin — tinggal tempel di Excel'))
+    .catch(() => kabar(btn, 'Gagal menyalin'));
+}
+function unduhTabel(btn){
+  const teks = ambilTabel(btn);
+  if (!teks) return kabar(btn, 'Tidak ada tabel');
+  // pemisah titik-koma + BOM supaya Excel Indonesia membacanya benar
+  const csv = '﻿' + teks.split('\n').map(b => b.split('\t')
+    .map(c => `"${c.replace(/"/g, '""')}"`).join(';')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], {type: 'text/csv;charset=utf-8'}));
+  a.download = 'ask-img-analytics.csv';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  kabar(btn, '✓ Terunduh');
+}
+function kabar(btn, teks){
+  const asli = btn.innerHTML;
+  btn.innerHTML = teks;
+  setTimeout(() => btn.innerHTML = asli, 1900);
 }
 
 /* ---------- UI ---------- */
@@ -417,21 +1782,154 @@ function ask(text){
   const el = document.getElementById('q');
   const t = (text || el.value).trim(); if(!t) return;
   el.value = '';
+  el.style.height = 'auto';
   push('me', esc(t));
   const tp = push('bot', '<div class="typing"><i></i><i></i><i></i></div>');
-  setTimeout(()=>{ tp.querySelector('.bub').innerHTML = answer(t); chat.scrollTop = chat.scrollHeight; }, 380);
-  if(window.innerWidth<=900) document.getElementById('side').classList.remove('open');
+    setTimeout(()=>{
+      // Coba jawab apa adanya dulu. Konteks pertanyaan sebelumnya HANYA dipakai
+      // kalau pertanyaan ini sendiri tidak dikenali -- supaya pertanyaan lengkap
+      // tidak pernah tertimpa konteks lama.
+      const usul = sambungLanjutan(t);
+      // penanda kuat langsung dipakai; penanda lemah hanya kalau pertanyaan
+      // ini sendiri tidak dikenali
+      const lanjut = usul && (usul.kuat || answer(t).includes('🤔 Coba lebih spesifik')) ? usul : null;
+      const qEfektif = lanjut ? lanjut.q : t;
+      const paksaP = lanjut ? lanjut.P : null;
+
+      const simpanACT = ACTIVE_P;
+      if (paksaP) ACTIVE_P = paksaP;
+      const html = answer(qEfektif);
+      const Pf = parsePeriod(qEfektif) || ACTIVE_P;
+      if (paksaP) ACTIVE_P = simpanACT;
+
+      const ditolak = html.includes('class="nope"');
+      const jejak = lanjut
+        ? `<div class="pf" style="margin-top:0;margin-bottom:10px">↩️ Saya ${lanjut.alasan}</div>` : '';
+      tp.querySelector('.bub').innerHTML =
+        jejak + html + (ditolak ? '' : peringatanDiabaikan(qEfektif)) + periodFooter(Pf) + tombolSalin();
+
+      if (!ditolak){ LAST_Q = qEfektif; LAST_P = Pf; }
+      tandaiGeser(tp);
+      chat.scrollTop = chat.scrollHeight;
+    }, 380);
+  if(window.innerWidth<=900) closeDrawer();
 }
-document.getElementById('q').addEventListener('keypress', e => { if(e.key==='Enter') ask(); });
+const qEl = document.getElementById('q');
+
+/* tinggi kotak menyesuaikan jumlah baris (maksimal ~5 baris) */
+function aturTinggi(){
+  qEl.style.height = 'auto';
+  qEl.style.height = Math.min(qEl.scrollHeight, 132) + 'px';
+}
+qEl.addEventListener('input', aturTinggi);
+qEl.addEventListener('keydown', e => {
+  // Enter = kirim, Shift+Enter = baris baru
+  if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); ask(); }
+});
+
+/* Di layar kecil, kartu KPI disembunyikan saat menggulir ke bawah dan
+   dimunculkan lagi saat menggulir ke atas. */
+(function kpiIkutGulir(){
+  const top = document.querySelector('.top');
+  let akhir = 0;
+  chat.addEventListener('scroll', () => {
+    if(window.innerWidth > 640){ top.classList.remove('ringkas'); return; }  // hanya di HP
+    const y = chat.scrollTop;
+    if(y > akhir + 12 && y > 60) top.classList.add('ringkas');
+    else if(y < akhir - 12) top.classList.remove('ringkas');
+    akhir = y;
+  }, {passive:true});
+  window.addEventListener('resize', () => {
+    if(window.innerWidth > 640) top.classList.remove('ringkas');
+  });
+})();
+
+/* laci panel kiri di layar kecil */
+const side = document.getElementById('side'), scrim = document.getElementById('scrim');
+const openDrawer  = () => { side.classList.add('open');    scrim.classList.add('on'); };
+const closeDrawer = () => { side.classList.remove('open'); scrim.classList.remove('on'); };
+document.getElementById('openSide').onclick  = openDrawer;
+document.getElementById('closeSide').onclick = closeDrawer;
+scrim.onclick = closeDrawer;
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeDrawer(); });
+// geser ke kiri untuk menutup
+let tx0 = null;
+side.addEventListener('touchstart', e => { tx0 = e.touches[0].clientX; }, {passive:true});
+side.addEventListener('touchend', e => {
+  if(tx0 !== null && tx0 - e.changedTouches[0].clientX > 55) closeDrawer();
+  tx0 = null;
+}, {passive:true});
+
+/* ---------- pemilih periode ---------- */
+let ACTIVE_P = null;
+
+(function buildPicker(){
+  const cov = DATA.coverage && DATA.coverage.youtube;
+  if(!cov){ document.getElementById('pick').style.display = 'none'; return; }
+  const [fy, fm] = cov.from, [ly, lm] = cov.to;
+
+  const opt = [{v:'', t:'Seluruh data'}];
+  opt.push({v:`last:1`,  t:'Bulan terakhir'});
+  opt.push({v:`last:3`,  t:'3 bulan terakhir'});
+  opt.push({v:`last:6`,  t:'6 bulan terakhir'});
+  opt.push({v:`last:12`, t:'12 bulan terakhir'});
+  opt.push({v:`ytd`,     t:`Tahun berjalan (${ly})`});
+  for(let y = ly; y >= fy; y--){
+    opt.push({v:`y:${y}`, t:`Tahun ${y}`});
+    for(let k = 4; k >= 1; k--){
+      const m2 = k*3;
+      if(y*12 + (m2-2) < fy*12 + fm) continue;
+      if(y*12 + (m2-2) > ly*12 + lm) continue;
+      opt.push({v:`q:${y}:${k}`, t:`  Q${k} ${y}`});
+    }
+  }
+
+  document.getElementById('pick').innerHTML =
+    `<h3>Periode data</h3>
+     <select id="selP">${opt.map(o=>`<option value="${o.v}">${o.t}</option>`).join('')}</select>
+     <div class="now" id="nowP">Menampilkan <b>seluruh data</b>. Periode yang ditulis di pertanyaan tetap diutamakan.</div>`;
+
+  document.getElementById('selP').onchange = e => {
+    const v = e.target.value;
+    if(!v){ ACTIVE_P = null; }
+    else if(v === 'ytd'){ ACTIVE_P = mkP(ly, 1, ly, lm); }
+    else if(v.startsWith('last:')){
+      const n = +v.split(':')[1], end = ly*12 + lm, st = end - n + 1;
+      ACTIVE_P = mkP(Math.floor((st-1)/12), (st-1)%12+1, ly, lm);
+    }
+    else if(v.startsWith('y:')){
+      const y = +v.split(':')[1];
+      ACTIVE_P = mkP(y, 1, y, y === ly ? lm : 12);
+    }
+    else if(v.startsWith('q:')){
+      const [,y,k] = v.split(':').map(Number);
+      ACTIVE_P = mkP(y, k*3-2, y, k*3);
+    }
+    document.getElementById('nowP').innerHTML = ACTIVE_P
+      ? `Menampilkan <b>${ACTIVE_P.label}</b>. Periode yang ditulis di pertanyaan tetap diutamakan.`
+      : `Menampilkan <b>seluruh data</b>. Periode yang ditulis di pertanyaan tetap diutamakan.`;
+  };
+})();
 
 /* sidebar suggestions */
 const SUG = {
+  'Konten & Program':['Kategori apa paling bagus?','Program terbaik','Original vs Repack',
+                      'Performa per Part','Performa per durasi video'],
+  'Waktu Tayang':['Jam berapa terbaik posting?','Performa harian','Tanggal berapa terbaik?'],
+  'Audiens & Monetisasi':['Demografi audiens socmed','RPM per channel','Kualitas trafik portal',
+                          'Revenue portal per jenis penjualan'],
   'Performa & Ranking':['Channel mana paling banyak views?','Ranking cluster YouTube','Video apa yang paling viral?'],
   'Uang & Monetisasi':['Channel mana paling profitable?','Dari mana sumber revenue terbesar?'],
   'Engagement':['Cluster mana engagement rate tertinggi?','Channel mana CTR-nya paling bagus?'],
   'Kompetitor':['Posisi IMG vs kompetitor?','iNews vs KompasTV','Sindonews vs MetroTV'],
   'Platform & Portal':['Bandingkan platform social media','Traffic portal gimana?','Shorts vs VOD mana lebih bagus?'],
-  'Lainnya':['Tren views 3 tahun terakhir','Ringkasan eksekutif','Channel mana subscriber terbanyak?']
+  'Analisis Lanjutan':['Channel mana yang revenue-nya naik?','Kenapa views turun?',
+                      'Ada anomali di data bulan ini?','Korelasi views dengan revenue',
+                      'Perkiraan revenue bulan depan'],
+  'Saring & Bandingkan':['Kategori apa paling bagus di Official iNews?','Program terbaik di Sindonews',
+                         'Program dengan ER di atas 2%','Revenue Q1 vs Q2 2026'],
+  'Lainnya':['Tren views 3 tahun terakhir','Ringkasan eksekutif','Channel mana subscriber terbanyak?',
+             'Berapa channel yang dipantau?','Cek penamaan channel']
 };
 document.getElementById('nav').innerHTML = Object.entries(SUG).map(([g,qs])=>
   `<div class="grp"><h3>${g}</h3>${qs.map(q=>`<button class="q" onclick="ask('${q.replace(/'/g,"\\'")}')">${q}</button>`).join('')}</div>`
@@ -456,10 +1954,10 @@ document.getElementById('nav').innerHTML = Object.entries(SUG).map(([g,qs])=>
   document.getElementById('fGen').textContent = DATA.meta.generated;
   document.getElementById('liveTxt').textContent = 'Data ' + DATA.meta.period;
 
-  push('bot', card('👋 Halo! Welcome to Ask IMG Analytics.',
+  push('bot', card('👋 Hello! Welcome to Ask IMG Analytics.',
     `<div style="line-height:1.7">Saya adalah <b>AI Analytics Assistant</b> untuk membantu Anda memahami data Digital iNews Media Group.</div>
      <div class="cap">
-       ${[['📊','Cari insight'],['📈','Analisis performa'],['🔎','Temukan tren'],['💡','Peluang dan rekomendasi']]
+       ${[['📊','Cari insight'],['📈','Analisis performa'],['🔎','Temukan tren'],['📅','Filter periode waktu']]
          .map(([ic,t])=>`<div><span>${ic}</span><span>${t}</span></div>`).join('')}
      </div>
      <div style="line-height:1.7;margin-top:12px">Tanyakan apa saja terkait data IMG. Saya bantu analisisnya!</div>`,

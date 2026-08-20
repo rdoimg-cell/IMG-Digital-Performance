@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Update Data — Ask IMG Analytics</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#f4f6fb;--panel:#fff;--panel2:#f8fafc;--line:#e3e8f0;--txt:#16202f;--mut:#64748b;
+      --acc:#4f46e5;--acc2:#0ea5e9;--ok:#059669;--bad:#e11d48;--warn:#d97706;
+      --shadow:0 1px 2px rgba(16,32,64,.05),0 4px 16px rgba(16,32,64,.06)}
+body{font-family:'Inter','Segoe UI',system-ui,-apple-system,Arial,sans-serif;background:var(--bg);
+  color:var(--txt);min-height:100vh;padding:32px 20px;
+  background-image:radial-gradient(900px 500px at 10% -12%,rgba(79,70,229,.10),transparent 62%),
+                   radial-gradient(800px 500px at 100% 0%,rgba(14,165,233,.09),transparent 58%)}
+.wrap{max-width:760px;margin:0 auto}
+header{text-align:center;margin-bottom:26px}
+.mark{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--acc),var(--acc2));
+  display:grid;place-items:center;font-size:26px;margin:0 auto 12px;box-shadow:0 8px 24px rgba(79,70,229,.35)}
+h1{font-size:22px;font-weight:800;letter-spacing:-.4px}
+header p{color:var(--mut);font-size:13.5px;margin-top:5px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;
+  box-shadow:var(--shadow);margin-bottom:16px}
+.step{display:flex;align-items:center;gap:9px;font-size:11px;font-weight:800;text-transform:uppercase;
+  letter-spacing:.8px;color:var(--acc);margin-bottom:12px}
+.step i{display:grid;place-items:center;width:20px;height:20px;border-radius:6px;background:#eef2ff;font-style:normal}
+
+#drop{border:2px dashed #c7d2fe;border-radius:12px;padding:34px 20px;text-align:center;cursor:pointer;
+  transition:.2s;background:var(--panel2)}
+#drop:hover,#drop.over{border-color:var(--acc);background:#eef2ff}
+#drop .ic{font-size:34px}
+#drop b{display:block;margin-top:9px;font-size:14.5px}
+#drop span{display:block;color:var(--mut);font-size:12.5px;margin-top:4px}
+
+.files{margin-top:14px;display:none}
+.f{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--line);
+  border-radius:9px;margin-bottom:6px;font-size:12.8px;background:var(--panel2)}
+.f .s{margin-left:auto;font-size:11px;font-weight:700}
+.f.ok{border-color:#a7f3d0;background:#ecfdf5}.f.ok .s{color:var(--ok)}
+.f.no{border-color:#fecdd3;background:#fff1f2}.f.no .s{color:var(--bad)}
+.f.wait{border-color:#fed7aa;background:#fff7ed}.f.wait .s{color:var(--warn)}
+@keyframes sp{to{transform:rotate(360deg)}}
+.f.wait span:first-child{display:inline-block;animation:sp 1.6s linear infinite}
+.f .n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+button{width:100%;background:linear-gradient(135deg,var(--acc),#8b5cf6);color:#fff;border:none;
+  padding:14px;border-radius:11px;font-size:14.5px;font-weight:700;cursor:pointer;font-family:inherit;transition:.18s}
+button:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 8px 22px rgba(79,70,229,.35)}
+button:disabled{opacity:.45;cursor:not-allowed}
+button.alt{background:linear-gradient(135deg,var(--ok),#10b981);margin-top:9px}
+
+#log{display:none;font-size:12.6px;line-height:1.85;max-height:280px;overflow-y:auto;
+  background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:14px}
+#log div{display:flex;gap:8px;align-items:baseline}
+#log .ico{width:12px;flex:none;text-align:center}
+#log .t{color:var(--mut);flex:1}
+#log .ok{color:var(--ok);font-weight:700}
+#log .er{color:var(--bad);font-weight:700}
+#log .wa{color:var(--warn);font-weight:700}
+#bar{height:5px;border-radius:9px;background:#e2e8f0;overflow:hidden;margin-bottom:12px;display:none}
+#bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--acc),var(--acc2));transition:.3s}
+
+.done{display:none;text-align:center;padding:8px 0 4px}
+.done .em{font-size:44px}
+.done h2{font-size:18px;font-weight:800;margin:8px 0 5px}
+.done p{color:var(--mut);font-size:13px;margin-bottom:16px}
+.kv{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0 4px;text-align:left}
+.kv>div{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 12px}
+.kv .l{font-size:9.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--mut);font-weight:700}
+.kv .v{font-size:15px;font-weight:800;margin-top:2px}
+
+.help{font-size:12.4px;line-height:1.75;color:var(--mut)}
+.help b{color:var(--txt)}
+.help code{background:var(--panel2);border:1px solid var(--line);padding:1px 6px;border-radius:5px;
+  font-size:11.5px;font-family:ui-monospace,Consolas,monospace;color:var(--txt)}
+.help table{width:100%;border-collapse:collapse;margin-top:9px;font-size:12px}
+.help th{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);font-size:10px;
+  text-transform:uppercase;letter-spacing:.5px;color:var(--mut)}
+.help td{padding:6px 8px;border-bottom:1px solid #eef1f6}
+@media(max-width:520px){.kv{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="mark">🔄</div>
+    <h1>Update Data — Ask IMG Analytics</h1>
+    <p>Tanpa install apa pun. Semua diproses di browser ini, data tidak dikirim ke mana-mana.</p>
+  </header>
+
+  <div class="card">
+    <div class="step"><i>1</i> Masukkan 4 file Excel</div>
+    <div id="drop">
+      <div class="ic">📁</div>
+      <b>Klik di sini atau seret 4 file Excel</b>
+      <span>Konten IMG · Scraping · Rekap Socmed · Portal Performance</span>
+      <span style="margin-top:8px;font-size:11.5px">File Scraping berukuran besar — membaca semuanya butuh sekitar 1 menit. Tunggu sampai keempatnya bertanda hijau.</span>
+    </div>
+    <input type="file" id="pick" multiple accept=".xlsx,.xls" style="display:none">
+    <div class="files" id="files"></div>
+  </div>
+
+  <div class="card">
+    <div class="step"><i>2</i> Proses</div>
+    <div id="bar"><i></i></div>
+    <div id="log"></div>
+    <button id="go" disabled>Mulai Proses</button>
+    <div class="done" id="done">
+      <div class="em">✅</div>
+      <h2>Selesai!</h2>
+      <p>Aplikasi versi terbaru sudah siap diunduh.</p>
+      <div class="kv" id="kv"></div>
+      <button class="alt" id="dl">⬇ Download ask_img_analytics.html</button>
+      <button class="alt" id="dl2" style="background:linear-gradient(135deg,#64748b,#475569)">⬇ Download index.html (untuk GitHub Pages)</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="step"><i>?</i> Kalau ada yang merah</div>
+    <div class="help">
+      File dicari lewat <b>kata kunci di nama file</b>, jadi nama boleh berubah tiap bulan asal kata kuncinya ada.
+      <table>
+        <tr><th>Harus mengandung kata</th><th>Contoh nama yang cocok</th></tr>
+        <tr><td><code>konten</code> + <code>img</code></td><td>Database Konten IMG Agustus 2026.xlsx</td></tr>
+        <tr><td><code>scraping</code></td><td>Database Konten Scraping Agustus 2026.xlsx</td></tr>
+        <tr><td><code>socmed</code></td><td>Database Rekap Socmed IMG 2026.xlsx</td></tr>
+        <tr><td><code>portal</code></td><td>Database Portal Performance IMG 2026.xlsx</td></tr>
+      </table>
+      <p style="margin-top:10px">Kalau ada yang bertanda merah, <b>rename file Excel-nya</b> supaya mengandung kata kunci di atas, lalu masukkan ulang.</p>
+    </div>
+  </div>
+</div>
+
+<script>__SHEETJS__</script>
+<script>
+const TEMPLATE_B64 = "__TEMPLATE_B64__";
+
+/* ============ penyeragaman nama channel ============ */
+// Nama baku = penulisan di sheet 'Content Youtube Studio' (20 channel IMG).
+// Tabel di bawah khusus varian yang katanya beda; beda huruf besar/kecil otomatis.
+const CANON_CHANNEL = {};
+const AUDIT = {rename: [], unknown: []};
+const CHANNEL_ALIAS = {
+  'radio rdi 97.1 fm jakarta': 'Radio RDI',
+  'radio rdi 97.1 fm':         'Radio RDI',
+  'rdi 97.1 fm jakarta':       'Radio RDI',
+  'inews premium sports':      'iNews Premium Sport',
+  'inews jatim official':      'iNews Jatim',
+  'inews sumut official':      'iNews Sumut',
+  'oke vibes':                 'Okezone Vibes!',
+  'okezone vibes':             'Okezone Vibes!',
+};
+
+/* ============ util tabel ============ */
+const numv = v => {
+  if (v === null || v === undefined) return 0;
+  if (typeof v === 'number') return isFinite(v) ? v : 0;
+  const s = String(v).replace(/[,\s%$]/g, '').replace('(', '-').replace(')', '');
+  const n = parseFloat(s);
+  return isFinite(n) ? n : 0;
+};
+const r2 = n => Math.round((Number(n) || 0) * 100) / 100;
+const S = v => (v === null || v === undefined) ? 'nan' : String(v).trim();
+
+function groupBy(rows, keys, spec){
+  const map = new Map();
+  for (const row of rows){
+    // pertahankan tipe asli: angka tetap angka (supaya bulan 2 < bulan 10 saat diurutkan),
+    // teks dirapikan spasinya
+    const kv = keys.map(k => typeof row[k] === 'number' ? row[k] : S(row[k]));
+    const id = kv.join('');
+    let g = map.get(id);
+    if (!g){ g = {_k: kv, _n: 0, _acc: {}, _uniq: {}}; map.set(id, g); }
+    g._n++;
+    for (const [out, [col, fn]] of Object.entries(spec)){
+      if (fn === 'size') continue;
+      if (fn === 'nunique'){ (g._uniq[out] ||= new Set()).add(S(row[col])); continue; }
+      const v = numv(row[col]);
+      const a = (g._acc[out] ||= {sum: 0, n: 0, max: -Infinity});
+      a.sum += v; a.n++; if (v > a.max) a.max = v;
+    }
+  }
+  const out = [];
+  for (const g of map.values()){
+    const o = {};
+    keys.forEach((k, i) => o[k] = g._k[i]);
+    for (const [name, [col, fn]] of Object.entries(spec)){
+      if (fn === 'size') o[name] = g._n;
+      else if (fn === 'nunique') o[name] = g._uniq[name] ? g._uniq[name].size : 0;
+      else {
+        const a = g._acc[name] || {sum: 0, n: 0, max: 0};
+        o[name] = fn === 'sum' ? a.sum : fn === 'mean' ? (a.n ? a.sum / a.n : 0) : (a.max === -Infinity ? 0 : a.max);
+      }
+    }
+    out.push(o);
+  }
+  // pandas mengurutkan kunci grup; samakan supaya hasilnya identik.
+  // Kunci berupa angka (tahun/bulan) harus dibandingkan sebagai angka --
+  // kalau sebagai teks, bulan 10 akan mendahului bulan 2.
+  out.sort((a, b) => {
+    for (const k of keys){
+      const x = a[k], y = b[k];
+      if (typeof x === 'number' && typeof y === 'number'){
+        if (x !== y) return x - y;
+      } else {
+        const sx = String(x), sy = String(y);
+        if (sx !== sy) return sx < sy ? -1 : 1;
+      }
+    }
+    return 0;
+  });
+  return out;
+}
+const nlargest = (rows, n, col) => [...rows].sort((a, b) => numv(b[col]) - numv(a[col])).slice(0, n);
+
+/* ============ pencarian file & sheet ============ */
+const STORE = {};           // {img, scrape, socmed, portal} -> {name, wb}
+const WANT = [
+  {key: 'img',    kw: ['konten', 'img'], label: 'Konten IMG (YouTube Studio)'},
+  {key: 'scrape', kw: ['scraping'],      label: 'Scraping (IMG + kompetitor)'},
+  {key: 'socmed', kw: ['socmed'],        label: 'Rekap Socmed'},
+  {key: 'portal', kw: ['portal'],        label: 'Portal Performance'},
+];
+
+function findSheet(wb, ...kw){
+  const n = wb.SheetNames.find(s => kw.every(k => s.toLowerCase().includes(k.toLowerCase())));
+  if (!n) throw new Error(`Tidak ada sheet yang mengandung "${kw.join(' + ')}". Sheet tersedia: ${wb.SheetNames.join(', ')}`);
+  return n;
+}
+const SHEET_CACHE = new Map();
+function readSheet(wb, ...kw){
+  const isMaster = kw.includes('studio');
+  const name = findSheet(wb, ...kw);
+  // Sheet yang sama bisa diminta beberapa kali (mis. Source Revenue dipakai dua
+  // blok). Tanpa cache, penyeragaman nama akan tercatat berulang di audit.
+  if (SHEET_CACHE.has(name)) return SHEET_CACHE.get(name);
+  const rows = XLSX.utils.sheet_to_json(wb.Sheets[name], {defval: null});
+  const clean = rows.map(r => {
+    const o = {};
+    for (const k in r) o[String(k).replace(/\n/g, ' ').trim()] = r[k];
+    return o;
+  });
+  // ---- Penyeragaman nama channel, tiga lapis ----
+  for (const col of ['Channel', 'Cluster', 'Portal', 'Unit', 'Platform']){
+    if (!clean.length || !(col in clean[0])) continue;
+    const asli = clean.map(r => r[col]);
+
+    if (col === 'Channel'){
+      for (const r of clean){
+        const v = r[col];
+        if (typeof v !== 'string') continue;
+        // (1) varian kata: 'iNews Premium Sports' -> 'iNews Premium Sport'
+        let x = CHANNEL_ALIAS[v.trim().toLowerCase()] || v;
+        // (2) samakan ke nama baku dari sheet Youtube Studio, apa pun kapitalisasinya
+        x = CANON_CHANNEL[String(x).trim().toLowerCase()] || x;
+        r[col] = x;
+      }
+    }
+
+    const cnt = new Map();
+    for (const r of clean){
+      const v = r[col];
+      if (typeof v !== 'string') continue;
+      cnt.set(v.trim(), (cnt.get(v.trim()) || 0) + 1);
+    }
+    const canon = new Map();
+    for (const [name2, n] of cnt){
+      const k = name2.toLowerCase();
+      if (!canon.has(k) || n > cnt.get(canon.get(k))) canon.set(k, name2);
+    }
+    for (const r of clean){
+      const v = r[col];
+      if (typeof v === 'string') r[col] = canon.get(v.trim().toLowerCase()) || v;
+    }
+
+    // rekam apa saja yang berubah
+    clean.forEach((r, i) => {
+      const a = asli[i], b2 = r[col];
+      if (typeof a === 'string' && typeof b2 === 'string' && a.trim() !== b2.trim())
+        AUDIT.rename.push({dari: a.trim(), jadi: b2.trim()});
+    });
+  }
+
+  // Sheet pertama yang dibaca (Youtube Studio) menjadi acuan nama baku.
+  if (isMaster && clean.length && 'Channel' in clean[0] && !Object.keys(CANON_CHANNEL).length){
+    for (const r of clean)
+      if (typeof r.Channel === 'string') CANON_CHANNEL[r.Channel.trim().toLowerCase()] = r.Channel.trim();
+    log(`${Object.keys(CANON_CHANNEL).length} nama channel baku dicatat`, 'ok');
+  }
+  log(`[${name}] — ${clean.length.toLocaleString('id-ID')} baris`, 'ok');
+  SHEET_CACHE.set(name, clean);
+  return clean;
+}
+
+/* ============ UI ============ */
+const $ = id => document.getElementById(id);
+const drop = $('drop'), pick = $('pick'), filesEl = $('files'), logEl = $('log'), go = $('go'), bar = $('bar');
+let OUT_HTML = null, META = null;
+
+function log(msg, cls){
+  logEl.style.display = 'block';
+  const d = document.createElement('div');
+  d.innerHTML = `<span class="ico ${cls || ''}">${cls === 'er' ? '✕' : cls === 'ok' ? '✓' : cls === 'wa' ? '!' : '·'}</span><span class="t">${msg}</span>`;
+  logEl.appendChild(d); logEl.scrollTop = logEl.scrollHeight;
+}
+function progress(p){ bar.style.display = 'block'; bar.firstElementChild.style.width = p + '%'; }
+
+drop.onclick = () => pick.click();
+drop.ondragover = e => { e.preventDefault(); drop.classList.add('over'); };
+drop.ondragleave = () => drop.classList.remove('over');
+drop.ondrop = e => { e.preventDefault(); drop.classList.remove('over'); handle(e.dataTransfer.files); };
+pick.onchange = e => handle(e.target.files);
+
+let BUSY = 0;
+async function handle(fileList){
+  const list = [...fileList];
+  for (const f of list){
+    const low = f.name.toLowerCase();
+    const hit = WANT.find(w => w.kw.every(k => low.includes(k)));
+    if (!hit){ log(`"${f.name}" tidak cocok kata kunci mana pun — diabaikan`, 'wa'); continue; }
+    BUSY++;
+    PENDING[hit.key] = f.name;
+    render();
+    await new Promise(r => setTimeout(r, 30));   // beri kesempatan layar menggambar
+    try {
+      const buf = await f.arrayBuffer();
+      STORE[hit.key] = {name: f.name, wb: XLSX.read(buf, {type: 'array'})};
+    } catch (err){
+      log(`Gagal membaca "${f.name}": ${err.message}`, 'er');
+    }
+    delete PENDING[hit.key];
+    BUSY--;
+    render();
+  }
+}
+
+const PENDING = {};
+function render(){
+  filesEl.style.display = 'block';
+  filesEl.innerHTML = WANT.map(w => {
+    const got = STORE[w.key], busy = PENDING[w.key];
+    const cls = got ? 'ok' : busy ? 'wait' : 'no';
+    return `<div class="f ${cls}">
+      <span>${got ? '📗' : busy ? '⏳' : '📄'}</span>
+      <span class="n">${got ? got.name : busy ? busy : w.label}</span>
+      <span class="s">${got ? 'siap' : busy ? 'membaca…' : 'belum ada'}</span></div>`;
+  }).join('');
+  const ready = WANT.filter(w => STORE[w.key]).length;
+  go.disabled = ready < 4 || BUSY > 0;
+  go.textContent = BUSY > 0 ? 'Sedang membaca file Excel…'
+    : ready < 4 ? `Mulai Proses (${ready}/4 file)` : 'Mulai Proses';
+}
+
+/* ============ agregasi (sama persis dengan build_data.py) ============ */
+function build(){
+  const out = {};
+  let prvRows = null, revRows = null;
+  progress(8);
+
+  /* 1. YouTube Studio */
+  log('Membaca Konten IMG…');
+  const df = readSheet(STORE.img.wb, 'youtube', 'studio');
+  progress(20);
+  out.studio = groupBy(df, ['Unit', 'Channel'], {
+    videos: ['Views', 'size'], views: ['Views', 'sum'], engaged: ['Engaged views', 'sum'],
+    watch_hours: ['Watch time (hours)', 'sum'], subs: ['Subscribers', 'sum'],
+    ctr: ['Impressions click-through rate (%)', 'mean'],
+    pct_viewed: ['Average percentage viewed (%)', 'mean'], impressions: ['Impressions', 'sum'],
+  }).map(r => ({unit: r.Unit, channel: r.Channel, videos: r.videos, views: r2(r.views),
+    engaged: r2(r.engaged), watch_hours: r2(r.watch_hours), subs: r2(r.subs),
+    ctr: r2(r.ctr), pct_viewed: r2(r.pct_viewed), impressions: r2(r.impressions)}));
+
+  out.top_videos_img = nlargest(df, 25, 'Views').map(r => ({
+    channel: S(r.Channel), title: S(r['Video title']).slice(0, 90), views: r2(numv(r.Views)),
+    watch_hours: r2(numv(r['Watch time (hours)'])), date: S(r['Video publish time']).slice(0, 10)}));
+
+  /* 1b. Youtube Studio: dimensi & metrik lanjutan */
+  const engOf = r => numv(r.Likes) + numv(r.Shares) + numv(r['Comments added']);
+  const dfE = df.map(r => ({...r, _eng: engOf(r)}));
+
+  const blankNorm = v => {
+    const t = (v === null || v === undefined) ? '' : String(v).trim();
+    return (t === '' || t.toLowerCase() === 'nan' || t.toLowerCase() === 'null') ? '(tidak diisi)' : t;
+  };
+
+  // Tanggal publish (nomor seri Excel) -> sumbu waktu
+  const toDate = n => {
+    const ms = (numv(n) - 25569) * 86400000;
+    return isFinite(ms) && numv(n) > 0 ? new Date(ms).toISOString().slice(0, 10) : null;
+  };
+  const dfT = dfE.map(r => ({...r, _tgl: toDate(r['Video publish time'])})).filter(r => r._tgl);
+
+  // Semua dimensi editorial dalam SATU tabel panjang berdimensi tanggal.
+  // ctr & pct disimpan sebagai JUMLAH supaya rata-ratanya bisa dihitung ulang
+  // dengan benar setelah baris disaring per periode.
+  const DIMS = [['Kategori','kategori'], ['Program','program'], ['Part','part'],
+                ['Sub Part','subpart'], ['Original','original'],
+                ['Type Content','type'], ['8 Menit','durasi']];
+  const dimRows = [];
+  for (const [col, nama] of DIMS){
+    if (!df.length || !(col in df[0])) continue;
+    let sub = dfT.map(r => ({...r, [col]: blankNorm(r[col])}));
+    if (nama === 'program'){
+      const tot = groupBy(sub, [col], {v: ['Views', 'sum']}).sort((a, b) => b.v - a.v).slice(0, 40);
+      const keep = new Set(tot.map(x => x[col]));
+      sub = sub.filter(r => keep.has(r[col]));
+    }
+    const g = groupBy(sub, ['_tgl', col], {
+      videos: ['Views', 'size'], views: ['Views', 'sum'], watch: ['Watch time (hours)', 'sum'],
+      revenue: ['Estimated revenue (IDR)', 'sum'], eng: ['_eng', 'sum'],
+      subs: ['Subscribers gained', 'sum'],
+      ctr_sum: ['Impressions click-through rate (%)', 'sum'],
+      pct_sum: ['Average percentage viewed (%)', 'sum'],
+    });
+    for (const r of g)
+      dimRows.push([r._tgl, nama, String(r[col]), r.videos, r2(r.views), r2(r.watch),
+                    r2(r.revenue), r2(r.eng), r2(r.subs), r2(r.ctr_sum), r2(r.pct_sum)]);
+  }
+  out.ts_dim = {cols: ['tgl','dim','key','videos','views','watch','revenue','eng','subs','ctr_sum','pct_sum'],
+                rows: dimRows};
+
+  // Silang dimensi x channel (bulanan) -> untuk pertanyaan
+  // "kategori apa yang paling bagus di Official iNews?"
+  {
+    const dcRows = [];
+    for (const [col, nama] of DIMS){
+      if (!df.length || !(col in df[0])) continue;
+      let sub = dfT.map(r => ({...r, [col]: blankNorm(r[col]),
+                                     _y: +r._tgl.slice(0,4), _m: +r._tgl.slice(5,7)}));
+      if (nama === 'program'){
+        const tot = groupBy(sub, [col], {v: ['Views','sum']}).sort((a,b)=>b.v-a.v).slice(0,40);
+        const keep = new Set(tot.map(x => x[col]));
+        sub = sub.filter(r => keep.has(r[col]));
+      }
+      const g = groupBy(sub, ['_y','_m',col,'Channel'], {
+        videos: ['Views','size'], views: ['Views','sum'], watch: ['Watch time (hours)','sum'],
+        revenue: ['Estimated revenue (IDR)','sum'], eng: ['_eng','sum'],
+        ctr_sum: ['Impressions click-through rate (%)','sum'],
+        pct_sum: ['Average percentage viewed (%)','sum'],
+      });
+      for (const r of g)
+        dcRows.push([r._y, r._m, nama, String(r[col]), String(r.Channel), r.videos,
+                     r2(r.views), r2(r.watch), r2(r.revenue), r2(r.eng), r2(r.ctr_sum), r2(r.pct_sum)]);
+    }
+    out.ts_dim_ch = {cols: ['y','m','dim','key','channel','videos','views','watch',
+                            'revenue','eng','ctr_sum','pct_sum'], rows: dcRows};
+  }
+
+  // Deret harian ('Video publish time' = nomor seri tanggal Excel)
+  if (dfT.length){
+    const gd = groupBy(dfT, ['_tgl'], {
+      videos: ['Views', 'size'], views: ['Views', 'sum'],
+      revenue: ['Estimated revenue (IDR)', 'sum'], eng: ['_eng', 'sum'],
+      watch: ['Watch time (hours)', 'sum'],
+    }).sort((a, b) => a._tgl < b._tgl ? -1 : 1);
+    out.studio_daily = {cols: ['tgl','videos','views','revenue','eng','watch'],
+      rows: gd.map(r => [r._tgl, r.videos, r2(r.views), r2(r.revenue), r2(r.eng), r2(r.watch)])};
+  }
+
+  {
+    const gmm = groupBy(dfT, ['_tgl', 'Channel'], {
+      videos: ['Views', 'size'], views: ['Views', 'sum'],
+      revenue: ['Estimated revenue (IDR)', 'sum'], rpm_sum: ['RPM (IDR)', 'sum'],
+      cpm_sum: ['CPM (IDR)', 'sum'], likes: ['Likes', 'sum'], shares: ['Shares', 'sum'],
+      comments: ['Comments added', 'sum'], subs_gained: ['Subscribers gained', 'sum'],
+      subs_lost: ['Subscribers lost', 'sum'], new_v: ['New viewers', 'sum'],
+      ret_v: ['Returning viewers', 'sum'],
+    });
+    out.ts_money = {cols: ['tgl','channel','videos','views','revenue','rpm_sum','cpm_sum',
+                           'likes','shares','comments','subs_gained','subs_lost','new_v','ret_v'],
+      rows: gmm.map(r => [r._tgl, r.Channel, r.videos, r2(r.views), r2(r.revenue), r2(r.rpm_sum),
+        r2(r.cpm_sum), r2(r.likes), r2(r.shares), r2(r.comments), r2(r.subs_gained),
+        r2(r.subs_lost), r2(r.new_v), r2(r.ret_v)])};
+  }
+
+  /* 2. Scraping */
+  log('Membaca Scraping…');
+  const sc = readSheet(STORE.scrape.wb, 'scraping');
+  progress(48);
+  out.cluster = groupBy(sc, ['Cluster'], {
+    videos: ['Views', 'size'], views: ['Views', 'sum'], likes: ['Likes', 'sum'],
+    comments: ['Comments', 'sum'], er: ['ER (%)', 'mean'],
+  }).map(r => ({cluster: r.Cluster, videos: r.videos, views: r2(r.views),
+    likes: r2(r.likes), comments: r2(r.comments), er: r2(r.er)}));
+
+  out.channels_scraping = nlargest(groupBy(sc, ['Cluster', 'Channel'], {
+    videos: ['Views', 'size'], views: ['Views', 'sum'], likes: ['Likes', 'sum'],
+    comments: ['Comments', 'sum'], er: ['ER (%)', 'mean'],
+  }), 120, 'views').map(r => ({cluster: r.Cluster, channel: r.Channel, videos: r.videos,
+    views: r2(r.views), likes: r2(r.likes), comments: r2(r.comments), er: r2(r.er)}));
+
+  if (sc.length && 'Category' in sc[0]){
+    out.category = nlargest(groupBy(sc, ['Category'], {
+      videos: ['Views', 'size'], views: ['Views', 'sum'], er: ['ER (%)', 'mean'],
+    }), 25, 'views').map(r => ({category: r.Category, videos: r.videos, views: r2(r.views), er: r2(r.er)}));
+  }
+
+  out.top_videos_all = nlargest(sc, 25, 'Views').map(r => ({
+    cluster: S(r.Cluster), channel: S(r.Channel), title: S(r.Title).slice(0, 90),
+    views: r2(numv(r.Views)), likes: r2(numv(r.Likes)), comments: r2(numv(r.Comments)), er: r2(numv(r['ER (%)']))}));
+
+  /* 3. Social media */
+  log('Membaca Rekap Socmed…');
+  const sm = readSheet(STORE.socmed.wb, 'facebook');
+  progress(64);
+  // Followers: pakai nilai 'Lifetime Subscriber/Followers' pada BULAN TERAKHIR yang ada
+  // datanya, dijumlah antar channel. Bukan max lintas bulan -- kalau pakai max, penurunan
+  // follower akan tertutupi oleh angka puncak di bulan sebelumnya.
+  const MONTHS_EN = {january:1,february:2,march:3,april:4,may:5,june:6,
+                     july:7,august:8,september:9,october:10,november:11,december:12};
+  const smv = sm.filter(r => numv(r['Lifetime Subscriber/Followers']) > 0)
+                .map(r => ({...r, _mn: MONTHS_EN[S(r.Month).toLowerCase()] || null}));
+  const smYear  = Math.max(...smv.map(r => numv(r.Year)));
+  const smMonth = Math.max(...smv.filter(r => numv(r.Year) === smYear && r._mn).map(r => r._mn));
+  const smLast  = smv.filter(r => numv(r.Year) === smYear && r._mn === smMonth);
+
+  const follPerCh = groupBy(smLast, ['Platform', 'Channel'], {f: ['Lifetime Subscriber/Followers', 'max']});
+  const follPerPlat = {};
+  for (const r of follPerCh) follPerPlat[r.Platform] = (follPerPlat[r.Platform] || 0) + r.f;
+
+  out.platform = groupBy(sm, ['Platform'], {
+    channels: ['Channel', 'nunique'], videos: ['Videos Published', 'sum'],
+    new_followers: ['New Subscribers/Followers', 'sum'],
+    views: ['Views (Cumulative)', 'sum'], rev_usd: ['Revenue (USD)', 'sum'], rev_idr: ['Revenue (IDR)', 'sum'],
+    engagement: ['Engagement', 'sum'], reach: ['Reach', 'sum'],
+  }).map(r => ({platform: r.Platform, channels: r.channels, videos: r2(r.videos),
+    followers: r2(follPerPlat[r.Platform] || 0), new_followers: r2(r.new_followers), views: r2(r.views),
+    rev_usd: r2(r.rev_usd), rev_idr: r2(r.rev_idr), engagement: r2(r.engagement), reach: r2(r.reach)}));
+
+  out.socmed_channels = nlargest(groupBy(sm, ['Platform', 'Unit', 'Channel'], {
+    followers: ['Lifetime Subscriber/Followers', 'max'], views: ['Views (Cumulative)', 'sum'],
+    rev_idr: ['Revenue (IDR)', 'sum'], engagement: ['Engagement', 'sum'],
+  }), 80, 'views').map(r => ({platform: r.Platform, unit: r.Unit, channel: r.Channel,
+    followers: r2(r.followers), views: r2(r.views), rev_idr: r2(r.rev_idr), engagement: r2(r.engagement)}));
+
+  /* 4. Recap YouTube */
+  log('Membaca Recap YouTube…');
+  let ry = readSheet(STORE.socmed.wb, 'recap', 'youtube');
+  const MONTHS = {january:1,february:2,march:3,april:4,may:5,june:6,
+                  july:7,august:8,september:9,october:10,november:11,december:12};
+  ry = ry.filter(r => numv(r['Views Cummulative']) > 0)
+         .map(r => ({...r, MonthNo: MONTHS[S(r.Month).toLowerCase()] || null}));
+
+  out.yearly = groupBy(ry, ['Year'], {
+    views: ['Views Cummulative', 'sum'], watch: ['Watch time (hours)', 'sum'],
+    subs: ['Subscribers', 'sum'], videos: ['Videos published', 'sum'], months: ['MonthNo', 'nunique'],
+  }).map(r => ({year: Math.round(numv(r.Year)), views: r2(r.views), watch: r2(r.watch),
+    subs: r2(r.subs), videos: r2(r.videos), months: r.months}))
+    .sort((a, b) => a.year - b.year);
+
+  out.monthly = groupBy(ry.filter(r => r.MonthNo), ['Year', 'MonthNo'], {
+    views: ['Views Cummulative', 'sum'], watch: ['Watch time (hours)', 'sum'],
+    subs: ['Subscribers', 'sum'], videos: ['Videos published', 'sum'],
+  }).map(r => ({year: Math.round(numv(r.Year)), month: Math.round(numv(r.MonthNo)),
+    views: r2(r.views), watch: r2(r.watch), subs: r2(r.subs), videos: r2(r.videos)}))
+    .sort((a, b) => a.year - b.year || a.month - b.month);
+
+  out.yt_channels = nlargest(groupBy(ry, ['Unit', 'Channel'], {
+    views: ['Views Cummulative', 'sum'], watch: ['Watch time (hours)', 'sum'],
+    subs: ['Subscribers', 'sum'], videos: ['Videos published', 'sum'],
+    ctr: ['Impressions click-through rate (%)', 'mean'],
+  }), 60, 'views').map(r => ({unit: r.Unit, channel: r.Channel, views: r2(r.views),
+    watch: r2(r.watch), subs: r2(r.subs), videos: r2(r.videos), ctr: r2(r.ctr)}));
+
+  /* 5. Revenue YouTube */
+  progress(78);
+  try {
+    revRows = readSheet(STORE.socmed.wb, 'revenue', 'youtube');
+    const rev = revRows;
+    out.yt_revenue = nlargest(groupBy(rev, ['Unit', 'Channel'], {revenue: ['Estimated revenue (IDR)', 'sum']}),
+      40, 'revenue').map(r => ({unit: r.Unit, channel: r.Channel, revenue: r2(r.revenue)}));
+    out.yt_revenue_source = nlargest(groupBy(rev, ['Revenue source'], {revenue: ['Estimated revenue (IDR)', 'sum']}),
+      15, 'revenue').map(r => ({source: r['Revenue source'], revenue: r2(r.revenue)}));
+  } catch (e){ log('Revenue YouTube dilewati: ' + e.message, 'wa'); }
+
+  /* 6. Portal */
+  log('Membaca Portal…');
+  const pc = readSheet(STORE.portal.wb, 'similar');
+  progress(90);
+  out.portal = nlargest(groupBy(pc, ['Group', 'Portal'], {
+    visits: ['Total Visits', 'sum'], pageviews: ['Page Views', 'sum'], uv: ['Unique Visitors', 'sum'],
+    bounce: ['Bounce Rate', 'mean'], ppv: ['Page per Visit', 'mean'],
+  }), 60, 'visits').map(r => ({group: r.Group, portal: r.Portal, visits: r2(r.visits),
+    pageviews: r2(r.pageviews), uv: r2(r.uv), bounce: r2(r.bounce), ppv: r2(r.ppv)}));
+
+  try {
+    prvRows = readSheet(STORE.portal.wb, 'revenue', 'portal');
+    out.portal_revenue = nlargest(groupBy(prvRows, ['CHANNEL'], {revenue: ['VALUE', 'sum']}),
+      30, 'revenue').map(r => ({channel: r.CHANNEL, revenue: r2(r.revenue)}));
+  } catch (e){ log('Revenue Portal dilewati: ' + e.message, 'wa'); }
+
+  const BLN = ['januari','februari','maret','april','mei','juni','juli','agustus','september','oktober','november','desember'];
+  const mPer = STORE.img.name.toLowerCase().match(new RegExp('(' + BLN.join('|') + ')\\s+(\\d{4})'));
+  // Kalau nama file tidak menyebut bulan, periode diambil dari bulan terakhir
+  // yang ada datanya di Recap Youtube (dihitung di blok KPI di bawah).
+  let periode = mPer ? mPer[1][0].toUpperCase() + mPer[1].slice(1) + ' ' + mPer[2] : null;
+
+  /* DERET WAKTU (supaya pertanyaan berperiode bisa dijawab) */
+  const asTable = (rows, cols) => ({cols, rows: rows.map(r => cols.map(c =>
+    (c === 'y' || c === 'm') ? Math.round(numv(r[c])) :
+    (typeof r[c] === 'string' ? r[c] : r2(r[c])))) });
+
+  // 1) YouTube IMG per bulan per channel
+  const tsY = groupBy(ry.filter(r => r.MonthNo).map(r => ({...r, y: numv(r.Year), m: r.MonthNo})),
+    ['y', 'm', 'Unit', 'Channel'], {
+      views: ['Views Cummulative', 'sum'], watch: ['Watch time (hours)', 'sum'],
+      subs_gained: ['Subscribers', 'sum'], videos: ['Videos published', 'sum'],
+      revenue: ['Revenue Cummulative (IDR)', 'sum'], lifetime: ['Lifetime Subscriber/Followers', 'max'],
+    }).map(r => ({...r, unit: r.Unit, channel: r.Channel}));
+  out.ts_youtube = asTable(tsY, ['y','m','unit','channel','views','watch','subs_gained','videos','revenue','lifetime']);
+
+  // 2) Sumber revenue YouTube per bulan
+  try {
+    const rev2 = readSheet(STORE.socmed.wb, 'revenue', 'youtube')
+      .map(r => ({...r, y: numv(r.Year), m: MONTHS[S(r.Month).toLowerCase()] || null}))
+      .filter(r => r.m);
+    const g2 = groupBy(rev2, ['y', 'm', 'Revenue source'], {revenue: ['Estimated revenue (IDR)', 'sum']})
+      .filter(r => r.revenue !== 0).map(r => ({...r, source: r['Revenue source']}));
+    out.ts_revenue_source = asTable(g2, ['y','m','source','revenue']);
+  } catch (e){ log('ts_revenue_source dilewati: ' + e.message, 'wa'); }
+
+  // 3) Social media per bulan per platform+channel
+  const smTs = sm.map(r => ({...r, y: numv(r.Year), m: MONTHS_EN[S(r.Month).toLowerCase()] || null}))
+                 .filter(r => r.m);
+  const g3 = groupBy(smTs, ['y', 'm', 'Platform', 'Channel'], {
+      views: ['Views (Cumulative)', 'sum'], followers: ['Lifetime Subscriber/Followers', 'max'],
+      new_followers: ['New Subscribers/Followers', 'sum'], engagement: ['Engagement', 'sum'],
+      revenue: ['Revenue (IDR)', 'sum'],
+    }).filter(r => r.views !== 0 || r.followers !== 0)
+      .map(r => ({...r, platform: r.Platform, channel: r.Channel}));
+  out.ts_socmed = asTable(g3, ['y','m','platform','channel','views','followers','new_followers','engagement','revenue']);
+
+  // 4) Portal per bulan
+  const pcTs = pc.map(r => ({...r, y: numv(r.Year), m: MONTHS_EN[S(r.Month).toLowerCase()] || null}))
+                 .filter(r => r.m);
+  const toSec = v => {           // "00:02:37" atau angka pecahan hari
+    if (typeof v === 'number' && isFinite(v)) return Math.round(v * 86400);
+    const m4 = String(v).split(':');
+    return m4.length === 3 ? (+m4[0]) * 3600 + (+m4[1]) * 60 + (+m4[2]) : 0;
+  };
+  const pcTs2 = pcTs.map(r => ({...r, _dur: toSec(r['Avg Visit Duration'])}));
+  const g4 = groupBy(pcTs2, ['y', 'm', 'Group', 'Portal'], {
+      visits: ['Total Visits', 'sum'], pageviews: ['Page Views', 'sum'], uv: ['Unique Visitors', 'sum'],
+      dur_sum: ['_dur', 'sum'], bounce_sum: ['Bounce Rate', 'sum'], n: ['Total Visits', 'size'],
+    }).filter(r => r.visits !== 0).map(r => ({...r, group: r.Group, portal: r.Portal}));
+  out.ts_portal = asTable(g4, ['y','m','group','portal','visits','pageviews','uv','dur_sum','bounce_sum','n']);
+
+  const span = key => {
+    const rs = out[key].rows;
+    if (!rs.length) return null;
+    const ym = rs.map(r => r[0] * 12 + r[1]).sort((a, b) => a - b);
+    const lo = ym[0], hi = ym[ym.length - 1];
+    return {from: [Math.floor(lo / 12), lo % 12 || 12], to: [Math.floor(hi / 12), hi % 12 || 12]};
+  };
+  const covBlock = {youtube: span('ts_youtube'), socmed: span('ts_socmed'),
+                    portal: span('ts_portal')};
+
+  /* Jam unggah (dari Scraping) */
+  if (sc.length && 'Upload Hour' in sc[0]){
+    const dmy = v => {           // 'dd/mm/yyyy' -> 'yyyy-mm-dd'
+      const m3 = String(v).match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+      return m3 ? `${m3[3]}-${m3[2]}-${m3[1]}` : null;
+    };
+    const sch = sc.map(r => ({...r, _jam: parseInt(String(r['Upload Hour']).slice(0, 2), 10),
+                                    _tgl: dmy(r['Upload Date'])}))
+                  .filter(r => isFinite(r._jam) && r._tgl);
+    const gj = groupBy(sch, ['_tgl', '_jam'], {
+      videos: ['Views', 'size'], views: ['Views', 'sum'], er_sum: ['ER (%)', 'sum'],
+    });
+    out.ts_jam = {cols: ['tgl','jam','videos','views','er_sum'],
+      rows: gj.map(r => [r._tgl, r._jam, r.videos, r2(r.views), r2(r.er_sum)])};
+  }
+
+  /* Jumlah channel yang dipantau per cluster */
+  {
+    const IMG_UNITS_ = ['iNews', 'Sindonews', 'Okezone', 'IDX Channel'];
+    out.cluster_channels = groupBy(sc, ['Cluster'], {
+        channels: ['Channel', 'nunique'], videos: ['Views', 'size'],
+      }).sort((a, b) => b.channels - a.channels || (a.Cluster < b.Cluster ? -1 : 1))
+      .map(r => ({cluster: r.Cluster, channels: r.channels, videos: r.videos,
+                  img: IMG_UNITS_.includes(r.Cluster)}));
+  }
+
+  /* Demografi socmed (bulan terakhir) */
+  {
+    const demCols = ['View Male (%)', 'View Female (%)']
+      .concat(Object.keys(sm[0] || {}).filter(c => c.includes('Years')));
+    // pakai SELURUH baris socmed yang punya bulan (bukan smv yang sudah disaring
+    // followers > 0), supaya sama dengan sisi Python
+    const smD = sm.map(r => ({...r, _mn: MONTHS_EN[S(r.Month).toLowerCase()] || null}))
+                  .filter(r => r._mn);
+    if (smD.length && demCols.length > 2){
+      const spec = {}; demCols.forEach(c => spec[c] = [c, 'mean']);
+      const lbl = demCols.map(c => c.replace(' (%)', '').replace('View ', '').trim());
+      const gd2 = groupBy(smD, ['Year', '_mn', 'Platform'], spec);
+      out.ts_demografi = {cols: ['y','m','platform'].concat(lbl),
+        rows: gd2.map(r => [Math.round(numv(r.Year)), r._mn, r.Platform]
+                            .concat(demCols.map(c => r2(r[c] * 100))))};
+    }
+  }
+
+  /* Revenue portal per jenis penjualan */
+  try {
+    if (prvRows && prvRows.length && 'TYPE' in prvRows[0]){
+      const pt = prvRows.map(r => ({...r, _y: Math.round(numv(r.YEAR)),
+                                          _mn: MONTHS_EN[S(r.MONTH).toLowerCase()] || null}))
+                        .filter(r => r._mn);
+      const gt = groupBy(pt, ['_y', '_mn', 'TYPE'], {revenue: ['VALUE', 'sum']});
+      out.ts_portal_tipe = {cols: ['y','m','tipe','revenue'],
+        rows: gt.map(r => [r._y, r._mn, String(r.TYPE), r2(r.revenue)])};
+    }
+  } catch (e){ log('portal_revenue_tipe dilewati: ' + e.message, 'wa'); }
+
+  /* KPI bulan terakhir (kartu di bagian atas aplikasi) */
+  const BULAN_ID = ['Januari','Februari','Maret','April','Mei','Juni',
+                    'Juli','Agustus','September','Oktober','November','Desember'];
+  const lastYear  = Math.max(...ry.map(r => numv(r.Year)));
+  const lastRowsY = ry.filter(r => numv(r.Year) === lastYear && r.MonthNo);
+  const lastMonth = Math.max(...lastRowsY.map(r => r.MonthNo));
+  const lm        = lastRowsY.filter(r => r.MonthNo === lastMonth);
+
+  const ytSubs = groupBy(lm, ['Channel'], {f: ['Lifetime Subscriber/Followers', 'max']})
+                   .reduce((a, r) => a + r.f, 0);
+  const socmedFoll = Object.values(follPerPlat).reduce((a, v) => a + v, 0);
+
+  const lastLabel = `${BULAN_ID[lastMonth - 1]} ${lastYear}`;
+  if (!periode) periode = lastLabel;
+  const spanTgl = key => {
+    const rs = (out[key] || {}).rows || [];
+    if (!rs.length) return null;
+    const ts2 = rs.map(r => r[0]).sort();
+    const a2 = ts2[0], b2 = ts2[ts2.length - 1];
+    return {from: [+a2.slice(0,4), +a2.slice(5,7)], to: [+b2.slice(0,4), +b2.slice(5,7)],
+            tgl_from: a2, tgl_to: b2, hari: new Set(rs.map(r => r[0])).size};
+  };
+  out.coverage = {...covBlock, portal_sales: span('ts_portal_tipe'),
+                  studio: spanTgl('ts_dim'), scraping: spanTgl('ts_jam'),
+                  snapshot_only: periode};
+
+  out.kpi = {
+    last_label: lastLabel,
+    yt_views_last: r2(lm.reduce((a, r) => a + numv(r['Views Cummulative']), 0)),
+    yt_revenue_last: r2(lm.reduce((a, r) => a + numv(r['Revenue Cummulative (IDR)']), 0)),
+    yt_subs: r2(ytSubs),
+    yt_channels: new Set(lm.map(r => S(r.Channel))).size,
+    socmed_followers: r2(ytSubs + socmedFoll),
+    socmed_platforms: new Set(sm.map(r => S(r.Platform))).size + 1,
+  };
+
+  /* Audit penamaan channel */
+  {
+    const canonNames = [...new Set(Object.values(CANON_CHANNEL))].sort();
+    const seen = new Set();
+    for (const src of [ry, (revRows || [])]){
+      for (const r of (src || [])){
+        const n = S(r.Channel);
+        if (!n || n === 'nan' || seen.has(n)) continue;
+        seen.add(n);
+        if (CANON_CHANNEL[n.toLowerCase()]) continue;
+        // cari nama baku yang paling mirip
+        let best = null, bs = 0;
+        for (const c of canonNames){
+          const a = n.toLowerCase(), b3 = c.toLowerCase();
+          let hit = 0;
+          for (let i = 0; i < Math.min(a.length, b3.length); i++) if (a[i] === b3[i]) hit++;
+          const sc = hit / Math.max(a.length, b3.length);
+          if (sc > bs){ bs = sc; best = c; }
+        }
+        AUDIT.unknown.push({sheet: 'Recap / Source Revenue', nama: n, mirip: bs > 0.6 ? best : null});
+      }
+    }
+
+    const SEP = String.fromCharCode(1);
+    const rk = new Map();
+    for (const r of AUDIT.rename){
+      const k = r.dari + SEP + r.jadi;
+      rk.set(k, (rk.get(k) || 0) + 1);
+    }
+    out.audit = {
+      rename: [...rk.entries()]
+        .map(([k, n]) => ({dari: k.split(SEP)[0], jadi: k.split(SEP)[1], baris: n}))
+        .sort((a, b) => b.baris - a.baris),
+      unknown: AUDIT.unknown,
+      canon: canonNames,
+    };
+    if (AUDIT.unknown.length){
+      log(`${AUDIT.unknown.length} nama channel belum dikenali - cek "Cek penamaan channel" di aplikasi`, 'wa');
+      AUDIT.unknown.forEach(u => log(`   '${u.nama}'${u.mirip ? ` -> mungkin '${u.mirip}'` : ''}`, 'wa'));
+    } else {
+      log(`Penamaan channel bersih (${out.audit.rename.reduce((a, x) => a + x.baris, 0)} baris diseragamkan)`, 'ok');
+    }
+  }
+
+  /* meta */
+  const today = new Date().toISOString().slice(0, 10);
+  out.meta = {generated: today, period: periode,
+    rows_studio: df.length, rows_scraping: sc.length, rows_socmed: sm.length, rows_portal: pc.length};
+
+  return out;
+}
+
+/* ============ jalankan ============ */
+go.onclick = async () => {
+  go.disabled = true; go.textContent = 'Memproses…'; logEl.innerHTML = '';
+  await new Promise(r => setTimeout(r, 40));
+  try {
+    const t0 = performance.now();
+    const data = build();
+    progress(96);
+
+    const tpl = new TextDecoder().decode(Uint8Array.from(atob(TEMPLATE_B64), c => c.charCodeAt(0)));
+    OUT_HTML = tpl.replace('__DATA__', JSON.stringify(data));
+    META = data.meta;
+    progress(100);
+
+    const secs = ((performance.now() - t0) / 1000).toFixed(1);
+    log(`Selesai dalam ${secs} detik`, 'ok');
+
+    const totalRows = META.rows_studio + META.rows_scraping + META.rows_socmed + META.rows_portal;
+    $('kv').innerHTML = `
+      <div><div class="l">Periode</div><div class="v">${META.period}</div></div>
+      <div><div class="l">Tanggal update</div><div class="v">${META.generated}</div></div>
+      <div><div class="l">Baris diproses</div><div class="v">${totalRows.toLocaleString('id-ID')}</div></div>
+      <div><div class="l">Ukuran aplikasi</div><div class="v">${Math.round(OUT_HTML.length / 1024)} KB</div></div>`;
+    $('done').style.display = 'block';
+    go.style.display = 'none';
+  } catch (err){
+    log(err.message, 'er');
+    log('Perbaiki masalah di atas, lalu masukkan ulang filenya.', 'wa');
+    go.disabled = false; go.textContent = 'Coba Lagi';
+  }
+};
+
+function save(name){
+  const b = new Blob([OUT_HTML], {type: 'text/html;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(b); a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+$('dl').onclick  = () => save('ask_img_analytics.html');
+$('dl2').onclick = () => save('index.html');
+</script>
+</body>
+</html>
