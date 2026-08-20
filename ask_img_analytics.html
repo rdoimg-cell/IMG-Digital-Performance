@@ -962,6 +962,107 @@ function answer(qRaw){
       `<b>${win.cluster}</b> unggul ${gap}% di total views. Tapi cek ER — volume besar tidak selalu berarti engagement lebih baik.`);
   }
 
+
+  /* --- breakdown dimensi per cluster/unit IMG (matriks) --- */
+  if(DATA.ts_dim_ch && (() => {
+    // Kata "per channel" saja tidak cukup ("RPM per channel" bukan permintaan matriks).
+    // Syarat: ada kata breakdown/matriks, ATAU ada nama dimensi + kata "per cluster/unit/channel".
+    const tegas  = has('breakdown','break down','rincian per','rinci per','matriks','silang');
+    const pecah  = has('per cluster','tiap cluster','setiap cluster','masing-masing cluster',
+                       'per unit','tiap unit','setiap unit','masing-masing unit',
+                       'per channel','tiap channel','setiap channel','masing-masing channel');
+    const adaDim = has('kategori','category','program','acara','part','divisi','sub part','subpart',
+                       'original','repack','type content','durasi','panjang video');
+    return tegas || (pecah && adaDim);
+  })()){
+    SRC = 'studio';
+
+    // dimensi apa yang diminta
+    const DIMS = [
+      {k:'kategori', kata:['kategori','category'],                 label:'Kategori'},
+      {k:'program',  kata:['program','acara'],                     label:'Program'},
+      {k:'part',     kata:['part','divisi'],                       label:'Part'},
+      {k:'subpart',  kata:['sub part','subpart'],                  label:'Sub Part'},
+      {k:'original', kata:['original','repack'],                   label:'Original/Repack'},
+      {k:'type',     kata:['type content','shorts','vod',' live'], label:'Type Content'},
+      {k:'durasi',   kata:['durasi','panjang video'],              label:'Durasi'},
+    ];
+    const D = DIMS.find(x => x.kata.some(w => q.includes(w))) || DIMS[0];
+
+    // metrik apa yang dipakai
+    const M = /revenue|pendapatan|duit|cuan/.test(q) ? {k:'revenue', label:'Revenue', f:RP}
+            : /watch|jam tayang|durasi tonton/.test(q) ? {k:'watch', label:'Watch time', f:v=>N(v)+' jam'}
+            : /video|episode|jumlah konten/.test(q) ? {k:'videos', label:'Jumlah video', f:N}
+            : {k:'views', label:'Views', f:N};
+
+    // kolom: per channel kalau diminta, kalau tidak per unit
+    const perChannel = /per channel|tiap channel|setiap channel|masing-masing channel/.test(q);
+    const ch2unit = {};
+    (DATA.studio || []).forEach(x => ch2unit[x.channel] = x.unit);
+
+    const t = TS('ts_dim_ch'), ix = t.ix;
+    const rows = t.rows.filter(r => r[ix.dim] === D.k && inP(r, P));
+    if(!rows.length) return card(ttc(`🧮 Breakdown ${D.label}`, P, null),
+      kosong('studio', P), '');
+
+    // kalau user menyebut satu cluster, batasi ke cluster itu (kolom = channel-nya)
+    let batasUnit = unitDisebut(qRaw);
+    if(batasUnit) USED_ENT.push(batasUnit);
+
+    const kolomDari = r => perChannel || batasUnit ? r[ix.channel] : (ch2unit[r[ix.channel]] || '(lain)');
+    const mat = new Map(), kolomSet = new Map();
+    for(const r of rows){
+      const u = ch2unit[r[ix.channel]] || '(lain)';
+      if(batasUnit && u !== batasUnit) continue;
+      const baris = r[ix.key], kolom = kolomDari(r), v = Number(r[ix[M.k]]) || 0;
+      if(!mat.has(baris)) mat.set(baris, new Map());
+      mat.get(baris).set(kolom, (mat.get(baris).get(kolom) || 0) + v);
+      kolomSet.set(kolom, (kolomSet.get(kolom) || 0) + v);
+    }
+    if(!mat.size) return card(ttc(`🧮 Breakdown ${D.label}`, P, batasUnit),
+      '<div>Tidak ada data untuk kombinasi itu.</div>', '');
+
+    // kolom diurutkan dari yang terbesar; batasi 8 kolom supaya tabel tetap terbaca
+    let kolom = [...kolomSet.entries()].sort((a,b) => b[1]-a[1]).map(x => x[0]);
+    const dipotong = kolom.length > 8 ? kolom.length - 8 : 0;
+    if(dipotong) kolom = kolom.slice(0, 8);
+
+    const baris = [...mat.entries()]
+      .map(([k, m2]) => ({k, m2, tot: [...m2.values()].reduce((a,b)=>a+b,0)}))
+      .sort((a,b) => b.tot - a.tot)
+      .slice(0, 14);
+    const totalUmum = baris.reduce((a,x)=>a+x.tot,0);
+
+    const head = [D.label, ...kolom, 'Total'];
+    const isi = baris.map((r,i) => [
+      rk(i) + esc(r.k),
+      ...kolom.map(c => {
+        const v = r.m2.get(c) || 0;
+        return v ? M.f(v) : '<span style="color:var(--mut)">–</span>';
+      }),
+      `<b>${M.f(r.tot)}</b>`,
+    ]);
+    // baris total di bawah
+    isi.push(['<b>TOTAL</b>',
+      ...kolom.map(c => `<b>${M.f(kolomSet.get(c) || 0)}</b>`),
+      `<b>${M.f(totalUmum)}</b>`]);
+
+    // temuan menonjol: untuk tiap kolom, dimensi apa yang paling dominan
+    const juara = kolom.map(c => {
+      let best = null, bv = 0;
+      for(const r of baris){ const v = r.m2.get(c) || 0; if(v > bv){ bv = v; best = r.k; } }
+      return best ? `<b>${esc(c)}</b>: ${esc(best)}` : null;
+    }).filter(Boolean);
+
+    return card(ttc(`🧮 ${D.label} per ${perChannel || batasUnit ? 'Channel' : 'Cluster'} — ${M.label}`, P, batasUnit),
+      table(head, isi),
+      `Dominan di tiap kolom → ${juara.join(' · ')}.`
+      + (dipotong ? `<br>Menampilkan 8 kolom terbesar; ${dipotong} kolom lain disembunyikan agar tabel tetap terbaca.` : '')
+      + (baris.length >= 14 ? `<br>Menampilkan 14 baris teratas.` : '')
+      + `<br>Tanda – berarti tidak ada konten kategori itu di kolom tersebut.`
+      + catatanCh({channel: batasUnit, hari: null}));
+  }
+
   /* --- kategori konten --- */
   if(has('kategori','category','jenis konten','tipe konten') && DATA.ts_dim){
     SRC = 'studio';
@@ -1704,6 +1805,7 @@ function answer(qRaw){
      • <b>Demografi</b> — "demografi audiens socmed"<br>
      • <b>Platform &amp; portal</b> — "bandingkan TikTok vs Instagram", "kualitas trafik portal"<br>
      • <b>Kompetitor</b> — "posisi IMG vs kompetitor?", "iNews vs KompasTV"<br>
+     • <b>Breakdown silang</b> — "breakdown kategori per cluster"<br>
      • <b>Cakupan data</b> — "berapa channel yang dipantau?"<br><br>
      Untuk memindahkan hasil ke Excel, pakai tombol <b>Salin tabel</b> atau <b>Unduh CSV</b>
      yang ada di bawah setiap jawaban.</div>`,
@@ -1926,7 +2028,9 @@ const SUG = {
   'Analisis Lanjutan':['Channel mana yang revenue-nya naik?','Kenapa views turun?',
                       'Ada anomali di data bulan ini?','Korelasi views dengan revenue',
                       'Perkiraan revenue bulan depan'],
-  'Saring & Bandingkan':['Kategori apa paling bagus di Official iNews?','Program terbaik di Sindonews',
+  'Saring & Bandingkan':['Breakdown kategori per cluster','Breakdown program per cluster',
+                         'Breakdown kategori per cluster (revenue)',
+                         'Kategori apa paling bagus di Official iNews?','Program terbaik di Sindonews',
                          'Program dengan ER di atas 2%','Revenue Q1 vs Q2 2026'],
   'Lainnya':['Tren views 3 tahun terakhir','Ringkasan eksekutif','Channel mana subscriber terbanyak?',
              'Berapa channel yang dipantau?','Cek penamaan channel']
