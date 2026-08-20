@@ -23,7 +23,7 @@ body{
 .app{display:grid;grid-template-columns:290px 1fr;height:100vh}
 
 /* ---------- SIDEBAR ---------- */
-.side{border-right:1px solid var(--line);background:rgba(255,255,255,.82);backdrop-filter:blur(18px);
+.side{border-right:1px solid var(--line);background:rgba(255,255,255,.82);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);
   display:flex;flex-direction:column;overflow:hidden}
 .brand{padding:18px 20px 14px;border-bottom:1px solid var(--line)}
 .logo{display:flex;flex-direction:column;align-items:flex-start;gap:10px}
@@ -73,7 +73,7 @@ body{
 /* ---------- MAIN ---------- */
 .main{display:flex;flex-direction:column;overflow:hidden}
 .top{padding:16px 26px;border-bottom:1px solid var(--line);display:flex;gap:12px;
-  align-items:center;flex-wrap:wrap;background:rgba(255,255,255,.75);backdrop-filter:blur(12px);
+  align-items:center;flex-wrap:wrap;background:rgba(255,255,255,.75);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
   transition:padding .22s ease, opacity .22s ease}
 .kpi{flex:1;min-width:128px;background:var(--panel);border:1px solid var(--line);border-radius:12px;
   padding:11px 13px;box-shadow:var(--shadow)}
@@ -180,19 +180,32 @@ td.n{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
 /* Baris kontrol berdiri sendiri di luar .top, supaya tombol menu dan tombol lipat
    TIDAK ikut hilang ketika bagan ringkasan disembunyikan. */
 .bar{display:flex;align-items:center;gap:8px;padding:5px 26px;
-  border-bottom:1px solid var(--line);background:rgba(255,255,255,.75);backdrop-filter:blur(12px)}
-.lipatTop{margin-left:auto;border:none;background:none;color:var(--mut);font-family:inherit;
-  font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
-  padding:3px 6px;border-radius:7px;cursor:pointer;transition:.15s}
-.lipatTop:hover{color:var(--acc);background:#eef2ff}
+  border-bottom:1px solid var(--line);background:rgba(255,255,255,.75);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+/* Tombol lipat: ikon panah saja, tanpa tulisan. */
+.lipatTop{margin-left:auto;display:grid;place-items:center;width:28px;height:28px;
+  border:1px solid transparent;background:none;color:var(--mut);border-radius:9px;
+  cursor:pointer;transition:.16s;padding:0}
+.lipatTop svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2.1;
+  stroke-linecap:round;stroke-linejoin:round;transition:transform .22s ease}
+.lipatTop:hover{color:var(--acc);background:#eef2ff;border-color:#c7d2fe}
+.lipatTop.terbuka svg{transform:rotate(180deg)}
 .top.lipat{padding-top:0;padding-bottom:0;opacity:0;max-height:0;overflow:hidden;
   border-bottom-color:transparent}
 
-.lipatSide{display:none;border:1px solid var(--line);background:var(--panel);color:var(--mut);
-  width:26px;height:26px;border-radius:8px;cursor:pointer;font-size:13px;line-height:1;
-  font-family:inherit;flex:none;transition:.15s}
-.lipatSide:hover{color:var(--acc);border-color:var(--acc)}
+/* Panah panel kiri ditempatkan DI DALAM panelnya sendiri. */
+.lipatSide{display:none;position:absolute;top:16px;right:14px;width:26px;height:26px;
+  border:1px solid var(--line);background:var(--panel);color:var(--mut);border-radius:8px;
+  cursor:pointer;font-size:16px;line-height:1;font-family:inherit;transition:.16s;padding:0}
+.lipatSide:hover{color:var(--acc);border-color:#c7d2fe;background:#eef2ff}
 @media(min-width:861px){ .lipatSide{display:grid;place-items:center} }
+.brand{position:relative}
+
+/* Saat panel disembunyikan, panah pembuka muncul di baris kontrol. */
+.bukaSide{display:none;width:26px;height:26px;border:1px solid var(--line);background:var(--panel);
+  color:var(--mut);border-radius:8px;cursor:pointer;font-size:16px;line-height:1;
+  font-family:inherit;flex:none;transition:.16s;padding:0}
+.bukaSide:hover{color:var(--acc);border-color:#c7d2fe;background:#eef2ff}
+@media(min-width:861px){ .app.tanpaSide .bukaSide{display:grid;place-items:center} }
 .app.tanpaSide{grid-template-columns:0 1fr}
 .app.tanpaSide .side{opacity:0;pointer-events:none}
 
@@ -266,6 +279,7 @@ td.n{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
         <div><h1>Ask IMG Analytics</h1><span>Media Performance Intelligence</span></div>
       </div>
       <button class="close" id="closeSide" aria-label="Tutup menu">✕</button>
+      <button class="lipatSide" id="lipatSide" aria-label="Sembunyikan panel" title="Sembunyikan panel">‹</button>
     </div>
     <div class="pick" id="pick"></div>
     <div class="nav" id="nav"></div>
@@ -286,8 +300,10 @@ td.n{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
 
     <div class="bar">
       <button class="burger" id="openSide" aria-label="Buka menu">☰</button>
-      <button class="lipatSide" id="lipatSide" aria-label="Sembunyikan panel kiri" title="Sembunyikan panel kiri">⟨</button>
-      <button class="lipatTop" id="lipatTop" aria-label="Sembunyikan ringkasan">Sembunyikan ringkasan ▲</button>
+      <button class="bukaSide" id="bukaSide" aria-label="Tampilkan panel" title="Tampilkan panel">›</button>
+      <button class="lipatTop" id="lipatTop" aria-label="Sembunyikan ringkasan" title="Sembunyikan ringkasan">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg>
+      </button>
     </div>
     <div class="chat" id="chat"><div class="wrap" id="wrap"></div></div>
 
@@ -2225,12 +2241,34 @@ function ambilTabel(btn){
     .map(tr => [...tr.querySelectorAll('th,td')]
       .map(td => td.innerText.replace(/\s+/g, ' ').trim()).join('\t')).join('\n')).join('\n\n');
 }
+/* Cara lama: textarea sementara + execCommand. Dipakai kalau navigator.clipboard
+   tidak tersedia -- di Safari, clipboard API hanya jalan pada halaman https,
+   sedangkan berkas ini biasanya dibuka lewat file:// (klik dua kali). */
+function salinCaraLama(teks){
+  const ta = document.createElement('textarea');
+  ta.value = teks;
+  ta.setAttribute('readonly', '');
+  ta.style.cssText = 'position:fixed;top:0;left:-9999px;opacity:0';
+  document.body.appendChild(ta);
+  ta.select();
+  ta.setSelectionRange(0, ta.value.length);   // iOS/Safari perlu ini
+  let ok = false;
+  try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+  document.body.removeChild(ta);
+  return ok;
+}
 function salinTabel(btn){
   const teks = ambilTabel(btn);
   if (!teks) return kabar(btn, 'Tidak ada tabel');
-  navigator.clipboard.writeText(teks)
-    .then(() => kabar(btn, '✓ Tersalin — tinggal tempel di Excel'))
-    .catch(() => kabar(btn, 'Gagal menyalin'));
+  const cadangan = () => kabar(btn, salinCaraLama(teks)
+    ? '✓ Tersalin — tinggal tempel di Excel' : 'Gagal menyalin');
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(teks)
+      .then(() => kabar(btn, '✓ Tersalin — tinggal tempel di Excel'))
+      .catch(cadangan);
+  } else {
+    cadangan();
+  }
 }
 function unduhTabel(btn){
   const teks = ambilTabel(btn);
@@ -2336,14 +2374,17 @@ document.getElementById('openSide').onclick  = openDrawer;
   const topEl = document.getElementById('top'), tombolTop = document.getElementById('lipatTop');
   tombolTop.onclick = () => {
     const lipat = topEl.classList.toggle('lipat');
-    tombolTop.textContent = lipat ? 'Tampilkan ringkasan ▼' : 'Sembunyikan ringkasan ▲';
+    tombolTop.classList.toggle('terbuka', lipat);          // panahnya berputar
+    tombolTop.title = lipat ? 'Tampilkan ringkasan' : 'Sembunyikan ringkasan';
+    tombolTop.setAttribute('aria-label', tombolTop.title);
   };
-  const appEl = document.querySelector('.app'), tombolSide = document.getElementById('lipatSide');
-  tombolSide.onclick = () => {
-    const tanpa = appEl.classList.toggle('tanpaSide');
-    tombolSide.textContent = tanpa ? '⟩' : '⟨';
-    tombolSide.title = tanpa ? 'Tampilkan panel kiri' : 'Sembunyikan panel kiri';
+  const appEl = document.querySelector('.app');
+  const setSide = tanpa => {
+    appEl.classList.toggle('tanpaSide', tanpa);
+    if (tanpa) document.getElementById('bukaSide').focus({preventScroll: true});
   };
+  document.getElementById('lipatSide').onclick = () => setSide(true);
+  document.getElementById('bukaSide').onclick  = () => setSide(false);
 }
 document.getElementById('closeSide').onclick = closeDrawer;
 scrim.onclick = closeDrawer;
