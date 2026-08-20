@@ -1,0 +1,78 @@
+name: Bangun ulang Ask IMG Analytics
+
+# Jalan otomatis setiap kali ada file Excel (atau script/template) yang berubah
+# di branch utama. Hasilnya: index.html dan ask_img_analytics.html ikut ter-update
+# dan langsung tayang di GitHub Pages, tanpa perlu install apa pun di komputer.
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - '**.xlsx'
+      - 'build_data.py'
+      - 'build_app.py'
+      - 'build_updater.py'
+      - 'template.html'
+      - 'updater_src.html'
+      - '.github/workflows/build.yml'
+  workflow_dispatch:        # bisa juga dijalankan manual dari tab "Actions"
+
+permissions:
+  contents: write           # supaya hasil build bisa di-commit balik ke repo
+
+concurrency:
+  group: build-ask-img
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Pasang library
+        run: pip install --quiet pandas openpyxl
+
+      - name: Ringkas Excel jadi data.json
+        run: python build_data.py
+
+      - name: Susun aplikasi HTML
+        run: |
+          python build_app.py
+          python build_updater.py
+
+      - name: Periksa hasilnya masuk akal
+        # Gagalkan build kalau file kosong/kekecilan, supaya halaman yang sudah
+        # jalan tidak tertimpa file rusak.
+        run: |
+          python - <<'PY'
+          import json, os, sys
+          d = json.load(open('data.json'))
+          masalah = []
+          if os.path.getsize('index.html') < 300_000:
+              masalah.append(f"index.html cuma {os.path.getsize('index.html')} byte")
+          if len(d.get('yt_channels', [])) < 10:
+              masalah.append(f"channel YouTube cuma {len(d.get('yt_channels', []))}")
+          if not d.get('kpi', {}).get('yt_revenue_last'):
+              masalah.append('KPI revenue bulan terakhir kosong')
+          if masalah:
+              sys.exit('[GAGAL] ' + '; '.join(masalah))
+          print('OK  periode:', d['meta']['period'],
+                '| channel:', len(d['yt_channels']),
+                '| index.html:', os.path.getsize('index.html'), 'byte')
+          PY
+
+      - name: Commit hasil build
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data.json index.html ask_img_analytics.html "UPDATE DATA.html"
+          if git diff --cached --quiet; then
+            echo "Tidak ada perubahan hasil build."
+          else
+            git commit -m "Build ulang otomatis dari data Excel terbaru"
+            git push
+          fi
