@@ -15,12 +15,16 @@
 body{
   font-family:'Inter','Segoe UI Variable','Segoe UI',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif;
   background:var(--bg);color:var(--txt);
-  height:100vh;overflow:hidden;
+  /* 100vh di browser HP memakai tinggi layar SEBELUM bilah alamat ikut
+     dihitung, jadi bagian paling bawah -- kotak pertanyaan -- terpotong.
+     100dvh mengikuti tinggi yang benar-benar terlihat; 100vh tetap ditulis
+     lebih dulu sebagai cadangan untuk browser lama. */
+  height:100vh;height:100dvh;overflow:hidden;
   background-image:radial-gradient(900px 520px at 10% -12%,rgba(79,70,229,.10),transparent 62%),
                    radial-gradient(800px 520px at 100% 0%,rgba(14,165,233,.09),transparent 58%),
                    radial-gradient(700px 460px at 50% 112%,rgba(168,85,247,.07),transparent 62%);
 }
-.app{display:grid;grid-template-columns:290px 1fr;height:100vh}
+.app{display:grid;grid-template-columns:290px 1fr;height:100vh;height:100dvh}
 
 /* ---------- SIDEBAR ---------- */
 .side{border-right:1px solid var(--line);background:rgba(255,255,255,.82);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);
@@ -172,10 +176,14 @@ td.n{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
 .hint{max-width:860px;margin:9px auto 0;font-size:10.5px;color:var(--mut);text-align:center;line-height:1.7}
 
 /* --- tombol lipat: bagan atas & panel kiri --- */
-/* Baris kontrol berdiri sendiri di luar .top, supaya tombol menu dan tombol lipat
-   TIDAK ikut hilang ketika bagan ringkasan disembunyikan. */
-.bar{display:flex;align-items:center;gap:8px;padding:5px 26px;
-  border-bottom:1px solid var(--line);background:rgba(255,255,255,.75);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+/* Baris kontrol tempat tombol menu (dan panah pembuka panel) berdiri.
+   Namanya dulu .bar dan BENTROK dengan .bar milik batang perbandingan di kartu
+   "IMG vs Kompetitor" -- aturan yang belakangan menang, jadi batang itu ikut
+   jadi flex dan kehilangan warnanya. Sekarang barisnya bernama .ctl.
+   Latar putih dan garis bawahnya dulu menyambung ke bagan ringkasan di atasnya;
+   bagan itu sudah dihapus, jadi yang tersisa cuma sepotong bidang putih yang
+   menggantung. Sekarang barisnya bening. */
+.ctl{display:flex;align-items:center;gap:8px;padding:8px 26px 0;background:none;flex:0 0 auto}
 
 /* Panah panel kiri ditempatkan DI DALAM panelnya sendiri. */
 .lipatSide{display:none;position:absolute;top:16px;right:14px;width:26px;height:26px;
@@ -227,9 +235,16 @@ td.n{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
     border:1px solid var(--line);color:var(--txt);cursor:pointer;font-size:15px;box-shadow:var(--shadow);
     flex-shrink:0}
 
-  .bar{padding:4px 12px}
+  .ctl{padding:8px 12px 0}
 
-  .chat{padding:16px 13px 6px}.inp{padding:10px 13px 14px}
+  .chat{padding:14px 13px 6px}
+  /* Di layar HP percakapan didorong ke BAWAH, menempel kotak pertanyaan.
+     Kalau ditumpuk dari atas seperti di layar lebar, satu kartu sapaan
+     menyisakan setengah layar kosong di antara isi dan kotak pertanyaannya. */
+  #wrap{min-height:100%;display:flex;flex-direction:column;justify-content:flex-end}
+  /* env(safe-area-inset-bottom) = tinggi bilah gestur di HP layar penuh.
+     Tanpa ini kotak pertanyaan tertindih bilah itu. */
+  .inp{padding:8px 13px calc(10px + env(safe-area-inset-bottom, 0px))}
   .bub{max-width:94%;font-size:13px;padding:12px 14px}
   table{font-size:11.5px}th{font-size:9px;padding:5px 7px}td{padding:6px 7px}
   .tw{margin-left:-4px;margin-right:-4px}
@@ -251,6 +266,16 @@ td.n{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
 .dash-hd h2{font-size:19px;font-weight:800;letter-spacing:-.3px}
 .dash-sub{font-size:12px;color:var(--mut);line-height:1.6;margin-top:3px}
 .dash-sub b{color:var(--acc)}
+/* Tombol unduh di kepala dashboard. Sengaja di kanan atas, sejajar judulnya. */
+.dash-hd{position:relative}
+.unduh-dash{position:absolute;top:0;right:0;font:inherit;font-size:11.5px;font-weight:700;
+  padding:7px 12px;border:1px solid var(--line);border-radius:9px;background:var(--panel);
+  color:var(--txt);cursor:pointer;box-shadow:var(--shadow);transition:.15s;white-space:nowrap}
+.unduh-dash:hover{border-color:var(--acc);color:var(--acc);background:#eef2ff}
+@media(max-width:860px){
+  .dash-hd{padding-right:0}
+  .unduh-dash{position:static;margin-bottom:9px;width:100%}
+}
 .ket{font-size:11px;color:var(--mut);line-height:1.55;margin-top:10px}
 .ket b{color:var(--txt)}
 .dash-note{font-size:11.5px;color:var(--mut);line-height:1.55;margin-top:6px;padding:6px 10px;
@@ -368,7 +393,7 @@ td.n{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
   </aside>
 
   <main class="main">
-    <div class="bar">
+    <div class="ctl">
       <button class="burger" id="openSide" aria-label="Open menu">☰</button>
       <button class="bukaSide" id="bukaSide" aria-label="Show panel" title="Show panel">›</button>
     </div>
@@ -415,7 +440,10 @@ async function tanyaAI(system, prompt, maxTokens){
 const IMG_UNITS = ['iNews','Sindonews','Okezone','IDX Channel'];
 
 /* ---------- helpers ---------- */
-const N = n => {
+/* Angka yang tampil dibulatkan ('545.13 jt'), tapi nilai aslinya diselipkan di
+   data-v. Pengunduh Excel membaca data-v itu, jadi berkasnya memuat angka
+   PERSIS -- bukan hasil membaca ulang tulisan yang sudah dibulatkan. */
+const _Nteks = n => {
   n = Number(n)||0;
   if(Math.abs(n)>=1e12) return (n/1e12).toFixed(2)+' triliun';
   if(Math.abs(n)>=1e9)  return (n/1e9).toFixed(2)+' miliar';
@@ -423,8 +451,9 @@ const N = n => {
   if(Math.abs(n)>=1e3)  return (n/1e3).toFixed(1)+' rb';
   return n.toLocaleString('id-ID',{maximumFractionDigits:2});
 };
-const RP = n => 'Rp ' + N(n);
-const PC = n => (Number(n)||0).toFixed(2)+'%';
+const N = n => `<span data-v="${Number(n)||0}">${_Nteks(n)}</span>`;
+const RP = n => `<span data-v="${Number(n)||0}">Rp ${_Nteks(n)}</span>`;
+const PC = n => `<span data-v="${Number(n)||0}">${(Number(n)||0).toFixed(2)}%</span>`;
 
 /* Angka versi Inggris -- dipakai HANYA di Dashboard, yang seluruh tulisannya
    memang bahasa Inggris. Mode Ask tetap memakai N()/RP() dengan
@@ -692,6 +721,7 @@ function comparePeriods(qRaw, A, B){
 
 /* ---------- AKSES DERET WAKTU ---------- */
 function TS(name){
+  if (name === '__gabung') return tabelGabungan();
   const t = DATA[name] || {cols: [], rows: []};
   const ix = {}; t.cols.forEach((c, i) => ix[c] = i);
   return {ix, rows: t.rows, has: t.rows.length > 0};
@@ -988,14 +1018,15 @@ function maksudBelumDidukung(qRaw){
 
   if (ada('export','ekspor','unduh','download','simpan ke excel','ke excel','csv'))
     return kartu('📤', 'Ada tombolnya di bawah jawaban',
-      'Setiap jawaban punya tombol <b>📋 Salin tabel</b> dan <b>⬇ Unduh CSV</b> tepat di bawahnya.',
+      'Setiap jawaban punya tombol <b>📋 Salin tabel</b> dan <b>⬇ Unduh Excel</b> tepat di bawahnya.',
       'Tanyakan dulu datanya (mis. <code>Revenue Jan-Juli 2026</code>), lalu klik tombol di bawah tabel yang muncul. '
-      + 'CSV-nya sudah memakai pemisah titik-koma supaya langsung rapi di Excel Indonesia.');
+      + 'Berkasnya .xlsx asli, jadi angkanya sudah berupa angka dan langsung bisa dijumlah. '
+      + 'Di Dashboard, tombol <b>⬇ Download Excel</b> menurunkan SELURUH baris — bukan cuma 10 teratas yang tampil di layar.');
 
   if (ada('kirim ke','email','whatsapp','pdf'))
     return kartu('📤', 'Pengiriman belum didukung',
       'Saya belum bisa mengirim hasil lewat email atau pesan.',
-      'Gunakan tombol <b>Salin tabel</b> atau <b>Unduh CSV</b> di bawah setiap jawaban, lalu lampirkan sendiri.');
+      'Gunakan tombol <b>Salin tabel</b> atau <b>Unduh Excel</b> di bawah setiap jawaban, lalu lampirkan sendiri.');
 
   if (ada('target','rkap','rencana kerja','budget','anggaran'))
     return kartu('🎯', 'Data target belum ada',
@@ -2355,7 +2386,7 @@ function answer(qRaw){
      • <b>Kompetitor</b> — "posisi IMG vs kompetitor?", "iNews vs KompasTV"<br>
      • <b>Breakdown silang</b> — "breakdown kategori per cluster"<br>
      • <b>Cakupan data</b> — "berapa channel yang dipantau?"<br><br>
-     Untuk memindahkan hasil ke Excel, pakai tombol <b>Salin tabel</b> atau <b>Unduh CSV</b>
+     Untuk memindahkan hasil ke Excel, pakai tombol <b>Salin tabel</b> atau <b>Unduh Excel</b>
      yang ada di bawah setiap jawaban.</div>`,
     `Pertanyaan kamu: "<b>${esc(qRaw)}</b>" belum saya kenali polanya.`);
 }
@@ -2421,10 +2452,196 @@ async function jelaskanAI(btn){
   }
 }
 
+/* ==================================================================
+   PENULIS XLSX — Excel asli, tanpa pustaka luar
+   ------------------------------------------------------------------
+   Dulu tombolnya mengunduh CSV. CSV selalu berujung pada pertanyaan
+   pemisah koma-atau-titik-koma, dan angka besar sering berubah jadi
+   notasi ilmiah begitu dibuka. Berkas ini menulis .xlsx yang sebenarnya.
+
+   Isi ZIP-nya disimpan tanpa kompresi (metode 0) supaya tidak perlu
+   pustaka deflate — Excel menerimanya. Teks ditulis sebagai inline
+   string, jadi tidak perlu tabel sharedStrings.
+   ================================================================== */
+const _CRC_TABEL = (() => {
+  const t = new Uint32Array(256);
+  for (let n = 0; n < 256; n++){
+    let c = n;
+    for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+    t[n] = c >>> 0;
+  }
+  return t;
+})();
+function _crc32(buf){
+  let c = 0xFFFFFFFF;
+  for (let i = 0; i < buf.length; i++) c = _CRC_TABEL[(c ^ buf[i]) & 0xFF] ^ (c >>> 8);
+  return (c ^ 0xFFFFFFFF) >>> 0;
+}
+const _teksKeByte = s => new TextEncoder().encode(s);
+
+function _zip(berkas){
+  const bagian = [], pusat = [];
+  let offset = 0;
+  const tulis32 = (a, v) => { a.push(v & 255, (v >>> 8) & 255, (v >>> 16) & 255, (v >>> 24) & 255); };
+  const tulis16 = (a, v) => { a.push(v & 255, (v >>> 8) & 255); };
+  for (const f of berkas){
+    const nama = _teksKeByte(f.nama), data = f.data;
+    const crc = _crc32(data);
+    const lok = [];
+    tulis32(lok, 0x04034b50); tulis16(lok, 20); tulis16(lok, 0x0800); tulis16(lok, 0);
+    tulis16(lok, 0); tulis16(lok, 0x21);                 // waktu & tanggal tetap
+    tulis32(lok, crc); tulis32(lok, data.length); tulis32(lok, data.length);
+    tulis16(lok, nama.length); tulis16(lok, 0);
+    bagian.push(new Uint8Array(lok), nama, data);
+
+    const cd = [];
+    tulis32(cd, 0x02014b50); tulis16(cd, 20); tulis16(cd, 20); tulis16(cd, 0x0800); tulis16(cd, 0);
+    tulis16(cd, 0); tulis16(cd, 0x21);
+    tulis32(cd, crc); tulis32(cd, data.length); tulis32(cd, data.length);
+    tulis16(cd, nama.length); tulis16(cd, 0); tulis16(cd, 0);
+    tulis16(cd, 0); tulis16(cd, 0); tulis32(cd, 0); tulis32(cd, offset);
+    pusat.push(new Uint8Array(cd), nama);
+    offset += lok.length + nama.length + data.length;
+  }
+  const besarPusat = pusat.reduce((a, b) => a + b.length, 0);
+  const akhir = [];
+  tulis32(akhir, 0x06054b50); tulis16(akhir, 0); tulis16(akhir, 0);
+  tulis16(akhir, berkas.length); tulis16(akhir, berkas.length);
+  tulis32(akhir, besarPusat); tulis32(akhir, offset); tulis16(akhir, 0);
+
+  const semua = [...bagian, ...pusat, new Uint8Array(akhir)];
+  const total = semua.reduce((a, b) => a + b.length, 0);
+  const out = new Uint8Array(total);
+  let p = 0;
+  for (const b of semua){ out.set(b, p); p += b.length; }
+  return out;
+}
+
+const _xEsc = s => String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))
+  // Excel menolak berkas yang memuat aksara kendali di dalam XML-nya.
+  .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '');
+function _kolomHuruf(i){
+  let s = '';
+  i++;
+  while (i > 0){ const r = (i - 1) % 26; s = String.fromCharCode(65 + r) + s; i = (i - r - 1) / 26; }
+  return s;
+}
+
+/* Nama sheet Excel: maksimal 31 huruf, tidak boleh []:*?/\ dan harus unik. */
+function _namaSheet(nama, dipakai){
+  let n = String(nama || 'Sheet').replace(/[\[\]:*?\/\\]/g, ' ').trim().slice(0, 31) || 'Sheet';
+  let dasar = n, k = 2;
+  while (dipakai.has(n.toLowerCase())){ n = (dasar.slice(0, 28) + ' ' + k++).trim(); }
+  dipakai.add(n.toLowerCase());
+  return n;
+}
+
+/* sheets: [{nama, baris: [[sel, sel, ...], ...]}]
+   Sel boleh angka (ditulis sebagai angka) atau teks. Baris pertama dianggap
+   judul kolom dan ditebalkan. */
+function bikinXLSX(sheets){
+  const dipakai = new Set();
+  const nama = sheets.map(s => _namaSheet(s.nama, dipakai));
+  const lembar = sheets.map((s, si) => {
+    const baris = (s.baris || []).map((r, ri) => {
+      const sel = r.map((v, ci) => {
+        const ref = _kolomHuruf(ci) + (ri + 1);
+        const gaya = ri === 0 ? ' s="1"' : '';
+        if (typeof v === 'number' && isFinite(v))
+          return `<c r="${ref}"${gaya}><v>${v}</v></c>`;
+        if (v === null || v === undefined || v === '') return '';
+        return `<c r="${ref}"${gaya} t="inlineStr"><is><t xml:space="preserve">${_xEsc(v)}</t></is></c>`;
+      }).join('');
+      return `<row r="${ri + 1}">${sel}</row>`;
+    }).join('');
+    const lebar = ((s.baris || [])[0] || []).map((_, i) =>
+      `<col min="${i + 1}" max="${i + 1}" width="${i === 0 ? 34 : 17}" customWidth="1"/>`).join('');
+    return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">${
+  lebar ? `<cols>${lebar}</cols>` : ''}<sheetData>${baris}</sheetData></worksheet>`;
+  });
+
+  const berkas = [
+    {nama: '[Content_Types].xml', data: _teksKeByte(
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+<Default Extension="xml" ContentType="application/xml"/>
+<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>
+<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>
+${lembar.map((_, i) => `<Override PartName="/xl/worksheets/sheet${i + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('')}
+</Types>`)},
+    {nama: '_rels/.rels', data: _teksKeByte(
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>
+</Relationships>`)},
+    {nama: 'xl/workbook.xml', data: _teksKeByte(
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+<sheets>${nama.map((n, i) => `<sheet name="${_xEsc(n)}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join('')}</sheets>
+</workbook>`)},
+    {nama: 'xl/_rels/workbook.xml.rels', data: _teksKeByte(
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+${nama.map((_, i) => `<Relationship Id="rId${i + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i + 1}.xml"/>`).join('')}
+<Relationship Id="rId${nama.length + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
+</Relationships>`)},
+    {nama: 'xl/styles.xml', data: _teksKeByte(
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+<fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts>
+<fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills>
+<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>
+<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
+<cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/></cellXfs>
+<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>
+</styleSheet>`)},
+  ];
+  lembar.forEach((x, i) => berkas.push({nama: `xl/worksheets/sheet${i + 1}.xml`, data: _teksKeByte(x)}));
+  return _zip(berkas);
+}
+
+function unduhXLSX(namaBerkas, sheets){
+  const blob = new Blob([bikinXLSX(sheets)],
+    {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = namaBerkas.endsWith('.xlsx') ? namaBerkas : namaBerkas + '.xlsx';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+
+/* Teks tampilan -> angka, supaya selnya bisa dijumlah di Excel dan bukan
+   sekadar tulisan. Yang tidak bisa dibaca dikembalikan apa adanya. */
+function keAngka(teks){
+  let t = String(teks == null ? '' : teks).trim();
+  if (!t || /^[-—–]$/.test(t)) return null;
+  if (/^\d{1,3}:\d{2}(:\d{2})?$/.test(t)) return t;      // durasi -> biarkan teks
+  const persen = /%$/.test(t);
+  t = t.replace(/^Rp\s*/i, '').replace(/\s*(jam|hrs|dtk|sec|min|mnt|video|videos)\b.*$/i, '')
+       .replace(/%$/, '').replace(/[▲▼]/g, '').trim();
+  const skala = {rb: 1e3, k: 1e3, jt: 1e6, m: 1e6, miliar: 1e9, b: 1e9, triliun: 1e12, t: 1e12};
+  const m = /^(-?[\d.,]+)\s*(rb|jt|miliar|triliun|K|M|B|T)?$/.exec(t);
+  if (!m) return teks;
+  let n = m[1];
+  // '1.234,56' (Indonesia) vs '1,234.56' (Inggris) -- keduanya dipakai di layar
+  if (/^\-?\d{1,3}(\.\d{3})+(,\d+)?$/.test(n))      n = n.replace(/\./g, '').replace(',', '.');
+  else if (/^\-?\d{1,3}(,\d{3})+(\.\d+)?$/.test(n)) n = n.replace(/,/g, '');
+  else                                              n = n.replace(',', '.');
+  const v = parseFloat(n);
+  if (!isFinite(v)) return teks;
+  const s = m[2] ? (skala[m[2]] || skala[m[2].toLowerCase()] || 1) : 1;
+  const hasil = v * s;
+  return persen ? hasil : hasil;
+}
+
 function tombolSalin(){
   return `<div class="acts">
     <button onclick="salinTabel(this)">📋 Salin tabel</button>
-    <button onclick="unduhTabel(this)">⬇ Unduh CSV</button></div>`;
+    <button onclick="unduhTabel(this)">⬇ Unduh Excel</button></div>`;
 }
 function ambilTabel(btn){
   const bub = btn.closest('.bub');
@@ -2463,18 +2680,43 @@ function salinTabel(btn){
     cadangan();
   }
 }
+/* Satu jawaban bisa memuat lebih dari satu tabel; masing-masing jadi satu
+   sheet. Angka dikembalikan ke bentuk angka supaya bisa langsung dijumlah di
+   Excel, bukan sekadar tulisan. */
+function tabelKeSheets(bub, judulDasar){
+  const tabel = [...bub.querySelectorAll('table')];
+  return tabel.map((t, i) => {
+    const baris = [...t.querySelectorAll('tr')].map(tr => {
+      const kepala = !!tr.querySelector('th');
+      return [...tr.querySelectorAll('th,td')].map(td => {
+        // nomor peringkat dibuang: urutan barisnya sudah menyimpan keterangan itu
+        if (!kepala){
+          // nilai asli yang diselipkan N()/RP()/PC() -- tidak dibulatkan
+          const v = td.querySelector('[data-v]');
+          if (v && td.querySelectorAll('[data-v]').length === 1){
+            const n = parseFloat(v.getAttribute('data-v'));
+            if (isFinite(n)) return n;
+          }
+        }
+        const c = td.cloneNode(true);
+        c.querySelectorAll('.rk').forEach(x => x.remove());
+        const teks = (c.innerText || c.textContent || '').replace(/\s+/g, ' ').trim();
+        return kepala ? teks : keAngka(teks);
+      });
+    });
+    return {nama: tabel.length > 1 ? `${judulDasar} ${i + 1}` : judulDasar, baris};
+  });
+}
 function unduhTabel(btn){
-  const teks = ambilTabel(btn);
-  if (!teks) return kabar(btn, 'Tidak ada tabel');
-  // pemisah titik-koma + BOM supaya Excel Indonesia membacanya benar
-  const csv = '﻿' + teks.split('\n').map(b => b.split('\t')
-    .map(c => `"${c.replace(/"/g, '""')}"`).join(';')).join('\n');
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([csv], {type: 'text/csv;charset=utf-8'}));
-  a.download = 'ask-img-analytics.csv';
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-  kabar(btn, '✓ Terunduh');
+  const bub = btn.closest('.bub');
+  const judul = ((bub.querySelector('.hd') || {}).innerText || 'Data')
+    .replace(/[^\p{L}\p{N} ]/gu, ' ').replace(/\s+/g, ' ').trim() || 'Data';
+  const sheets = tabelKeSheets(bub, judul);
+  if (!sheets.length) return kabar(btn, 'Tidak ada tabel');
+  try {
+    unduhXLSX('Ask IMG Analytics - ' + judul, sheets);
+    kabar(btn, '✓ Terunduh');
+  } catch (e){ kabar(btn, 'Gagal: ' + e.message); }
 }
 function kabar(btn, teks){
   const asli = btn.innerHTML;
@@ -2931,6 +3173,80 @@ const jenisPlatform = () => {
   return PLAT_SOCMED.some(x => x.toLowerCase() === p.toLowerCase()) ? 'socmed' : 'youtube';
 };
 
+/* ---------- tabel gabungan seluruh platform ---------- */
+/* Platform "All" harus berarti benar-benar SELURUH platform, bukan diam-diam
+   YouTube saja. Tabel gabungan ini dirakit sekali lalu disimpan: YouTube +
+   empat socmed + revenue portal, disatukan pada metrik yang memang punya arti
+   sama di semua sumbernya.
+
+   Yang TIDAK ikut disatukan, dan alasannya:
+   - Trafik portal (visits/pageviews/unique visitors). Sebuah kunjungan portal
+     bukan sebuah view video; menjumlahkannya menghasilkan angka yang tidak
+     berarti apa-apa. Metrik itu tetap ada di Platform = Portal.
+   - Watch time, impressions, CTR, RPM/CPM, dan seluruh metrik khas YouTube.
+     Tidak ada padanannya di socmed maupun portal. */
+let _GABUNG = null;
+function tabelGabungan(){
+  if (_GABUNG) return _GABUNG;
+  const cols = ['y', 'm', 'platform', 'unit', 'channel',
+                'views', 'engagement', 'lifetime', 'new_foll', 'revenue'];
+  const rows = [];
+  const lewat = [];
+
+  // 1) YouTube. Engagement disusun dari like + share + komentar, karena Recap
+  //    YouTube tidak punya satu kolom engagement seperti berkas socmed.
+  {
+    const t = TS('ts_youtube'), i = t.ix;
+    for (const r of t.rows)
+      rows.push([r[0], r[1], 'YouTube', r[i.unit], r[i.channel],
+                 r[i.views] || 0,
+                 (r[i.likes] || 0) + (r[i.shares] || 0) + (r[i.comments] || 0),
+                 r[i.lifetime] || 0, r[i.new_foll] || 0, r[i.revenue] || 0]);
+  }
+
+  // 2) Facebook, Instagram, TikTok, X
+  {
+    const t = TS('ts_socmed'), i = t.ix;
+    for (const r of t.rows)
+      rows.push([r[0], r[1], r[i.platform], r[i.unit], r[i.channel],
+                 r[i.views] || 0, r[i.engagement] || 0,
+                 r[i.followers] || 0, r[i.new_followers] || 0, r[i.revenue] || 0]);
+  }
+
+  // 3) Revenue portal. Berkas ini menyebut portalnya ('INEWS ID', 'SINDONEWS.COM'),
+  //    bukan clusternya, jadi clusternya dicocokkan dari nama itu. Yang tidak
+  //    cocok TIDAK dibuang diam-diam -- namanya dicatat dan disebutkan.
+  if (DATA.ts_portal_tipe){
+    const t = TS('ts_portal_tipe'), i = t.ix;
+    const daftarCl = Object.keys(UNIT_CH || {});
+    const cari = nm => {
+      const a = String(nm).toLowerCase().replace(/[^a-z0-9]/g, '');
+      return daftarCl.find(u => a.includes(String(u).toLowerCase().replace(/[^a-z0-9]/g, ''))) || '';
+    };
+    for (const r of t.rows){
+      const ch = String(r[i.channel]);
+      const u = cari(ch);
+      if (!u && !lewat.includes(ch)) lewat.push(ch);
+      rows.push([r[0], r[1], 'Portal', u, ch, 0, 0, 0, 0, r[i.revenue] || 0]);
+    }
+  }
+
+  const ix = {}; cols.forEach((c, k) => ix[c] = k);
+  _GABUNG = {cols, rows, ix, lewat};
+  return _GABUNG;
+}
+
+const JUDUL_BRK = {overview: 'Overview', content: 'Content',
+                   audience: 'Profile Audience', revenue: 'Source Revenue'};
+
+const METRIK_GABUNG = [
+  {id: 'views',      label: 'Views'},
+  {id: 'engagement', label: 'Engagement'},
+  {id: 'lifetime',   label: 'Lifetime Subscriber/Followers'},
+  {id: 'new_foll',   label: 'New Subscribers/Followers'},
+  {id: 'revenue',    label: 'Revenue (IDR)'},
+];
+
 function sumberDash(){
   const jp = jenisPlatform();
 
@@ -2965,6 +3281,11 @@ function sumberDash(){
       per-content detail and no audience demographics, so this Breakdown is available
       for YouTube only.`, nama: 'Portal Performance', dim: [], metrik: []};
   }
+
+  // ---- Platform "All": Overview membaca seluruh platform sekaligus ----
+  if (!ACTIVE_PLAT && DS.breakdown === 'overview' && DATA.ts_socmed)
+    return {tabel: '__gabung', src: 'gabung', nama: 'All platforms combined',
+            dim: [], metrik: METRIK_GABUNG, gabung: true};
 
   // ---- YouTube ----
   if (DS.breakdown === 'content'){
@@ -3005,6 +3326,9 @@ function grupTersedia(S){
   DS.grup = simpan;
   const ix = (TS(dasar.tabel) || {ix: {}}).ix || {};
   const out = [];
+  // Platform diletakkan paling atas: kalau angkanya gabungan seluruh platform,
+  // pertanyaan pertama yang wajar adalah "dari platform mana saja?".
+  if (ix.platform !== undefined) out.push(['platform', 'Platform']);
   // Kolom 'group' di Portal Performance berisi IMG vs Kompetitor, BUKAN nama
   // cluster IMG. Kalau disamakan dengan Cluster, saringan cluster tampak
   // diterapkan padahal tidak -- itu jenis kesalahan yang paling sulit terlihat.
@@ -3025,6 +3349,7 @@ function grupTersedia(S){
 
 /* Kolom mana yang memuat nilai pengelompokan yang diminta. */
 function kolomGrup(S, ix, grup){
+  if (grup === 'platform') return ix.platform !== undefined ? 'platform' : null;
   if (grup === 'cluster')
     return ix.unit !== undefined ? 'unit' : ix.cluster !== undefined ? 'cluster'
          : ix.group !== undefined ? 'group' : null;
@@ -3049,7 +3374,7 @@ function barisDash(P){
   const out = [];
   for (const r of t.rows){
     if (!inP(r, P)) continue;
-    if (S.plat && ix.platform !== undefined && r[ix.platform] !== S.plat) continue;
+    if (S.plat && !S.gabung && ix.platform !== undefined && r[ix.platform] !== S.plat) continue;
     if (DS.breakdown === 'content' && DS.sumber === 'img'){
       if (r[ix.dim] !== DS.dim) continue;
       if (S.silang && r[ix.grp] !== DS.grup) continue;
@@ -3207,34 +3532,39 @@ function kunciBawaan(D){
 
 /* Susun daftar rincian satu kartu. Kalau ada Grouping by, tiap kelompok
    dapat judulnya sendiri lalu daftar isinya di bawahnya. */
+/* Jumlahkan satu metrik per nilai kolom. Dipakai daftar di kartu MAUPUN
+   pengunduh Excel -- keduanya harus memakai hitungan yang sama persis, kalau
+   tidak angka di layar dan angka di berkas bisa berbeda tanpa ketahuan. */
+function agregatPer(rows, ix, S, kol, id){
+  const mp = new Map();
+  if (METRIK_POSISI.includes(id)){
+    let akhir = -1;
+    for (const r of rows) akhir = Math.max(akhir, r[0] * 12 + r[1]);
+    for (const r of rows){
+      if (r[0] * 12 + r[1] !== akhir) continue;
+      const k = String(r[ix[kol]]);
+      mp.set(k, (mp.get(k) || 0) + (r[ix[id]] || 0));
+    }
+  } else if (perluRata(id)){
+    const n = new Map();
+    for (const r of rows){
+      const k = String(r[ix[kol]]);
+      mp.set(k, (mp.get(k) || 0) + (r[ix[id]] || 0));
+      n.set(k, (n.get(k) || 0) + pembagiBaris(S, ix, r));
+    }
+    for (const k of mp.keys()) mp.set(k, n.get(k) ? mp.get(k) / n.get(k) : 0);
+  } else {
+    for (const r of rows){
+      const k = String(r[ix[kol]]);
+      mp.set(k, (mp.get(k) || 0) + (r[ix[id]] || 0));
+    }
+  }
+  return [...mp.entries()].map(([k, v]) => ({k, v})).filter(x => x.v);
+}
+
 function rincianKartu(D, m, warna){
   const ix = D.ix, S = D.S;
-  const jumlahkan = (rows, kol) => {
-    const mp = new Map();
-    if (METRIK_POSISI.includes(m.id)){
-      let akhir = -1;
-      for (const r of rows) akhir = Math.max(akhir, r[0] * 12 + r[1]);
-      for (const r of rows){
-        if (r[0] * 12 + r[1] !== akhir) continue;
-        const k = String(r[ix[kol]]);
-        mp.set(k, (mp.get(k) || 0) + (r[ix[m.id]] || 0));
-      }
-    } else if (perluRata(m.id)){
-      const n = new Map();
-      for (const r of rows){
-        const k = String(r[ix[kol]]);
-        mp.set(k, (mp.get(k) || 0) + (r[ix[m.id]] || 0));
-        n.set(k, (n.get(k) || 0) + pembagiBaris(S, ix, r));
-      }
-      for (const k of mp.keys()) mp.set(k, n.get(k) ? mp.get(k) / n.get(k) : 0);
-    } else {
-      for (const r of rows){
-        const k = String(r[ix[kol]]);
-        mp.set(k, (mp.get(k) || 0) + (r[ix[m.id]] || 0));
-      }
-    }
-    return [...mp.entries()].map(([k, v]) => ({k, v})).filter(x => x.v);
-  };
+  const jumlahkan = (rows, kol) => agregatPer(rows, ix, S, kol, m.id);
 
   const kepala = (judul, semua, tampil) =>
     `<div class="jd"><span>${esc(judul)}</span>${semua > tampil
@@ -3404,6 +3734,130 @@ function kartuAudiens(D, P){
     </div>`;
 }
 
+/* ---------- unduh isi dashboard sebagai Excel ---------- */
+/* Kartu di layar sengaja dipangkas 10 teratas supaya terbaca. Berkas Excel
+   TIDAK dipangkas: kalau ada 35 program, ketiga puluh lima program itu yang
+   ikut turun. Yang dipangkas cuma tampilannya, bukan datanya. */
+function sheetsDash(){
+  const P = ACTIVE_P;
+  const D = barisDash(P), S = D.S;
+  if (S.kosong || !D.rows.length) return null;
+  const ix = D.ix;
+
+  const met = (S.metrik || []).filter(m => DS.metrik.includes(m.id));
+  const pakai = met.length ? met : [S.metrik[0]].filter(Boolean);
+  const judulMet = m => namaBersih(m.label);
+
+  const namaBln = t => `${BLN_EN[(t - 1) % 12]} ${Math.floor((t - 1) / 12)}`;
+
+  /* 1) Saringan yang sedang aktif -- supaya berkasnya bisa dibaca ulang
+        berbulan-bulan kemudian tanpa menebak-nebak asalnya. */
+  const grup = DS.grup ? labelGrup(DS.grup) : 'No grouping';
+  const saring = [
+    ['Setting', 'Value'],
+    ['Period', P ? (P.labelEn || P.label) : 'All data'],
+    ['Platform', ACTIVE_PLAT || (S.gabung ? 'All platforms' : 'YouTube')],
+    ['Cluster', ACTIVE_CL || 'All'],
+    ['Channel', ACTIVE_CH || 'All channels'],
+    ['Breakdown', JUDUL_BRK[DS.breakdown] || DS.breakdown],
+  ];
+  if (DS.breakdown === 'content')
+    saring.push(['Source', DS.sumber === 'komp' ? 'Competitor (Scraping)' : 'IMG (YouTube Studio)']);
+  if ((S.dim || []).includes(DS.dim)) saring.push(['Dimension', NAMA_DIM[DS.dim] || DS.dim]);
+  saring.push(['Grouping by', grup],
+              ['Sort', DS.urut === 'asc' ? 'Smallest first' : 'Largest first'],
+              ['Metrics', pakai.map(judulMet).join(', ')],
+              ['Data source', S.nama],
+              ['Downloaded', DATA.meta.generated]);
+  const kur = saringanTakTerpakai(D);
+  if (kur.length)
+    saring.push(['Note', `${S.nama} has no such column, so the `
+      + kur.join(' and ').replace(/<\/?b>/g, '') + ' filter was NOT applied.']);
+
+  const sheets = [{nama: 'Filters', baris: saring}];
+
+  /* 2) Deret bulanan tiap metrik. */
+  const perBulan = new Map();
+  for (const r of D.rows){
+    const t = r[0] * 12 + r[1];
+    if (!perBulan.has(t)) perBulan.set(t, []);
+    perBulan.get(t).push(r);
+  }
+  const bulan = [...perBulan.keys()].sort((a, b) => a - b);
+  sheets.push({nama: 'Monthly', baris: [
+    ['Month', ...pakai.map(judulMet)],
+    ...bulan.map(t => [namaBln(t), ...pakai.map(m => nilaiMetrik(perBulan.get(t), ix, m.id, S))]),
+  ]});
+
+  /* 3) Rincian LENGKAP -- tanpa pemangkasan 10 teratas. */
+  const gkol = DS.grup ? kolomGrup(S, ix, DS.grup) : null;
+  const dalam = (DS.breakdown === 'content' && ix.key !== undefined) ? 'key' : null;
+  const namaDim = NAMA_DIM[DS.dim] || DS.dim;
+
+  const gabung = (rows, kol) => {
+    // satu baris per nilai kolom, dengan seluruh metrik terpilih di sampingnya
+    const peta = new Map();
+    for (const m of pakai)
+      for (const x of agregatPer(rows, ix, S, kol, m.id)){
+        if (!peta.has(x.k)) peta.set(x.k, {});
+        peta.get(x.k)[m.id] = x.v;
+      }
+    const arr = [...peta.entries()].map(([k, v]) => ({k, v}));
+    const utama = pakai[0] ? pakai[0].id : null;
+    arr.sort((a, b) => {
+      const av = (a.v[utama] || 0), bv = (b.v[utama] || 0);
+      return DS.urut === 'asc' ? av - bv : bv - av;
+    });
+    return arr;
+  };
+
+  if (gkol && dalam){
+    const per = new Map();
+    for (const r of D.rows){
+      const g = String(r[ix[gkol]]);
+      if (!per.has(g)) per.set(g, []);
+      per.get(g).push(r);
+    }
+    const urutG = urutkanGrup([...per.entries()].map(([g, rows]) =>
+      ({g, rows, tot: nilaiMetrik(rows, ix, pakai[0] ? pakai[0].id : 'views', S)})), DS.grup);
+    const baris = [[labelGrup(DS.grup), namaDim, ...pakai.map(judulMet)]];
+    for (const {g, rows} of urutG)
+      for (const x of gabung(rows, dalam))
+        baris.push([g, x.k, ...pakai.map(m => x.v[m.id] || 0)]);
+    sheets.push({nama: 'Breakdown', baris});
+  } else if (gkol){
+    const baris = [[labelGrup(DS.grup), ...pakai.map(judulMet)]];
+    for (const x of gabung(D.rows, gkol)) baris.push([x.k, ...pakai.map(m => x.v[m.id] || 0)]);
+    sheets.push({nama: 'Breakdown', baris});
+  } else if (dalam){
+    const baris = [[namaDim, ...pakai.map(judulMet)]];
+    for (const x of gabung(D.rows, dalam)) baris.push([x.k, ...pakai.map(m => x.v[m.id] || 0)]);
+    sheets.push({nama: 'Breakdown', baris});
+  }
+
+  /* 4) Kalau tidak ada pengelompokan pun, rincian per channel tetap ikut turun.
+        Di layar sengaja tidak ditampilkan (No grouping = tidak dipecah), tapi
+        di berkas kerja angka per channel hampir selalu dibutuhkan. */
+  if (!gkol && ix.channel !== undefined){
+    const baris = [['Channel', ...pakai.map(judulMet)]];
+    for (const x of gabung(D.rows, 'channel')) baris.push([x.k, ...pakai.map(m => x.v[m.id] || 0)]);
+    sheets.push({nama: 'Per Channel', baris});
+  }
+  return sheets;
+}
+
+function unduhDash(btn){
+  try {
+    const sheets = sheetsDash();
+    if (!sheets) return kabar(btn, 'No data');
+    const bagian = [JUDUL_BRK[DS.breakdown] || 'Dashboard'];
+    if (ACTIVE_CL) bagian.push(ACTIVE_CL);
+    if (ACTIVE_P) bagian.push((ACTIVE_P.labelEn || ACTIVE_P.label).replace(/[\/\\:]/g, '-'));
+    unduhXLSX('Ask IMG Analytics - ' + bagian.join(' - '), sheets);
+    kabar(btn, '✓ Downloaded');
+  } catch (e){ kabar(btn, 'Failed: ' + e.message); }
+}
+
 /* ---------- render seluruh dashboard ---------- */
 function renderDash(){
   const el = document.getElementById('dash');
@@ -3412,8 +3866,7 @@ function renderDash(){
   const D = barisDash(P);
   const S = D.S;
 
-  const JUDUL = {overview: 'Overview', content: 'Content',
-                 audience: 'Profile Audience', revenue: 'Source Revenue'};
+  const JUDUL = JUDUL_BRK;
 
   if (S.kosong){
     el.innerHTML = `<div class="dash-hd"><div><h2>${JUDUL[DS.breakdown]}</h2>
@@ -3433,7 +3886,7 @@ function renderDash(){
 
   const chips = [];
   chips.push(`<span class="chip">${esc(P ? (P.labelEn || P.label) : 'All data')}</span>`);
-  chips.push(`<span class="chip">${esc(ACTIVE_PLAT || 'YouTube')}</span>`);
+  chips.push(`<span class="chip">${esc(ACTIVE_PLAT || (S.gabung ? 'All platforms' : 'YouTube'))}</span>`);
   if (ACTIVE_CL) chips.push(`<span class="chip">${esc(ACTIVE_CL)}</span>`);
   if (ACTIVE_CH) chips.push(`<span class="chip">${esc(ACTIVE_CH)}</span>`);
   if (DS.breakdown === 'content'){
@@ -3463,6 +3916,9 @@ function renderDash(){
   if (Psbl && !adaPembanding && D.rows.length)
     catatan.push(`${esc(S.nama)} has no data for ${esc(Psbl.labelEn || Psbl.label)} yet,
       so there is nothing to compare against.`);
+  if (!ACTIVE_PLAT && DS.breakdown !== 'overview' && DATA.ts_socmed && D.rows.length)
+    catatan.push(`Only Overview can combine every platform. ${JUDUL[DS.breakdown]} exists for
+      YouTube alone, so the figures below are YouTube only.`);
   const kur = saringanTakTerpakai(D);
   if (kur.length && D.rows.length)
     catatan.push(`⚠️ ${S.nama} has no such column, so the ${kur.join(' and ')} filter
@@ -3485,6 +3941,8 @@ function renderDash(){
 
   el.innerHTML = `
     <div class="dash-hd">
+      <button class="unduh-dash" onclick="unduhDash(this)"
+        title="Every row is included in the file, not just the top 10 shown here">⬇ Download Excel</button>
       <div>
         <h2>${JUDUL[DS.breakdown]}</h2>
         <div class="dash-sub">${rg ? `Data available <b>${rg}</b>` : 'No data under these filters yet'}
@@ -3601,6 +4059,10 @@ function bangunFilterDash(){
       <div class="met-info">${daftar.length} metrics available in this source${
         DS.breakdown === 'content' && DS.sumber === 'komp'
           ? ' — the Scraping file simply has no revenue, watch time, subscriber, or impression columns.'
+          : S.gabung
+          ? ' — only metrics that mean the same thing on every platform. Watch time, impressions,'
+            + ' CTR and RPM exist on YouTube alone; portal visits are not video views, so they'
+            + ' stay under Platform = Portal.'
           : ''}</div></div>`;
 
     html += `<div class="satu tampil" style="margin-top:8px"><span class="fl">Sort</span>
