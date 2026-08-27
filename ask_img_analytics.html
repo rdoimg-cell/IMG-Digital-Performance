@@ -351,6 +351,23 @@ td.n{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
 .mdlist label.on{background:#eef2ff;color:var(--acc);font-weight:700}
 .mdlist input{width:13px;height:13px;flex:0 0 auto;accent-color:var(--acc);pointer-events:none}
 
+/* Ubin ringkasan: satu per metrik, jauh lebih ringkas daripada kartu lama --
+   rinciannya sekarang ada di satu tabel bersama di bawahnya. */
+.ubin-grid{display:grid;gap:12px;margin-top:16px;align-items:start;
+  grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+.kartu.ubin{padding:13px 15px 11px}
+.kartu.ubin .hero{font-size:23px}
+.kartu.tab{margin-top:14px;padding:12px 12px 10px}
+/* Kolom nama menyerap sisa lebarnya; kolom angka selebar isinya saja, supaya
+   angkanya berdekatan dan mudah dibandingkan antar baris. */
+.dtab td.jd,.dtab th:first-child{width:100%;min-width:150px}
+.dtab td.jd{font-weight:500}
+.dtab th.ka,.dtab td.ka{width:1%;white-space:nowrap;padding-left:20px}
+.dtab tbody.grp+tbody.grp{border-top:6px solid var(--bg)}
+.dtab tr.gh td{background:var(--panel2);font-weight:800;font-size:11.5px;
+  padding:7px 9px;border-bottom:1px solid var(--line)}
+.dtab tr.gh .sisa{float:right;font-weight:500;font-size:10px;color:var(--mut)}
+
 /* Tabel Top N video. Kepala kolomnya bisa diklik untuk mengurutkan. */
 .kartu.vid{padding:14px 14px 12px}
 .vtab{width:100%;border-collapse:collapse;font-size:12px}
@@ -3158,7 +3175,6 @@ const DS = {
   dim:       'kategori',      // dimensi content
   grup:      '',              // '' | cluster | channel | type | durasi
   metrik:    ['views'],       // boleh lebih dari satu
-  urut:      'desc',          // desc = besar ke kecil, asc = kecil ke besar
   vsort:     null,            // {id, arah} -- kolom yang dipakai mengurutkan tabel video
 };
 
@@ -3167,7 +3183,8 @@ const DS = {
 const NAMA_DIM = {kategori: 'Category', program: 'Program', part: 'Part',
                   subpart: 'Sub Part', original: 'Original',
                   type: 'Type Content', durasi: 'Duration',
-                  top10: 'Top 10 Video', top20: 'Top 20 Video', top30: 'Top 30 Video'};
+                  top10: 'Top 10 Video', top20: 'Top 20 Video', top30: 'Top 30 Video',
+                  ringkas: 'Summary'};
 /* Dimensi Top N tidak meringkas apa pun: yang ditampilkan judul videonya satu
    per satu, dalam tabel yang bisa diurutkan langsung dari kepala kolomnya. */
 const DIM_VIDEO = ['top10', 'top20', 'top30'];
@@ -3250,7 +3267,10 @@ function tabelGabungan(){
       const ch = String(r[i.channel]);
       const u = cari(ch);
       if (!u && !lewat.includes(ch)) lewat.push(ch);
-      rows.push([r[0], r[1], 'Portal', u, ch, 0, 0, 0, 0, r[i.revenue] || 0]);
+      // Nama portal ('OKEZONE') mirip nama channel YouTube ('Okezone'), dan
+      // kalau dipecah per channel keduanya berdiri bersebelahan seolah satu
+      // channel muncul dua kali. Diberi keterangan supaya tidak tertukar.
+      rows.push([r[0], r[1], 'Portal', u, (u || ch) + ' (portal)', 0, 0, 0, 0, r[i.revenue] || 0]);
     }
   }
 
@@ -3315,7 +3335,8 @@ function sumberDash(){
     const n = nVideo(DS.dim);
     if (n && DS.sumber === 'komp' && DATA.top_video_komp)
       return {tabel: 'top_video_komp', metrik: DATA.metrik_video_komp || [],
-              dim: DIM_VIDEO, nama: 'Scraping YouTube (competitor)', src: 'scraping',
+              dim: ['ringkas'].concat(DIM_VIDEO),
+              nama: 'Scraping YouTube (competitor)', src: 'scraping',
               video: true, n, peringkat: DATA.video_peringkat_komp || [], bagi: null};
     if (n && DS.sumber === 'img' && DATA.top_video)
       return {tabel: 'top_video', metrik: DATA.metrik_video || [],
@@ -3327,8 +3348,11 @@ function sumberDash(){
       // Type Content, bukan kategori editorial. Jadi dia muncul sebagai pilihan
       // Grouping by, bukan sebagai Dimensi; berkas Scraping memang tidak punya
       // Program, Part, maupun Sub Part.
+      // 'ringkas' = tampilan ringkasan seperti sebelumnya (dipecah lewat
+      // Grouping by). Tanpa pilihan ini, memilih Kompetitor akan selalu jatuh
+      // ke daftar video dan ringkasannya tidak bisa dicapai lagi.
       return {tabel: 'ts_komp', metrik: DATA.metrik_komp || [],
-              dim: DATA.top_video_komp ? DIM_VIDEO : [],
+              dim: DATA.top_video_komp ? ['ringkas'].concat(DIM_VIDEO) : [],
               nama: 'Scraping YouTube (competitor)', src: 'scraping', bagi: 'videos'};
     // Pengelompokan per Type Content / durasi butuh tabel silang tersendiri:
     // ts_dim_ch berdimensi channel, jadi tidak bisa dipecah per Type Content.
@@ -3546,26 +3570,6 @@ function daftarBatang(items, warna, id, lb){
     </div>`).join('');
 }
 
-/* Urutkan sesuai pilihan user, lalu potong sebanyak batasnya. */
-function urutPotong(items, batas){
-  const s = items.slice().sort((a, b) => DS.urut === 'asc' ? a.v - b.v : b.v - a.v);
-  return isFinite(batas) ? s.slice(0, batas) : s;
-}
-
-/* Kunci baris untuk daftar rincian ketika tidak ada pengelompokan khusus. */
-/* Daftar yang tampil saat Grouping by = No grouping. Hanya Breakdown Content
-   yang punya: isinya dimensi yang dipilih di menu Dimension. Breakdown lain
-   tidak punya menu Dimension, jadi tanpa pengelompokan memang tidak ada yang
-   perlu didaftar -- cukup angka gabungannya. */
-function kunciBawaan(D){
-  const ix = D.ix;
-  if (DS.breakdown === 'content' && ix.key !== undefined)
-    return {kol: 'key', judul: NAMA_DIM[DS.dim] || DS.dim, batas: BATAS_DAFTAR.dim};
-  return null;
-}
-
-/* Susun daftar rincian satu kartu. Kalau ada Grouping by, tiap kelompok
-   dapat judulnya sendiri lalu daftar isinya di bawahnya. */
 /* Jumlahkan satu metrik per nilai kolom. Dipakai daftar di kartu MAUPUN
    pengunduh Excel -- keduanya harus memakai hitungan yang sama persis, kalau
    tidak angka di layar dan angka di berkas bisa berbeda tanpa ketahuan. */
@@ -3596,81 +3600,6 @@ function agregatPer(rows, ix, S, kol, id){
   return [...mp.entries()].map(([k, v]) => ({k, v})).filter(x => x.v);
 }
 
-function rincianKartu(D, m, warna){
-  const ix = D.ix, S = D.S;
-  const jumlahkan = (rows, kol) => agregatPer(rows, ix, S, kol, m.id);
-
-  const kepala = (judul, semua, tampil) =>
-    `<div class="jd"><span>${esc(judul)}</span>${semua > tampil
-      ? `<span style="font-weight:500;text-transform:none;letter-spacing:0">Top ${tampil} of ${semua}</span>`
-      : ''}</div>`;
-
-  const gkol = DS.grup ? kolomGrup(S, ix, DS.grup) : null;
-
-  // "No grouping" berarti benar-benar tidak dipecah: yang tampil cuma angka
-  // gabungannya (seluruh cluster / IMG keseluruhan) beserta trennya. Dulu kartu
-  // ini diam-diam tetap memecah per channel, padahal menunya bilang tidak
-  // dipecah. Kalau ingin per channel, pilih Grouping by = Channel.
-  //
-  // Perkecualiannya Breakdown Content: di sana yang didaftar adalah DIMENSI-nya
-  // (Kategori/Program/...), dan itu ditentukan menu Dimension, bukan Grouping by.
-  if (!gkol){
-    const b = kunciBawaan(D);
-    if (!b || ix[b.kol] === undefined) return '';
-    const semua = jumlahkan(D.rows, b.kol);
-    const it = urutPotong(semua, b.batas);
-    if (!it.length) return '';
-    return `<div class="rinci">${kepala('By ' + b.judul, semua.length, it.length)}
-      ${daftarBatang(it, warna, m.id, m.label)}</div>`;
-  }
-
-  // Ada pengelompokan. Untuk Breakdown Content, isi tiap kelompok adalah
-  // dimensinya (mis. top 10 program di tiap cluster). Untuk breakdown lain,
-  // kelompok itu sendiri yang jadi daftarnya.
-  const dalamKol = (DS.breakdown === 'content' && ix.key !== undefined) ? 'key' : null;
-  if (!dalamKol){
-    const semua = jumlahkan(D.rows, gkol);
-    // Channel, cluster, portal, dan sumber revenue ditampilkan SEMUA sesuai
-    // ketetapan tim data; sisanya (type/durasi) cukup 10 -- nilainya memang
-    // cuma segelintir.
-    const batas = ['cluster', 'channel', 'sumber'].includes(DS.grup)
-      ? Infinity : BATAS_DAFTAR.dim;
-    const it = urutPotong(semua, batas);
-    if (!it.length) return '';
-    return `<div class="rinci">${kepala('By ' + labelGrup(DS.grup), semua.length, it.length)}
-      ${daftarBatang(it, warna, m.id, m.label)}</div>`;
-  }
-
-  // kelompokkan baris dulu, baru dijumlahkan per dimensi di dalamnya
-  const per = new Map();
-  for (const r of D.rows){
-    const g = String(r[ix[gkol]]);
-    (per.get(g) || per.set(g, []).get(g)).push(r);
-  }
-  const totalGrup = [...per.entries()].map(([g, rows]) => ({
-    g, rows, tot: nilaiMetrik(rows, ix, m.id, S)})).filter(x => x.tot);
-  if (!totalGrup.length) return '';
-  const urutG = urutkanGrup(totalGrup, DS.grup);
-
-  const bagian = urutG.map(({g, rows, tot}) => {
-    const semua = jumlahkan(rows, dalamKol);
-    const it = urutPotong(semua, BATAS_DAFTAR.dim);
-    if (!it.length) return '';
-    return `<div class="grup">
-      <div class="grup-hd"><span>${esc(g)}</span>
-        <span class="grup-tot">${formatMetrik(m.id, m.label, tot)}</span></div>
-      ${daftarBatang(it, warna, m.id, m.label)}
-      ${semua.length > it.length
-        ? `<div class="grup-sisa">Top ${it.length} of ${semua.length}</div>` : ''}
-    </div>`;
-  }).join('');
-
-  return `<div class="rinci">
-    <div class="jd"><span>${esc(NAMA_DIM[DS.dim] || DS.dim)} by ${esc(labelGrup(DS.grup))}</span>
-      <span style="font-weight:500;text-transform:none;letter-spacing:0">${urutG.length} Groups</span></div>
-    ${bagian}</div>`;
-}
-
 /* Nama pengelompokan diambil dari menunya sendiri, supaya judul di kartu dan
    label di menu tidak pernah berbeda ('Portal' di menu tapi 'channel' di kartu). */
 function labelGrup(g){
@@ -3685,11 +3614,158 @@ function urutkanGrup(arr, grup){
     const pos = k => { const i = URUT_CLUSTER.indexOf(k); return i < 0 ? 99 : i; };
     return arr.slice().sort((a, b) => pos(a.g) - pos(b.g) || b.tot - a.tot);
   }
-  return arr.slice().sort((a, b) => DS.urut === 'asc' ? a.tot - b.tot : b.tot - a.tot);
+  const arah = (DS.vsort && DS.vsort.arah === 1) ? 1 : -1;
+  return arr.slice().sort((a, b) => (a.tot - b.tot) * arah);
 }
 
-/* ---------- kartu satu metrik ---------- */
-function kartuMetrik(m, D, Dl, opt){
+/* Metrik yang benar-benar dipakai; kalau tidak ada yang dicentang, ambil satu. */
+function metrikTerpakai(S){
+  const m = (S.metrik || []).filter(x => DS.metrik.includes(x.id));
+  return m.length ? m : [(S.metrik || [])[0]].filter(Boolean);
+}
+
+/* Kolom & arah yang sedang dipakai mengurutkan tabel. Tidak ada lagi menu Sort
+   tersendiri: yang menentukan urutan adalah kepala kolom yang diklik, sama
+   seperti tabel Top N video. Bawaannya metrik pertama, besar ke kecil. */
+function urutanTabel(pakai){
+  const sah = new Set(pakai.map(m => m.id).concat(['_k', '_g']));
+  const id = (DS.vsort && sah.has(DS.vsort.id)) ? DS.vsort.id
+           : (pakai[0] ? pakai[0].id : null);
+  const arah = (DS.vsort && sah.has(DS.vsort.id)) ? DS.vsort.arah : -1;
+  return {id, arah};
+}
+
+/* Satu baris per nilai kolom, dengan SELURUH metrik terpilih di sampingnya.
+   Dulu tiap metrik menghasilkan kartunya sendiri, jadi views dan revenue tampil
+   sebagai dua daftar terpisah dan tidak bisa dibaca berdampingan. */
+function daftarGabung(rows, ix, S, kol, pakai){
+  const peta = new Map();
+  for (const m of pakai)
+    for (const x of agregatPer(rows, ix, S, kol, m.id)){
+      if (!peta.has(x.k)) peta.set(x.k, {});
+      peta.get(x.k)[m.id] = x.v;
+    }
+  return [...peta.entries()].map(([k, v]) => ({k, v}));
+}
+
+function urutkanDaftar(arr, pakai, urut){
+  const s = arr.slice();
+  if (urut.id === '_k')
+    s.sort((a, b) => String(a.k).localeCompare(String(b.k), 'id') * urut.arah);
+  else
+    s.sort((a, b) => (((a.v || {})[urut.id] || 0) - ((b.v || {})[urut.id] || 0)) * urut.arah);
+  return s;
+}
+
+/* Berapa baris yang ditampilkan: channel, cluster, portal, dan sumber revenue
+   ditampilkan SEMUA sesuai ketetapan tim data; dimensi editorial 10 teratas. */
+function batasDaftar(kunci){
+  return ['channel', 'cluster', 'sumber', 'portal', 'source'].includes(kunci)
+    ? Infinity : BATAS_DAFTAR.dim;
+}
+
+function selAngka(m, v){
+  return `<td class="ka">${v === undefined ? '—' : formatMetrik(m.id, m.label, v)}</td>`;
+}
+
+/* ---------- satu tabel, beberapa kolom metrik, kepala kolomnya bisa diklik ---------- */
+function tabelDash(D){
+  const S = D.S, ix = D.ix;
+  const pakai = metrikTerpakai(S);
+  if (!pakai.length) return '';
+  const urut = urutanTabel(pakai);
+
+  const gkol = DS.grup ? kolomGrup(S, ix, DS.grup) : null;
+  const dalam = (DS.breakdown === 'content' && ix.key !== undefined) ? 'key' : null;
+  const kunciDasar = gkol ? null : dalam;
+  if (!gkol && !kunciDasar) return '';          // No grouping = memang tidak dipecah
+
+  const panah = id => id === urut.id ? (urut.arah < 0 ? ' ▼' : ' ▲') : '';
+  const th = (id, teks, kanan) =>
+    `<th class="${kanan ? 'ka' : ''}${id === urut.id ? ' aktif' : ''}" data-urut="${id}"
+       title="Click to sort by ${esc(teks)}">${esc(teks)}${panah(id)}</th>`;
+
+  const namaKolomKunci = gkol
+    ? (dalam ? (NAMA_DIM[DS.dim] || DS.dim) : labelGrup(DS.grup))
+    : (NAMA_DIM[DS.dim] || DS.dim);
+
+  const kepala = `<tr>${th('_k', namaKolomKunci)}${
+    pakai.map(m => th(m.id, namaBersih(m.label), true)).join('')}</tr>`;
+
+  const barisDari = (rows, batas) => {
+    const it = urutkanDaftar(daftarGabung(rows, ix, S, rows === D.rows && kunciDasar
+      ? kunciDasar : (dalam || gkol), pakai), pakai, urut);
+    const potong = isFinite(batas) ? it.slice(0, batas) : it;
+    return {it, potong};
+  };
+
+  let badan = '', kaki = '';
+  if (!gkol){
+    const {it, potong} = barisDari(D.rows, batasDaftar(kunciDasar));
+    if (!it.length) return '';
+    badan = `<tbody>${potong.map(x => `<tr>
+      <td class="jd" title="${esc(x.k)}">${esc(x.k)}</td>
+      ${pakai.map(m => selAngka(m, x.v[m.id])).join('')}</tr>`).join('')}</tbody>`;
+    if (it.length > potong.length)
+      kaki = `Top ${potong.length} of ${it.length} ${esc(namaKolomKunci.toLowerCase())}.`;
+  } else {
+    // dipecah per kelompok: tiap kelompok punya kepala dan totalnya sendiri
+    const per = new Map();
+    for (const r of D.rows){
+      const g = String(r[ix[gkol]]);
+      if (!per.has(g)) per.set(g, []);
+      per.get(g).push(r);
+    }
+    const urutG = urutkanGrup([...per.entries()].map(([g, rows]) =>
+      ({g, rows, tot: nilaiMetrik(rows, ix, pakai[0].id, S)})), DS.grup);
+    if (!urutG.length) return '';
+    let dipotong = 0, semuaBaris = 0;
+    badan = urutG.map(({g, rows}) => {
+      if (!dalam){
+        const nilai = {};
+        for (const m of pakai) nilai[m.id] = nilaiMetrik(rows, ix, m.id, S);
+        return {g, baris: [{k: g, v: nilai}], semua: 1};
+      }
+      const it = urutkanDaftar(daftarGabung(rows, ix, S, dalam, pakai), pakai, urut);
+      const potong = it.slice(0, BATAS_DAFTAR.dim);
+      dipotong += it.length - potong.length; semuaBaris += it.length;
+      return {g, baris: potong, semua: it.length};
+    }).filter(x => x.baris.length);
+
+    if (!dalam){
+      // kelompoknya sendiri yang jadi daftarnya -- satu tabel biasa
+      const it = urutkanDaftar(badan.map(x => x.baris[0]), pakai, urut);
+      const batas = batasDaftar(DS.grup === 'cluster' || DS.grup === 'channel'
+        || DS.grup === 'sumber' ? 'channel' : 'dim');
+      const potong = isFinite(batas) ? it.slice(0, batas) : it;
+      if (it.length > potong.length)
+        kaki = `Top ${potong.length} of ${it.length}.`;
+      badan = `<tbody>${potong.map(x => `<tr>
+        <td class="jd" title="${esc(x.k)}">${esc(x.k)}</td>
+        ${pakai.map(m => selAngka(m, x.v[m.id])).join('')}</tr>`).join('')}</tbody>`;
+    } else {
+      badan = badan.map(({g, baris, semua}) => `<tbody class="grp">
+        <tr class="gh"><td colspan="${pakai.length + 1}">${esc(g)}${
+          semua > baris.length
+            ? `<span class="sisa">Top ${baris.length} of ${semua}</span>` : ''}</td></tr>
+        ${baris.map(x => `<tr>
+          <td class="jd" title="${esc(x.k)}">${esc(x.k)}</td>
+          ${pakai.map(m => selAngka(m, x.v[m.id])).join('')}</tr>`).join('')}
+      </tbody>`).join('');
+      kaki = `${urutG.length} ${esc(labelGrup(DS.grup).toLowerCase())} groups`
+        + (dipotong ? `, top ${BATAS_DAFTAR.dim} ${esc(namaKolomKunci.toLowerCase())} each`
+                     + ` (${semuaBaris} in total — the Excel download has them all).` : '.');
+    }
+  }
+
+  return `<div class="kartu tab">
+    <div class="tw"><table class="vtab dtab"><thead>${kepala}</thead>${badan}</table></div>
+    ${kaki ? `<div class="ket">${kaki}</div>` : ''}
+  </div>`;
+}
+
+/* ---------- ringkasan tiap metrik: angka besar, selisih, dan trennya ---------- */
+function ubinMetrik(m, D, Dl, opt){
   const warna = warnaMetrik(m.id);
   const nilai = nilaiMetrik(D.rows, D.ix, m.id, D.S);
   const deret = deretBulan(D.rows, D.ix, m.id);
@@ -3703,29 +3779,30 @@ function kartuMetrik(m, D, Dl, opt){
       const tanda = Math.abs(d) < 0.05 ? '—' : d > 0 ? '▲' : '▼';
       delta = `<div class="delta ${kls}">${tanda} ${Math.abs(d).toFixed(1)}%
         <span class="kecil">vs ${esc(opt.Psbl.labelEn || opt.Psbl.label)}</span></div>`;
-    } else {
-      delta = `<div class="delta flat">— <span class="kecil">no figure for this metric in ${esc(opt.Psbl.labelEn || opt.Psbl.label)}</span></div>`;
     }
   }
-
-  if (!D.rows.length || (!nilai && !deret.length)){
-    return `<div class="kartu"><div class="nm">${esc(namaBersih(m.label))}</div>
-      <div class="hero" style="color:var(--mut);font-size:19px">No data</div>
-      <div class="ket">This metric has no figures for the period and filters selected.
-        Try widening the period, or removing one of the filters.</div></div>`;
-  }
-
-  return `<div class="kartu">
+  return `<div class="kartu ubin">
     <div class="nm">${esc(namaBersih(m.label))}</div>
     <div class="hero">${formatMetrik(m.id, m.label, nilai)}</div>
     ${delta}
     ${grafikGaris(deret, warna, m.id, m.label, m.id)}
-    ${rincianKartu(D, m, warna)}
     ${perluRata(m.id) || METRIK_POSISI.includes(m.id)
-      ? `<div class="ket">The big figure above is <b>${
-          METRIK_POSISI.includes(m.id) ? "the last month's standing value" : 'an average'}</b>,
-         not the sum of every month.</div>` : ''}
+      ? `<div class="ket">${METRIK_POSISI.includes(m.id)
+          ? "Last month's standing value" : 'An average'}, not the sum of every month.</div>` : ''}
   </div>`;
+}
+
+function pasangUrutTabel(el){
+  el.querySelectorAll('.dtab th[data-urut], .vtab th[data-urut]').forEach(h => {
+    h.onclick = () => {
+      const id = h.dataset.urut;
+      const teks = ['_k', '_g', 'judul', 'channel', 'kategori', 'tgl'].includes(id);
+      DS.vsort = (DS.vsort && DS.vsort.id === id)
+        ? {id, arah: -DS.vsort.arah}
+        : {id, arah: teks ? 1 : -1};
+      renderDash();
+    };
+  });
 }
 
 /* ---------- kartu khusus Profile Audience ---------- */
@@ -3781,7 +3858,7 @@ function barisVideoTerurut(D){
   const urutId = (DS.vsort && sah.has(DS.vsort.id)) ? DS.vsort.id
                : (pakai[0] ? pakai[0].id : null);
   const arah = DS.vsort && sah.has(DS.vsort.id) ? DS.vsort.arah
-             : (DS.urut === 'asc' ? 1 : -1);
+             : -1;
   const rows = D.rows.slice();
   if (urutId && ix[urutId] !== undefined){
     const teks = TEKS.includes(urutId);
@@ -3865,8 +3942,7 @@ function sheetsDash(){
   if (S.kosong || !D.rows.length) return null;
   const ix = D.ix;
 
-  const met = (S.metrik || []).filter(m => DS.metrik.includes(m.id));
-  const pakai = met.length ? met : [S.metrik[0]].filter(Boolean);
+  const pakai = metrikTerpakai(S);
   const judulMet = m => namaBersih(m.label);
 
   const namaBln = t => `${BLN_EN[(t - 1) % 12]} ${Math.floor((t - 1) / 12)}`;
@@ -3886,7 +3962,8 @@ function sheetsDash(){
     saring.push(['Source', DS.sumber === 'komp' ? 'Competitor (Scraping)' : 'IMG (YouTube Studio)']);
   if ((S.dim || []).includes(DS.dim)) saring.push(['Dimension', NAMA_DIM[DS.dim] || DS.dim]);
   saring.push(['Grouping by', grup],
-              ['Sort', DS.urut === 'asc' ? 'Smallest first' : 'Largest first'],
+              ['Sorted by', (DS.vsort && DS.vsort.id) || (pakai[0] ? pakai[0].id : '—')],
+              ['Sort direction', (DS.vsort && DS.vsort.arah === 1) ? 'Smallest first' : 'Largest first'],
               ['Metrics', pakai.map(judulMet).join(', ')],
               ['Data source', S.nama],
               ['Downloaded', DATA.meta.generated]);
@@ -3940,22 +4017,10 @@ function sheetsDash(){
   const dalam = (DS.breakdown === 'content' && ix.key !== undefined) ? 'key' : null;
   const namaDim = NAMA_DIM[DS.dim] || DS.dim;
 
-  const gabung = (rows, kol) => {
-    // satu baris per nilai kolom, dengan seluruh metrik terpilih di sampingnya
-    const peta = new Map();
-    for (const m of pakai)
-      for (const x of agregatPer(rows, ix, S, kol, m.id)){
-        if (!peta.has(x.k)) peta.set(x.k, {});
-        peta.get(x.k)[m.id] = x.v;
-      }
-    const arr = [...peta.entries()].map(([k, v]) => ({k, v}));
-    const utama = pakai[0] ? pakai[0].id : null;
-    arr.sort((a, b) => {
-      const av = (a.v[utama] || 0), bv = (b.v[utama] || 0);
-      return DS.urut === 'asc' ? av - bv : bv - av;
-    });
-    return arr;
-  };
+  // Berkasnya memakai kolom pengurut yang sama dengan yang sedang terlihat di
+  // layar, supaya urutan di Excel tidak mengejutkan.
+  const gabung = (rows, kol) =>
+    urutkanDaftar(daftarGabung(rows, ix, S, kol, pakai), pakai, urutanTabel(pakai));
 
   if (gkol && dalam){
     const per = new Map();
@@ -4080,11 +4145,14 @@ function renderDash(){
   } else if (S.video){
     isi = tabelVideo(D);
   } else {
-    const dipakai = S.metrik.filter(m => DS.metrik.includes(m.id));
-    const pakai = dipakai.length ? dipakai : [S.metrik[0]].filter(Boolean);
+    // Ringkasan tiap metrik di atas (angka besar + tren), lalu SATU tabel yang
+    // memuat seluruh metrik terpilih sebagai kolom bersebelahan. Dulu tiap
+    // metrik punya kartunya sendiri, jadi views dan revenue tampil sebagai dua
+    // daftar terpisah dan tidak bisa dibaca berdampingan.
+    const pakai = metrikTerpakai(S);
     const opt = {adaPembanding, Psbl};
-    isi = `<div class="kartu-grid${DS.grup && DS.breakdown === 'content' ? ' lebar' : ''}">${
-      pakai.map(m => kartuMetrik(m, D, Dl, opt)).join('')}</div>`;
+    isi = `<div class="ubin-grid">${pakai.map(m => ubinMetrik(m, D, Dl, opt)).join('')}</div>`
+        + tabelDash(D);
   }
 
   el.innerHTML = `
@@ -4103,6 +4171,7 @@ function renderDash(){
 
   pasangTooltip(el, D);
   if (S.video) pasangUrutVideo(el);
+  else pasangUrutTabel(el);
 }
 
 /* ---------- crosshair + tooltip pada grafik ---------- */
@@ -4214,11 +4283,8 @@ function bangunFilterDash(){
             + ' stay under Platform = Portal.'
           : ''}</div></div>`;
 
-    html += `<div class="satu tampil" style="margin-top:8px"><span class="fl">Sort</span>
-      <select id="selUrut" class="kecil">
-        <option value="desc"${DS.urut === 'desc' ? ' selected' : ''}>Largest first</option>
-        <option value="asc"${DS.urut === 'asc' ? ' selected' : ''}>Smallest first</option>
-      </select></div>`;
+    // Menu Sort dihapus: yang menentukan urutan adalah kepala kolom yang diklik
+    // di tabelnya sendiri, sama seperti tabel Top N video.
   } else if (DS.breakdown === 'audience'){
     html += `<div class="met-info" style="margin-top:9px">Profile Audience shows the gender and
       age-group mix; the metric picker does not apply here.</div>`;
@@ -4243,8 +4309,6 @@ function bangunFilterDash(){
   };
   const sGrp = document.getElementById('selGrp');
   if (sGrp) sGrp.onchange = e => { DS.grup = e.target.value; rapikan(); };
-  const sUrut = document.getElementById('selUrut');
-  if (sUrut) sUrut.onchange = e => { DS.urut = e.target.value; renderDash(); };
 
   /* daftar metrik: tampil sebagai satu baris ringkas, dibuka kalau diklik --
      24 metrik yang terhampar sekaligus memenuhi seluruh panel kiri. */
